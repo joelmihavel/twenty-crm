@@ -625,18 +625,34 @@ Each role's landing experience is their "My X" filtered view:
 | **Finance** | Expiring Contracts | Contract.end_date <= today+60 AND state = Active |
 | **Management** | Grafana Dashboard | External link to Grafana |
 
-### 6.6 Row-Level Access (Current Limitation + Roadmap)
+### 6.6 Row-Level Permissions (Available in v1.20 — Enterprise License)
 
-Twenty does NOT currently support row-level filtering (e.g., "CX member sees ONLY their assigned tenants"). All users with "See" permission on an object can see all records in that object.
+Twenty v1.20 includes **full row-level permission predicates** in the codebase (`@license Enterprise`). This enables ownership-based record filtering per role.
 
-**Mitigation strategy:**
-1. Default views per role ensure team members land on their relevant records
-2. Sensitive financial fields hidden via field-level permissions (bank details, Cashfree IDs invisible to non-Finance)
-3. When Twenty ships row-level permissions (planned 2026), configure ownership-based access:
-   - CX sees only Tenants where `cx_owner = self`
-   - PSM sees only Contracts where `psm = self`
-   - Sales sees only Properties/Landlords where `sales_owner = self`
-4. Until then, team discipline + audit logging covers the gap — acceptable for a 40-person team where trust exists
+**Types available** (from `twenty-shared/src/types/`):
+- `RowLevelPermissionPredicate`: filter by field value with operands (IS, IS_NOT, CONTAINS, IS_EMPTY, etc.)
+- `RelationPredicateValue`: supports `isCurrentWorkspaceMemberSelected` — "records assigned to me"
+- `RowLevelPermissionPredicateGroup`: AND/OR grouping, nestable for complex rules
+- All predicates are scoped to a `roleId`
+
+**Configuration for Flent:**
+
+| Role | Object | Rule | Predicate |
+|------|--------|------|-----------|
+| **CX Associate** | Tenant | See only my tenants | `cx_owner IS currentWorkspaceMember` |
+| **CX Associate** | Ticket | See only my tenants' tickets | `tenant.cx_owner IS currentWorkspaceMember` |
+| **PSM** | Contract (Landlord Agreement) | See only my contracts | `psm IS currentWorkspaceMember` |
+| **PSM** | Landlord | See only landlords I manage | Via contract relation |
+| **Leasing Agent** | Opportunity | See only my deals | `assignee IS currentWorkspaceMember` |
+| **Supply Agent** | Property | See only my properties | `sales_owner IS currentWorkspaceMember` |
+| **Supply Agent** | Landlord | See only my landlords | `sales_owner IS currentWorkspaceMember` |
+| **F4B Sales** | Opportunity | See only F4B deals | `pipeline_type IS F4B` AND `assignee IS currentWorkspaceMember` |
+| **Maintenance** | Ticket | See only open tickets | `status IS_NOT Closed` (no ownership filter — maintenance sees all open tickets) |
+| **Finance** | All objects | See all records | No row-level restriction (needs full visibility for reconciliation) |
+| **Management** | All objects | See all records | No row-level restriction |
+| **Admin** | All objects | Full access | No restriction |
+
+**Note**: This requires Enterprise license features. For self-hosted AGPL, these types exist in code but may need the Enterprise license flag enabled. Evaluate whether Twenty's commercial license ($19/user/mo = $760/mo for 40 users) is needed for row-level permissions, or whether the AGPL codebase includes the enforcement layer.
 
 ---
 

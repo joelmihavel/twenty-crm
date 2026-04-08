@@ -195,6 +195,8 @@ One record per person who is a tenant. A tenant who moves between properties has
 | Room | Relation -> Room | Current room (RID format: "12BR2") |
 | Contract | Relation -> Contract | Active lease |
 | HubSpot Record ID | Text | Mirror reference |
+| CX Owner | Relation -> Workspace Member | CX team member managing this tenant |
+| Sales Owner | Relation -> Workspace Member | Sales rep who converted this tenant |
 | Customer Status | Select: Active / Churned / Lead / Gestation / Move-out Initiated | `customer_status` |
 | Tenant Lifecycle | Select: Token Pending / Token Received / FMR+Deposit Pending / FMR+Deposit Completed / Agreement Pending / Agreement Signed / Move In Pending / Move In Blocked / Inventory Check Pending / Inventory Check Completed | `tenant_lifecycle` |
 | Reserve Status | Select: Form Filled / Paid / High Intent / Thinking / Low Intent / No Response / Location Unserviceable / Refunded / Not Interested / Dropped | `reserve_status` |
@@ -228,6 +230,7 @@ One record per person who is a landlord. A landlord owning 3 properties has ONE 
 |-------|------|-------------|
 | Person | Relation -> People | Core identity link |
 | HubSpot Record ID | Text | Mirror reference |
+| Sales Owner | Relation -> Workspace Member | Sales rep managing this landlord relationship |
 | Landlord Status | Select: Active / Churned / Lead / Onboarding | `landlord_status` |
 | Cashfree Vendor ID | Text | Format: `{record_id}_landlord` |
 | Vendor Status | Select: ACTIVE / BLOCKED / PENDING | From Cashfree API |
@@ -267,6 +270,7 @@ Physical property. Includes utility details as field groups (not separate object
 | Rent Cycle | Select: Monthly / Quarterly | |
 | Maintenance Cycle | Select: Monthly / Quarterly | |
 | TDS Deduction | Boolean | |
+| Sales Owner | Relation -> Workspace Member | Sales rep who acquired this property |
 | Source | Select: MyGate / NoBroker / WhatsApp Group / Security Guard / Referral / OLX / Direct | `source` |
 | Gallery Link | Link | Photo gallery URL |
 | Lock Box Installed | Boolean | |
@@ -333,6 +337,8 @@ Lease agreement. Includes Zoho Sign agreement fields directly.
 | Increment Percentage | Number | Annual rent increase % |
 | Rental Cycle | Select: Monthly | |
 | Short Term Flag | Boolean | |
+| — Team Assignment — |
+| Partner Success Manager | Relation -> Workspace Member | PSM for this landlord-property relationship (Landlord Agreements only) |
 | — Landlord Financial Terms (for Landlord Agreement contracts) — |
 | LF Settlement Day | Number | Day of month for landlord payout |
 | LF Settlement Cycle | Select: Monthly / Quarterly | |
@@ -575,6 +581,10 @@ Deferred until payment flows are built.
 | Expiring Contracts | Contract | end_date <= today+60 AND state = Active | Management, Finance |
 | Vacant Rooms | Room | status = Vacant | Leasing Agents |
 | Properties by Area | Property | Group by: area | All |
+| My Tenants (CX) | Tenant | cx_owner = current user | CX team |
+| My Landlords (Sales) | Landlord | sales_owner = current user | Sales team |
+| My Properties (Sales) | Property | sales_owner = current user | Sales team |
+| My Landlord Contracts (PSM) | Contract | psm = current user AND type = Landlord Agreement | Partner Success |
 
 ---
 

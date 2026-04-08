@@ -10,48 +10,76 @@
 
 ## 1. Architecture Overview
 
-Single GCP project housing all infrastructure. No n8n — all automation via Cloud Functions + Cloud Pub/Sub + Cloud Workflows. Vertex AI for agentic layer.
+Single GCP project housing all infrastructure. No n8n — all automation via Cloud Functions + Cloud Pub/Sub + Cloud Workflows. Vertex AI for agentic layer. Metabase for embedded dashboards.
 
 ```
-                    Cloud CDN (React 6.8MB bundle + static assets)
-                              |
-                    Cloud Load Balancer (L7, managed SSL cert)
-                         /            \
-              [GKE Cluster]            [GCS Bucket]
-              /      |      \          (flent-twenty-files)
-         twenty    twenty   pgbouncer
-         server    worker   (sidecar)
-         (3 pods)  (2 pods)     |
-                          Cloud SQL PostgreSQL 16
-                          (HA, asia-south1, db-custom-8-32768)
-                                +
-                          Memorystore Redis 5GB
-                          (Standard tier, same zone)
+                         Internet
+                            |
+                     Cloud CDN + LB (managed SSL)
+                            |
+                    ┌───────┴────────┐
+                    │  GKE Cluster   │
+                    │                │
+                    │ [twenty-server x3] ──┐
+                    │ [twenty-worker x2]   │── Cloud SQL Auth Proxy (sidecar)
+                    │ [pgbouncer sidecar]  │        |
+                    │ [metabase x1]  ──────┘   Cloud SQL PG16 (HA)
+                    │                           + read replica (Metabase)
+                    └────────────────┘              |
+                            |                  Memorystore Redis 5GB
+              ┌─────────────┼─────────────┐
+              │             │             │
+        Cloud Functions  Pub/Sub    Cloud Workflows
+        (webhooks)      (event bus)  (orchestration)
+              │             │             │
+    ┌─────────┼─────┐      │      ┌──────┼──────┐
+    │    │    │  │  │      │      │      │      │
+   HS  Zoho Cal Resend    │   tenant  agreement
+  mirror Sign .com  │     │   onboard lifecycle
+                   data    │
+                  validator│
+                           │
+              ┌────────────┼────────────┐
+              │            │            │
+        Vertex AI     Secret Mgr    DLQ Topics
+        Agents        (all secrets)  (dead letters)
 
-Cloud Functions (2nd gen, asia-south1):
-  - hubspot-mirror        (hourly sync)
-  - zoho-sign-callback    (agreement events)
-  - calcom-webhook        (booking events)
-  - resend-webhook        (email delivery status)
+GCP Services:
+  Cloud Functions (2nd gen, asia-south1):
+    - hubspot-mirror         (hourly sync)
+    - zoho-sign-callback     (agreement events)
+    - calcom-webhook         (booking events)
+    - resend-webhook         (email delivery status)
+    - data-validator         (phone/Aadhaar/PAN validation on writes)
 
-Cloud Pub/Sub:
-  - topic: crm-events     (Twenty webhook -> Pub/Sub fan-out)
-  - topic: agreement-events
-  - topic: mirror-events
+  Cloud Pub/Sub:
+    - topic: crm-events      (Twenty webhook -> fan-out)
+    - topic: agreement-events
+    - topic: mirror-events
+    - topic: crm-events-dlq       (dead letter for failed crm-events)
+    - topic: agreement-events-dlq (dead letter for failed agreement events)
+    - topic: mirror-events-dlq    (dead letter for failed mirror events)
 
-Cloud Scheduler:
-  - hourly-hubspot-mirror
-  - daily-lease-expiry-check
+  Cloud Scheduler:
+    - hourly-hubspot-mirror
+    - daily-lease-expiry-check
 
-Cloud Workflows:
-  - tenant-onboarding     (reserve -> token -> agreement -> move-in)
-  - agreement-lifecycle   (create -> send -> track -> store signed copy)
+  Cloud Workflows:
+    - tenant-onboarding      (reserve -> token -> agreement -> move-in)
+    - agreement-lifecycle    (create -> send -> track -> store signed copy)
 
-Vertex AI Agent Builder:
-  - ops-assistant         (NL queries over CRM data)
-  - tenant-qualifier      (lead scoring from pipeline data)
+  Secret Manager:
+    - hubspot-api-key, zoho-sign-api-key, cashfree-credentials
+    - resend-api-key, twenty-api-key, metabase-embedding-secret
 
-Cloud Monitoring + Cloud Logging (unified observability)
+  Vertex AI Agent Builder:
+    - ops-assistant          (NL queries over CRM data)
+    - tenant-qualifier       (lead scoring from pipeline data)
+
+  Cloud SQL Read Replica:
+    - Dedicated for Metabase queries (zero impact on CRM performance)
+
+  Cloud Monitoring + Cloud Logging (unified observability)
 ```
 
 ---
@@ -67,7 +95,8 @@ Cloud Monitoring + Cloud Logging (unified observability)
 | Worker node pool | 2x `e2-standard-2` (Spot VMs) | BullMQ workers, fault-tolerant |
 | Server pods | 3 replicas, HPA at CPU 70% | Handles 40 concurrent users |
 | Worker pods | 2 replicas, HPA on queue depth | Background jobs |
-| PgBouncer | Sidecar per server pod | Transaction mode, 75 connections/pod |
+| Cloud SQL Auth Proxy | Sidecar per server pod | Secure tunnel to Cloud SQL |
+| PgBouncer | Sidecar per server pod | Transaction mode, 50 connections/pod (150 total < 400 max) |
 | Ingress | GKE managed L7 + Cloud CDN | Managed SSL certificate |
 
 ### Cloud SQL: `flent-twenty-db`
@@ -81,7 +110,7 @@ Cloud Monitoring + Cloud Logging (unified observability)
 | `shared_buffers` | 8 GB |
 | `effective_cache_size` | 24 GB |
 | `work_mem` | 16 MB |
-| `max_connections` | 300 |
+| `max_connections` | 400 |
 | `random_page_cost` | 1.1 |
 | `max_parallel_workers_per_gather` | 4 |
 | `default_statistics_target` | 200 |
@@ -95,7 +124,7 @@ PG_DATABASE_URL=postgres://twenty:***@/twenty?host=/cloudsql/flent-twenty-prod:a
 REDIS_URL=redis://<memorystore-ip>:6379
 NODE_OPTIONS="--max-old-space-size=8192"
 PG_DATABASE_PRIMARY_TIMEOUT_MS=5000
-PG_POOL_MAX_CONNECTIONS=75
+PG_POOL_MAX_CONNECTIONS=50
 PG_POOL_IDLE_TIMEOUT_MS=300000
 API_RATE_LIMITING_SHORT_LIMIT=500
 API_RATE_LIMITING_LONG_LIMIT=2000
@@ -124,7 +153,11 @@ SENTRY_ENVIRONMENT=production
 | Vertex AI | Agent calls ~10K/mo | ~$50 |
 | GCS | 200GB | ~$4 |
 | Monitoring/Logging | Standard tier | ~$30 |
-| **Total** | | **~$1,171/mo** |
+| Metabase pod (GKE) | 1x e2-standard-2 | ~$50 |
+| Cloud SQL read replica | db-custom-2-8192 (Metabase) | ~$100 |
+| Cloud SQL staging | db-f1-micro (staging env) | ~$15 |
+| Secret Manager | ~20 secrets | ~$1 |
+| **Total** | | **~$1,337/mo** |
 
 ---
 
@@ -623,7 +656,7 @@ Each role's landing experience is their "My X" filtered view:
 | **F4B Sales** | F4B Pipeline | Opportunity.pipeline_type = F4B |
 | **Maintenance** | Open Tickets | Ticket.status != Closed |
 | **Finance** | Expiring Contracts | Contract.end_date <= today+60 AND state = Active |
-| **Management** | Grafana Dashboard | External link to Grafana |
+| **Management** | Metabase Dashboard | External link to Metabase |
 
 ### 6.6 Row-Level Permissions (Available in v1.20 — Enterprise License)
 
@@ -661,15 +694,15 @@ Twenty v1.20 includes **full row-level permission predicates** in the codebase (
 | View Name | Object | Filter | Used By |
 |-----------|--------|--------|---------|
 | Active Tenants | Tenant | status = Active | All |
-| Move-out Next 15 Days | Tenant | move_out_date <= today+15 AND status = Active | Property Managers |
+| Move-out Next 15 Days | Tenant | move_out_date <= today+15 AND status = Active | PSM |
 | Overdue Rent | Tenant | rent_status = Overdue | Finance, Management |
 | Active Landlords | Landlord | status = Active | Finance |
 | Reserve Pipeline | Opportunity | pipeline_type = Reserve | Leasing Agents |
 | Occupancy Pipeline | Opportunity | pipeline_type = Occupancy | Leasing Agents |
 | F4B Pipeline | Opportunity | pipeline_type = F4B | F4B Sales |
-| Supply Pipeline | Opportunity | pipeline_type = Supply | Property Managers |
+| Supply Pipeline | Opportunity | pipeline_type = Supply | PSM |
 | Open Support Tickets | Ticket | pipeline = Support AND status != Closed | Maintenance |
-| Landlord Tickets | Ticket | pipeline = Landlord AND status != Closed | Property Managers |
+| Landlord Tickets | Ticket | pipeline = Landlord AND status != Closed | PSM |
 | Expiring Contracts | Contract | end_date <= today+60 AND state = Active | Management, Finance |
 | Vacant Rooms | Room | status = Vacant | Leasing Agents |
 | Properties by Area | Property | Group by: area | All |
@@ -680,23 +713,146 @@ Twenty v1.20 includes **full row-level permission predicates** in the codebase (
 
 ---
 
-## 8. Migration Phases
+## 8. Error Handling & Resilience (CEO Review Addition)
+
+### Dead Letter Queues
+
+Every Pub/Sub subscription gets a DLQ topic. Messages that fail processing 5 times are routed to DLQ for manual review.
+
+| Subscription | DLQ Topic | Max Retries | Alert |
+|-------------|-----------|-------------|-------|
+| crm-events-sub | crm-events-dlq | 5 | >10 messages in DLQ |
+| agreement-events-sub | agreement-events-dlq | 5 | Any message in DLQ |
+| mirror-events-sub | mirror-events-dlq | 5 | >50 messages in DLQ |
+
+### Error Rescue Map
+
+| Codepath | Error | Rescue | User Sees |
+|----------|-------|--------|-----------|
+| hubspot-mirror: HS API 429 | RateLimitError | Backoff + retry 3x | Nothing (transparent) |
+| hubspot-mirror: Twenty upsert fails | UpsertError | Log to `gs://flent-twenty-files/mirror-errors/`, alert if >10/run | Mirror delay alert |
+| hubspot-mirror: bad data mapping | MappingError | Skip record, log full context, continue | Record missing (ops alert) |
+| zoho-sign-callback: contract not found | NotFoundError | Retry in 5 min (may not have synced yet), DLQ after 3 | Task for ops |
+| zoho-sign-callback: GCS upload fail | StorageError | Retry 3x, then DLQ | "Agreement signed but PDF unavailable" task |
+| calcom-webhook: duplicate booking | DuplicateError | Idempotency check (booking ID), skip | Nothing |
+| calcom-webhook: ambiguous match | AmbiguousMatchError | Create new People record, flag for manual merge | Task for ops |
+| data-validator: invalid phone/Aadhaar | ValidationError | Flag record with `_validation_errors` field, create Task | Task for record owner with error details |
+
+---
+
+## 9. Data Validation Cloud Function (CEO Review — Accepted Expansion)
+
+**Trigger**: Pub/Sub `crm-events` topic on record create/update for People, Tenant, Landlord
+**Runtime**: Cloud Functions 2nd gen, Node.js 20
+
+### Validation Rules
+
+| Field | Object | Rule | Error Message |
+|-------|--------|------|---------------|
+| Phone | People | Must match `^\\+?91[6-9]\\d{9}$` | "Invalid Indian phone number" |
+| Aadhar Number | People | Must be 12 digits: `^\\d{12}$` | "Aadhaar must be 12 digits" |
+| PAN Card | People/Landlord | Must match `^[A-Z]{5}\\d{4}[A-Z]$` | "Invalid PAN format" |
+| Email | People | Must be valid email format | "Invalid email" |
+| IFSC Code | Landlord | Must match `^[A-Z]{4}0[A-Z0-9]{6}$` | "Invalid IFSC code" |
+| PID | Property | Must match `^PID\\d+$` | "PID format: PID followed by number" |
+| Room ID | Room | Must match `^\\d{2}[A-Z]{2}\\d$` | "Room ID format: 12BR2" |
+
+**Behavior**: On validation failure, the Cloud Function updates the record with an `_validation_errors` JSON field and creates a Task assigned to the record owner. Records are NOT rejected (Twenty doesn't support pre-write hooks) — instead, invalid data is flagged immediately after write.
+
+---
+
+## 10. Metabase Deployment (CEO Review — Accepted Expansion)
+
+### Architecture
+
+- **Metabase** deployed as a pod on GKE cluster (1 replica, `e2-standard-2`)
+- **Data source**: Cloud SQL read replica (zero impact on CRM writes)
+- **Embedding**: Signed JWT embedding in Twenty via custom iframe/link
+- **Authentication**: Metabase SSO via Google OAuth (same as Twenty)
+
+### Starter Dashboards (5)
+
+| Dashboard | Key Metrics | Used By |
+|-----------|------------|---------|
+| **Occupancy Overview** | Occupancy rate by property, by area, by month. Vacant rooms list. | Management, PSM |
+| **Revenue by Property** | Monthly rent collected, license fee paid, earnings. Trend over 12 months. | Management, Finance |
+| **Pipeline Funnel** | Reserve → Occupancy → Move-in conversion. Drop-off by stage. | Sales, Management |
+| **Ticket SLA** | Open tickets by age (>7 days flagged), resolution time by category, CSAT scores. | CX, Management |
+| **Lease Expiry Calendar** | Contracts expiring in 30/60/90 days. Renewal rate. | PSM, Finance |
+
+### Cost Addition
+
+| Service | Spec | Monthly |
+|---------|------|---------|
+| GKE (Metabase pod) | 1x e2-standard-2 | ~$50 |
+| Cloud SQL read replica | db-custom-2-8192 | ~$100 |
+| **Additional total** | | **~$150/mo** |
+
+---
+
+## 11. Security Hardening (CEO Review Addition)
+
+### Secret Manager
+
+All secrets stored in GCP Secret Manager, not environment variables:
+
+| Secret | Used By |
+|--------|---------|
+| `hubspot-api-key` | hubspot-mirror Cloud Function |
+| `zoho-sign-api-key` | zoho-sign-callback Cloud Function |
+| `cashfree-client-id` | Payment Cloud Functions (Phase 4) |
+| `cashfree-client-secret` | Payment Cloud Functions (Phase 4) |
+| `resend-api-key` | Twenty server (email driver) |
+| `twenty-api-key` | All Cloud Functions calling Twenty API |
+| `twenty-app-secret` | Twenty server (JWT signing) |
+| `metabase-embedding-secret` | Twenty server (signed JWT for Metabase embeds) |
+
+### Webhook Signature Verification
+
+| Integration | Verification Method |
+|-------------|-------------------|
+| Cashfree | HMAC-SHA256 with webhook secret |
+| Zoho Sign | HMAC verification via Zoho's API |
+| Cal.com | HMAC-SHA256 with signing key |
+| Twenty webhooks | `X-Twenty-Webhook-Signature` HMAC SHA256 |
+
+### Staging Environment
+
+- GKE namespace: `staging` (same cluster, isolated)
+- Cloud SQL: `flent-twenty-staging` (db-f1-micro, $15/mo)
+- All integrations tested in staging before production deployment
+- Staging uses separate API keys for Zoho Sign sandbox, Cal.com test, Cashfree test mode
+
+---
+
+## 12. Migration Phases
 
 ### Phase 1: Infrastructure + Mirror (Weeks 1-2)
 
 **Goal**: Twenty running on GCP, hourly HubSpot mirror active, team has read-only access.
 
-- Provision GCP project `flent-twenty-prod`
-- Deploy GKE cluster, Cloud SQL, Memorystore, GCS, CDN, LB
-- Deploy Twenty via Helm chart with tuned config
+- Provision GCP project `flent-twenty-prod` in `asia-south1`
+- Create Secret Manager secrets for all integrations
+- Deploy GKE cluster, Cloud SQL (primary + read replica), Memorystore, GCS, CDN, LB
+- Deploy Cloud SQL Auth Proxy + PgBouncer sidecars
+- Deploy Twenty via Helm chart (pinned to `v1.20.11`) with tuned config
+- Deploy Metabase on GKE, connected to Cloud SQL read replica
+- Deploy staging namespace with lightweight Cloud SQL instance
 - Configure Resend email integration
 - Configure Google OAuth for Gmail/Calendar sync
 - Build and deploy `hubspot-mirror` Cloud Function + Scheduler
-- Start hourly mirroring of all HubSpot data
+- Build and deploy `data-validator` Cloud Function (phone/Aadhaar/PAN validation)
+- Configure Pub/Sub topics with DLQ subscriptions
+- Start hourly mirroring of all HubSpot data (109 Flent-specific properties only, not all 613)
 - Set up Cloud Monitoring dashboards and alerts
 - Team gets access to Twenty (read alongside HubSpot)
 
-**Exit criteria**: All 16,853 HubSpot records visible in Twenty, mirror running hourly without errors for 48h.
+**Exit criteria**:
+- All 16,853 HubSpot records visible in Twenty
+- Mirror running hourly without errors for 48h
+- Mirror function has unit tests for all 7 object mappings + error handling
+- Data validator rejecting malformed phone/PAN correctly
+- Metabase accessible and connected to read replica
 
 ### Phase 2: Custom Data Model + Views (Weeks 2-3)
 
@@ -704,7 +860,7 @@ Twenty v1.20 includes **full row-level permission predicates** in the codebase (
 
 - Create custom objects: Tenant, Landlord, Property, Room, Contract, Ticket
 - Extend People and Opportunity with custom fields
-- Update mirror function to map HubSpot data into new object structure:
+- Update mirror function with property whitelist (109 fields only) to map HubSpot data:
   - Contacts (customer_type=Tenant) -> People + Tenant
   - Contacts (customer_type=Landlord) -> People + Landlord
   - Deals -> Opportunity (with pipeline_type field)
@@ -714,9 +870,14 @@ Twenty v1.20 includes **full row-level permission predicates** in the codebase (
   - HubSpot Room ID -> Room
 - Configure all views (Section 7)
 - Set up permissions per role (Section 6)
-- Build Grafana dashboards: occupancy, revenue by property, pipeline funnels, ticket SLAs
+- Configure row-level permissions if Enterprise license available
+- Build 5 Metabase dashboards (Section 10) + embed in Twenty via signed JWT
 
-**Exit criteria**: All objects populated, views working, permissions tested with 5 pilot users.
+**Exit criteria**:
+- All objects populated, record counts match HubSpot
+- All 17 views loading correctly
+- Permissions tested with 5 pilot users
+- 5 Metabase dashboards live and embedded
 
 ### Phase 3: Workflows + Integrations (Weeks 3-5)
 
@@ -736,7 +897,11 @@ Twenty v1.20 includes **full row-level permission predicates** in the codebase (
 - Build data validation workflows (phone format, PAN format via CODE action)
 - Parallel run: both systems active, 10 pilot users working primarily in Twenty
 
-**Exit criteria**: All critical workflows firing correctly, Zoho Sign agreement round-trip tested, Cal.com bookings creating opportunities.
+**Exit criteria**:
+- All critical workflows firing correctly (30/30)
+- Zoho Sign agreement round-trip tested (create -> sign -> PDF stored in GCS)
+- Cal.com bookings creating Opportunities in Occupancy pipeline
+- Data validation catching malformed inputs in staging
 
 ### Phase 4: Payment Operations (Weeks 5-7)
 
@@ -752,31 +917,50 @@ High-level scope:
 - Settlement reconciliation
 - Invoice generation
 
-### Phase 5: WhatsApp + AI + Cutover (Weeks 7-9)
+### Phase 5: WhatsApp + Cutover (Weeks 8-11)
 
 **Goal**: Full team on Twenty, HubSpot decommissioned.
 
+*Note: 2-week buffer between Phase 4 and Phase 5 for integration debugging and user feedback. Timeline is best-case; add buffer for Phase 4 spec design that hasn't been completed yet.*
+
 - WhatsApp integration via Galabox/Superchat partner
-- Deploy Vertex AI agents (ops assistant, tenant qualifier)
 - Migrate remaining 70 HubSpot workflows
 - Full team (40 users) working in Twenty
+- Load test: 40 simulated concurrent users
 - Stop HubSpot mirror
 - Final data reconciliation check
 - HubSpot decommissioned (export backup retained)
 
-**Exit criteria**: Zero dependency on HubSpot for any operation.
+**Exit criteria**:
+- Zero dependency on HubSpot for any operation
+- Load test passed: 40 simulated concurrent users, p95 < 500ms
+- All 40 users with daily active usage for 5 consecutive business days
 
 ### Phase 6: Enhancement (Ongoing)
 
+- Vertex AI agents (ops assistant, tenant qualifier, anomaly detection)
 - Supply Pipeline Management (new feature — thousands of historic records)
 - Tenant Pipeline Management (visits, chats, potential sales)
 - Tenant/Landlord self-service portal
 - Mobile PWA
-- Advanced Vertex AI agents (anomaly detection, churn prediction)
+- Slack bot with actions + slash commands (deferred from CEO review)
+
+### Timeline Note (CEO Review Addition)
+
+The 9-week original timeline is **best-case**. Realistic timeline with buffers:
+
+| Phase | Best Case | Realistic | Buffer For |
+|-------|-----------|-----------|-----------|
+| Phase 1: Infra + Mirror | Weeks 1-2 | Weeks 1-2 | N/A |
+| Phase 2: Data Model | Weeks 2-3 | Weeks 2-4 | Enterprise license decision, field mapping edge cases |
+| Phase 3: Workflows | Weeks 3-5 | Weeks 4-6 | Integration debugging (Zoho Sign, Cal.com) |
+| Phase 4: Payments | Weeks 5-7 | Weeks 7-9 | Spec not designed yet, Cashfree API complexity |
+| Phase 5: Cutover | Weeks 7-9 | Weeks 10-12 | User feedback, workflow gaps discovered in parallel run |
+| **Total** | **9 weeks** | **12 weeks** | |
 
 ---
 
-## 9. HubSpot Mirror Field Mapping
+## 13. HubSpot Mirror Field Mapping
 
 ### Contacts -> People + Tenant/Landlord
 
@@ -823,7 +1007,106 @@ High-level scope:
 
 ---
 
-## 10. Agent Team Composition (Claude Code)
+## 14. Operational Resilience (CEO Review Additions)
+
+### 14.1 Rollback Plan
+
+| Scenario | Rollback Procedure | RTO |
+|----------|--------------------|-----|
+| Failed Twenty GKE deployment | `helm rollback flent-twenty` to previous revision | <5 min |
+| Corrupted mirror sync (bad data in Twenty) | Cloud SQL PITR to timestamp before corrupted sync run | <30 min |
+| Custom object schema change breaks workflows | Revert schema via Twenty Admin Panel + re-deploy workflows | <15 min |
+| Complete Twenty failure during parallel run | Team switches back to HubSpot (still receiving mirror data) | Immediate |
+| Post-cutover: Twenty down | Restore from Cloud SQL daily backup + GCS file backup | <1 hour |
+
+**Break-glass procedure** (during parallel run): If Twenty is unusable, team reverts to HubSpot. All data up to the last hourly mirror sync is present. Data entered in Twenty since last sync would need manual re-entry. This is the safety net during Phases 2-4.
+
+### 14.2 Alerting Thresholds
+
+| Metric | Threshold | Channel | Escalation |
+|--------|-----------|---------|------------|
+| GKE pod CrashLoopBackOff | Any occurrence | Slack #flent-ops | Admin on-call |
+| GKE pod OOMKilled | Any occurrence | Slack #flent-ops | Admin on-call |
+| Cloud SQL connection count | >80% of max_connections (320/400) | Slack #flent-ops | Admin |
+| Cloud SQL CPU utilization | >80% sustained 10 min | Slack #flent-ops | Admin |
+| Memorystore memory usage | >80% (4GB/5GB) | Slack #flent-ops | Admin |
+| API rate limit approaching | >400 of 500 short-term limit | Cloud Monitoring log | Info only |
+| Mirror sync failure | >2 consecutive failures | Slack #flent-ops + email | Admin urgent |
+| DLQ message count | >0 for agreement-events | Slack #flent-ops | Admin urgent |
+| DLQ message count | >10 for crm-events | Slack #flent-ops | Admin |
+| Twenty /healthz failure | Any failure for >30s | Slack #flent-ops | Admin on-call |
+| SSL certificate expiry | <30 days | Email to admin | Managed cert auto-renews |
+| Metabase health check | Any failure for >2 min | Slack #flent-ops | Admin |
+
+### 14.3 Encryption Strategy
+
+| Data | At Rest | In Transit | Method |
+|------|---------|-----------|--------|
+| Cloud SQL (all data) | Encrypted by default (Google-managed keys) | TLS via Cloud SQL Auth Proxy | GCP default |
+| Bank Account Number (Landlord) | Application-level AES-256 encryption before storage | TLS | Twenty workflow CODE action encrypts/decrypts using Secret Manager key |
+| Aadhaar Number (People) | Application-level AES-256 encryption | TLS | Same as bank details — UIDAI guidelines require encryption at rest |
+| PAN Card (People/Landlord) | Stored as-is (not classified as sensitive PII by DPDP Act) | TLS | Cloud SQL default encryption sufficient |
+| GCS files (agreements, attachments) | Encrypted by default (Google-managed keys) | TLS | GCP default |
+| Memorystore (Redis) | Encrypted in-transit | TLS | Memorystore Standard tier default |
+
+### 14.4 Initial Backfill Strategy
+
+The first mirror run must pull ALL 16,853 records, not just changes since last sync.
+
+**Approach**: Run initial backfill as a **GKE Job** (not Cloud Function) to avoid the 60-minute timeout.
+
+```
+GKE Job: hubspot-initial-backfill
+  1. Fetch all Contacts (8,393) via HubSpot Search API (200/page, ~42 pages)
+  2. Fetch all Deals (3,782) — ~19 pages
+  3. Fetch all Tickets (2,739) — ~14 pages
+  4. Fetch all Contracts (1,199), Property IDs (196), Room IDs (74), Notifications (470)
+  5. Transform each record per mapping rules
+  6. Upsert into Twenty via GraphQL API (60 records/batch)
+  7. Total: ~281 upsert calls, ~170 HubSpot API calls
+  8. Expected duration: 15-25 minutes
+  9. No timeout (GKE Job has configurable deadline, set to 2 hours)
+```
+
+After initial backfill completes, the hourly Cloud Function mirror takes over for incremental syncs.
+
+### 14.5 Denormalized Field Sync (Tenant -> Property/Room/Contract)
+
+Tenant object has denormalized `Property`, `Room`, and `Contract` relations for quick access. These must stay in sync with the canonical source (Contract).
+
+**Trigger**: Twenty workflow on Contract state change.
+
+```
+On Contract.state change:
+  If new state = "Active":
+    -> Update Tenant.property = Contract.property
+    -> Update Tenant.room = Contract.room
+    -> Update Tenant.contract = this Contract
+    -> Update Room.current_tenant = Contract.tenant
+    -> Update Room.status = "Occupied"
+  If new state = "Terminated" or "Room Change":
+    -> Clear Tenant.property, Tenant.room, Tenant.contract (set to null)
+    -> Update Room.current_tenant = null
+    -> Update Room.status = "Vacant"
+```
+
+### 14.6 Phase 4 Field Stability
+
+Phase 4 (Payments) is deferred but may add fields to existing objects. The following fields on existing objects are **stable and will not change**:
+- Tenant: `CF Order ID`, `CF Link ID`, `Rental Link` — these are Cashfree identifiers already defined
+- Landlord: `Cashfree Vendor ID`, `Vendor Status`, `Payment Control` — Cashfree vendor management
+- Contract: All financial fields (license fee, rent, deposit, GST, TDS) — these are contract terms, not payment tracking
+
+Phase 4 may ADD the following new fields (will not modify existing):
+- Tenant: payment history link, last payment date, outstanding balance
+- Landlord: last settlement date, settlement history link, unsettled balance
+- NEW object: Payment (if needed for transaction-level tracking)
+- NEW object: Landlord Payout (if needed for settlement tracking)
+
+---
+
+## 15. Agent Team Composition (Claude Code)
+
 
 The implementation will be executed by a Claude Code agent team using specialized skills:
 
@@ -844,14 +1127,14 @@ The implementation will be executed by a Claude Code agent team using specialize
 
 ---
 
-## 11. Success Criteria
+## 16. Success Criteria
 
 | Phase | Metric | Target |
 |-------|--------|--------|
 | Phase 1 | Mirror sync success rate | >99.5% per hourly run |
 | Phase 1 | Twenty UI response time (p95) | <500ms |
 | Phase 2 | Record count match (HubSpot vs Twenty) | 100% |
-| Phase 2 | All 13 views loading correctly | Pass |
+| Phase 2 | All 17 views loading correctly | Pass |
 | Phase 3 | Critical workflows firing correctly | 30/30 |
 | Phase 3 | Zoho Sign round-trip (send -> sign -> store) | Pass |
 | Phase 5 | Team adoption (daily active users) | 40/40 |

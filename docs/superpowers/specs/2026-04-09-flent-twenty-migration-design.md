@@ -134,19 +134,25 @@ SENTRY_ENVIRONMENT=production
 
 ```
 People (standard)
-  ├── Tenant (custom) -------- 1:1
-  ├── Landlord (custom) ------ 1:1
+  ├── Tenant (custom) -------- 1:1 (one tenant profile per person)
+  ├── Landlord (custom) ------ 1:1 (one landlord profile per person)
   │
   └── Opportunity (standard) - 1:many
 
 Property (custom)
   └── Room (custom) ---------- 1:many
 
-Contract (custom)
-  ├── Tenant ---- many:1
-  ├── Landlord -- many:1
-  ├── Property -- many:1
-  └── Room ------ many:1
+Contract (custom) -- THE RELATIONSHIP RESOLVER
+  ├── Tenant ---- many:1  (a tenant can have many contracts over time)
+  ├── Landlord -- many:1  (a landlord can have many contracts across properties)
+  ├── Property -- many:1  (a property can have many contracts)
+  └── Room ------ many:1  (a room can have many contracts over time)
+  
+  Contract resolves all many-to-many relationships:
+  - Property has multiple landlords? -> Multiple Landlord Agreement contracts
+  - Landlord owns multiple properties? -> Multiple contracts, one per property
+  - Property has multiple tenants? -> Multiple Tenant Agreement contracts (co-living)
+  - Tenant moves between properties? -> Old contract terminated, new contract created
 
 Ticket (custom)
   ├── Property -- many:1
@@ -180,7 +186,7 @@ Twenty's built-in People object. Shared identity for all human contacts.
 
 ### 3.2 Tenant (Custom, linked to People)
 
-One record per tenancy. A person with multiple tenancies (different properties over time) gets multiple Tenant records.
+One record per person who is a tenant. A tenant who moves between properties has ONE Tenant record — the property history is tracked via Contract objects (type: Tenant Agreement). Current property/room are denormalized here for quick access.
 
 | Field | Type | Source (HubSpot) |
 |-------|------|-----------------|
@@ -216,32 +222,26 @@ One record per tenancy. A person with multiple tenancies (different properties o
 
 ### 3.3 Landlord (Custom, linked to People)
 
-One record per landlord-property relationship. A landlord owning 3 properties gets 3 Landlord records, each linked to a Property.
+One record per person who is a landlord. A landlord owning 3 properties has ONE Landlord record — the properties are linked via Contract objects (type: Landlord Agreement).
 
 | Field | Type | Source (BHG) |
 |-------|------|-------------|
 | Person | Relation -> People | Core identity link |
-| Property | Relation -> Property | The property they own |
 | HubSpot Record ID | Text | Mirror reference |
 | Landlord Status | Select: Active / Churned / Lead / Onboarding | `landlord_status` |
 | Cashfree Vendor ID | Text | Format: `{record_id}_landlord` |
 | Vendor Status | Select: ACTIVE / BLOCKED / PENDING | From Cashfree API |
-| Property License Fee | Currency | Monthly rent owed to landlord |
-| TDS Amount | Currency | Tax deducted at source |
-| Settlement Day | Number | Day of month for payout (e.g., 7) |
-| Settlement Cycle | Select: Monthly / Quarterly | |
-| Maintenance to Landlord | Boolean | Whether maintenance fee flows to landlord |
-| Number of Units | Number | Units managed at this property |
-| Priority | Number | Payout priority ranking |
-| Payment Control | Select: Completed / Hold / Pending | |
-| Monthly Payment Status | Select: Paid / Unpaid | |
-| Penny Drop Status | Select: Success / Failed / Pending | Bank verification |
+| PAN Card | Text | For TDS purposes |
 | Bank Account Number | Text | Encrypted |
 | IFSC Code | Text | |
 | Account Holder Name | Text | |
 | Account Type | Select: Individual / Business | |
-| PAN Card | Text | |
+| Penny Drop Status | Select: Success / Failed / Pending | Bank verification |
+| Priority | Number | Payout priority ranking |
+| Payment Control | Select: Completed / Hold / Pending | |
 | Last Cashfree Sync | Date | |
+
+**Per-property financial terms** (license fee, TDS, settlement day/cycle, maintenance-to-landlord, units) live on the **Contract** object, not on Landlord — because they vary per property.
 
 ### 3.4 Property (Custom)
 
@@ -333,6 +333,13 @@ Lease agreement. Includes Zoho Sign agreement fields directly.
 | Increment Percentage | Number | Annual rent increase % |
 | Rental Cycle | Select: Monthly | |
 | Short Term Flag | Boolean | |
+| — Landlord Financial Terms (for Landlord Agreement contracts) — |
+| LF Settlement Day | Number | Day of month for landlord payout |
+| LF Settlement Cycle | Select: Monthly / Quarterly | |
+| Maintenance to Landlord | Boolean | Whether maintenance fee flows to landlord |
+| TDS on License Fee | Currency | Tax deducted at source for this property |
+| Number of Units | Number | Units covered by this contract |
+| Monthly Payment Status | Select: Paid / Unpaid | Current month payout status |
 | Water Charges Separate | Boolean | |
 | Move-in Inspector | Text | |
 | Move-in Status | Select | |
@@ -691,6 +698,7 @@ High-level scope:
 | — If customer_type contains "Landlord" — |
 | `landlord_status` (derived) | Landlord | Landlord Status |
 | Bank details (5+ fields) | Landlord | Bank Account Number, IFSC, etc. |
+| Per-property terms (license fee, TDS, settlement day) | Contract (type: Landlord Agreement) | Linked via Landlord + Property |
 
 ### Deals -> Opportunity
 

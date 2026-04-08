@@ -96,7 +96,7 @@ GCP Services:
 | Server pods | 3 replicas, HPA at CPU 70% | Handles 40 concurrent users |
 | Worker pods | 2 replicas, HPA on queue depth | Background jobs |
 | Cloud SQL Auth Proxy | Sidecar per server pod | Secure tunnel to Cloud SQL |
-| PgBouncer | Sidecar per server pod | Transaction mode, 50 connections/pod (150 total < 400 max) |
+| PgBouncer | Centralized K8s Service (1 pod) | Transaction mode, shared pool of 150 connections (Eng Review: avoids per-pod pool fragmentation) |
 | Ingress | GKE managed L7 + Cloud CDN | Managed SSL certificate |
 
 ### Cloud SQL: `flent-twenty-db`

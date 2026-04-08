@@ -550,17 +550,93 @@ Deferred until payment flows are built.
 
 ---
 
-## 6. Permissions Model (40 Users)
+## 6. Permissions & RBAC Model (40 Users)
+
+### 6.1 Role Definitions
+
+| Role | Team | Count | Description |
+|------|------|-------|-------------|
+| **Admin** | Leadership | 2-3 | Full system access, settings, API keys, workflow management, data model changes |
+| **Partner Success Manager** | Partner Success | 4-5 | Manages landlord relationships and property operations |
+| **CX Associate** | Customer Experience | 5-8 | Manages tenant lifecycle, support tickets, move-in/out |
+| **Leasing Agent** | Sales (Demand) | 5-8 | Converts leads to tenants via Reserve/Occupancy pipelines |
+| **Supply Agent** | Sales (Supply) | 3-5 | Acquires new properties, manages Supply pipeline |
+| **F4B Sales** | Sales (B2B) | 2-3 | Flent for Business corporate deals |
+| **Maintenance** | Operations | 4-6 | Handles support tickets, property maintenance |
+| **Finance** | Finance | 2-3 | Contract financials, payment reconciliation, landlord payouts |
+| **Management** | Leadership | 3-4 | Read-only dashboards, reporting, oversight |
+
+### 6.2 Object-Level Permissions
 
 | Role | People | Tenant | Landlord | Property | Room | Contract | Ticket | Opportunity |
 |------|--------|--------|----------|----------|------|----------|--------|-------------|
-| **Admin** (2-3) | Full | Full | Full | Full | Full | Full | Full | Full |
-| **Property Manager** (8-10) | See/Edit | See/Edit | See/Edit | See/Edit | See/Edit | See | See/Edit | See |
-| **Leasing Agent** (8-10) | See/Edit | See/Edit | See | See | See | See | See | See/Edit |
-| **Maintenance** (5-8) | See | See | See | See | See | No | See/Edit | No |
-| **Finance** (3-5) | See | See (financials) | See/Edit (financials) | See | See | See/Edit | See | See |
-| **Management** (4-6) | See | See | See | See | See | See | See | See |
-| **F4B Sales** (3-5) | See/Edit | No | See | See | See | See | No | See/Edit (F4B only) |
+| **Admin** | Full | Full | Full | Full | Full | Full | Full | Full |
+| **PSM** | See/Edit | See | See/Edit | See/Edit | See | See/Edit | See/Edit | See |
+| **CX Associate** | See/Edit | See/Edit | See | See | See | See | See/Edit | See |
+| **Leasing Agent** | See/Edit | See/Edit | See | See | See | See | See | See/Edit |
+| **Supply Agent** | See/Edit | See | See/Edit | See/Edit | See/Edit | See | See | See/Edit |
+| **F4B Sales** | See/Edit | No | See | See | See | See | No | See/Edit |
+| **Maintenance** | See | See | See | See | See | No | See/Edit | No |
+| **Finance** | See | See | See/Edit | See | See | See/Edit | See | See |
+| **Management** | See | See | See | See | See | See | See | See |
+
+### 6.3 Field-Level Permissions (Sensitive Fields)
+
+| Field | Admin | PSM | CX | Sales | Maintenance | Finance | Management |
+|-------|-------|-----|----|----|-------------|---------|------------|
+| Aadhar Number (People) | Edit | See | See | No | No | See | No |
+| PAN Card (People/Landlord) | Edit | See | No | No | No | See | No |
+| Bank Account Number (Landlord) | Edit | No | No | No | No | See/Edit | No |
+| IFSC Code (Landlord) | Edit | No | No | No | No | See/Edit | No |
+| Cashfree Vendor ID (Landlord) | Edit | No | No | No | No | See | No |
+| Monthly License Fee (Contract) | Edit | See | No | See | No | See/Edit | See |
+| Security Deposit (Contract) | Edit | See | See | No | No | See/Edit | See |
+| Rent Due (Tenant) | Edit | No | See | No | No | See/Edit | See |
+| Ticket Cost (Ticket) | Edit | See | See | No | See | See/Edit | See |
+| Lock Box Code (Property) | Edit | See | See | No | See | No | No |
+| WiFi Password (Property) | Edit | See | See | No | See | No | No |
+
+### 6.4 Settings Permissions
+
+| Setting | Admin | PSM | CX | Sales | Maintenance | Finance | Management |
+|---------|-------|-----|----|----|-------------|---------|------------|
+| API Key Generation | Yes | No | No | No | No | No | No |
+| Data Model Changes | Yes | No | No | No | No | No | No |
+| Workflow Management | Yes | No | No | No | No | No | No |
+| Role Assignment | Yes | No | No | No | No | No | No |
+| Security Settings | Yes | No | No | No | No | No | No |
+| Workspace Preferences | Yes | No | No | No | No | No | No |
+| Import CSV | Yes | Yes | Yes | Yes | No | Yes | No |
+| Export CSV | Yes | Yes | Yes | Yes | No | Yes | Yes |
+| Send Email | Yes | Yes | Yes | Yes | No | Yes | No |
+
+### 6.5 Default Views per Role
+
+Each role's landing experience is their "My X" filtered view:
+
+| Role | Default View | Filter |
+|------|-------------|--------|
+| **PSM** | My Landlord Contracts | Contract.psm = current_user AND type = Landlord Agreement |
+| **CX Associate** | My Tenants | Tenant.cx_owner = current_user |
+| **Leasing Agent** | My Opportunities | Opportunity.assignee = current_user AND pipeline = Occupancy/Reserve |
+| **Supply Agent** | My Properties | Property.sales_owner = current_user |
+| **F4B Sales** | F4B Pipeline | Opportunity.pipeline_type = F4B |
+| **Maintenance** | Open Tickets | Ticket.status != Closed |
+| **Finance** | Expiring Contracts | Contract.end_date <= today+60 AND state = Active |
+| **Management** | Grafana Dashboard | External link to Grafana |
+
+### 6.6 Row-Level Access (Current Limitation + Roadmap)
+
+Twenty does NOT currently support row-level filtering (e.g., "CX member sees ONLY their assigned tenants"). All users with "See" permission on an object can see all records in that object.
+
+**Mitigation strategy:**
+1. Default views per role ensure team members land on their relevant records
+2. Sensitive financial fields hidden via field-level permissions (bank details, Cashfree IDs invisible to non-Finance)
+3. When Twenty ships row-level permissions (planned 2026), configure ownership-based access:
+   - CX sees only Tenants where `cx_owner = self`
+   - PSM sees only Contracts where `psm = self`
+   - Sales sees only Properties/Landlords where `sales_owner = self`
+4. Until then, team discipline + audit logging covers the gap — acceptable for a 40-person team where trust exists
 
 ---
 

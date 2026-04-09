@@ -4,9 +4,9 @@ export type HubSpotObjectType =
   | "contacts"
   | "deals"
   | "tickets"
-  | "2-35314522"   // Contract custom object
-  | "2-35314851"   // Property ID custom object
-  | "2-35432178";  // Room ID custom object
+  | "2-174881983"   // Contract custom object
+  | "2-32303497"   // Property ID custom object
+  | "2-31206651";  // Room ID custom object
 
 export interface HubSpotRecord {
   id: string;
@@ -108,7 +108,7 @@ export const DEFAULT_CONFIG: Pick<
   "hubspotBaseUrl" | "twentyApiUrl" | "batchSize" | "maxRetriesOn429" | "gcsBucket" | "gcsCheckpointPath"
 > = {
   hubspotBaseUrl: "https://api.hubapi.com",
-  twentyApiUrl: "https://crm.flent.in/api/graphql",
+  twentyApiUrl: "http://34.93.202.112/graphql",
   batchSize: 60,
   maxRetriesOn429: 3,
   gcsBucket: "flent-twenty-files",
@@ -121,9 +121,9 @@ export const HUBSPOT_OBJECT_IDS = {
   contacts: "contacts",
   deals: "deals",
   tickets: "tickets",
-  contract: "2-35314522",
-  property: "2-35314851",
-  room: "2-35432178",
+  contract: "2-174881983",
+  property: "2-32303497",
+  room: "2-31206651",
 } as const;
 
 // ── Whitelisted Properties per Object Type ────────────────────────────

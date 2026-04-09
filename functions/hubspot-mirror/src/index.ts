@@ -29,7 +29,7 @@ import {
 const secretClient = new SecretManagerServiceClient();
 
 async function getSecret(secretName: string): Promise<string> {
-  const projectId = process.env["GCP_PROJECT"] ?? process.env["GCLOUD_PROJECT"] ?? "flent-infra";
+  const projectId = process.env["GCP_PROJECT"] ?? process.env["GCLOUD_PROJECT"] ?? "flent-twenty-prod";
   const name = `projects/${projectId}/secrets/${secretName}/versions/latest`;
   const [version] = await secretClient.accessSecretVersion({ name });
   const payload = version.payload?.data;
@@ -49,9 +49,9 @@ const PROPERTIES_BY_OBJECT: Record<HubSpotObjectType, readonly string[]> = {
   ],
   deals: DEAL_FIELDS,
   tickets: TICKET_FIELDS,
-  "2-35314522": CONTRACT_FIELDS,
-  "2-35314851": PROPERTY_FIELDS,
-  "2-35432178": ROOM_FIELDS,
+  "2-174881983": CONTRACT_FIELDS,
+  "2-32303497": PROPERTY_FIELDS,
+  "2-31206651": ROOM_FIELDS,
 };
 
 // ── Sync Logic ───────────────────────────────────────────────────────

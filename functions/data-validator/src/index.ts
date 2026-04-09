@@ -22,7 +22,7 @@ import type { CrmEvent, CrmObjectName, ValidationResult } from "./types";
 const TWENTY_API_URL = process.env["TWENTY_API_URL"] ?? "https://api.twenty.com/api";
 const SECRET_NAME =
   process.env["TWENTY_API_KEY_SECRET"] ??
-  "projects/flent-infra/secrets/twenty-api-key/versions/latest";
+  "projects/flent-twenty-prod/secrets/twenty-api-key/versions/latest";
 
 // ---------------------------------------------------------------------------
 // Secret Manager — lazily cached API key

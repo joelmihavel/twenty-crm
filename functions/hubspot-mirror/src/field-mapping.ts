@@ -58,8 +58,8 @@ export function toScreamingSnake(value: string | null | undefined): string | nul
   let v = value.toUpperCase().replace(/[^A-Z0-9]+/g, "_").replace(/^_|_$/g, "");
   const leadingNum = v.match(/^(\d+)_?(.*)/);
   if (leadingNum) {
-    const numStr = leadingNum[1];
-    const rest = leadingNum[2];
+    const numStr = leadingNum[1]!;
+    const rest = leadingNum[2] ?? "";
     const word = NUM_WORDS[numStr] ?? `N${numStr}`;
     v = rest ? `${word}_${rest}` : word;
   }
@@ -431,7 +431,7 @@ export const OBJECT_MAPPERS: Record<string, ObjectMapper> = {
   contacts: mapContact,
   deals: mapDeal,
   tickets: mapTicket,
-  "2-35314522": mapContract,
-  "2-35314851": mapProperty,
-  "2-35432178": mapRoom,
+  "2-174881983": mapContract,
+  "2-32303497": mapProperty,
+  "2-31206651": mapRoom,
 };

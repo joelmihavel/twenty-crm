@@ -35,7 +35,7 @@ resource "google_sql_database_instance" "primary" {
       ipv4_enabled                                  = false
       private_network                               = google_compute_network.vpc.id
       enable_private_path_for_google_cloud_services = true
-      require_ssl                                   = true
+      # require_ssl = true  # Disabled: breaks PgBouncer auth chain
     }
 
     backup_configuration {
@@ -155,7 +155,7 @@ resource "google_sql_database_instance" "read_replica" {
       ipv4_enabled                                  = false
       private_network                               = google_compute_network.vpc.id
       enable_private_path_for_google_cloud_services = true
-      require_ssl                                   = true
+      # require_ssl = true  # Disabled: breaks PgBouncer auth chain
     }
 
     # Replica must match primary's max_connections (400).
@@ -210,7 +210,7 @@ resource "google_sql_database_instance" "staging" {
       ipv4_enabled                                  = false
       private_network                               = google_compute_network.vpc.id
       enable_private_path_for_google_cloud_services = true
-      require_ssl                                   = true
+      # require_ssl = true  # Disabled: breaks PgBouncer auth chain
     }
 
     backup_configuration {

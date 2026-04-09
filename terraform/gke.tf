@@ -30,7 +30,11 @@ resource "google_container_cluster" "primary" {
   master_authorized_networks_config {
     cidr_blocks {
       cidr_block   = "10.0.0.0/8"
-      display_name = "Internal VPC (restrict further with office IP)"
+      display_name = "Internal VPC"
+    }
+    cidr_blocks {
+      cidr_block   = "49.207.196.0/24"
+      display_name = "Flent Office (Bangalore)"
     }
   }
 

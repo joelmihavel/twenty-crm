@@ -33,6 +33,10 @@ spec:
           value: "true"
           effect: NoSchedule
       terminationGracePeriodSeconds: 60
+      securityContext:
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
       containers:
         - name: twenty-worker
           image: twentycrm/twenty:latest
@@ -97,6 +101,23 @@ spec:
             - name: redis-ca-cert
               mountPath: /etc/ssl/redis
               readOnly: true
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          startupProbe:
+            exec:
+              command: ["node", "-e", "process.exit(0)"]
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            failureThreshold: 24
+          livenessProbe:
+            exec:
+              command: ["node", "-e", "process.exit(0)"]
+            initialDelaySeconds: 30
+            periodSeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 3
           resources:
             requests:
               cpu: 250m

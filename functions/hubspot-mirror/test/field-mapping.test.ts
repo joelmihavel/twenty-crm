@@ -6,6 +6,7 @@ import {
   mapProperty,
   mapRoom,
   mapTicket,
+  toCurrency,
 } from "../src/field-mapping.js";
 import type { HubSpotRecord } from "../src/types.js";
 
@@ -22,6 +23,70 @@ function makeRecord(
     updatedAt: "2025-06-01T00:00:00Z",
   };
 }
+
+// ══════════════════════════════════════════════════════════════════════
+// CURRENCY FORMATTING
+// ══════════════════════════════════════════════════════════════════════
+
+describe("toCurrency", () => {
+  it("converts a plain number to amountMicros format", () => {
+    expect(toCurrency(25000)).toEqual({
+      amountMicros: 25_000_000_000,
+      currencyCode: "INR",
+    });
+  });
+
+  it("converts a numeric string to amountMicros format", () => {
+    expect(toCurrency("15000")).toEqual({
+      amountMicros: 15_000_000_000,
+      currencyCode: "INR",
+    });
+  });
+
+  it("handles decimal amounts correctly", () => {
+    expect(toCurrency("25000.50")).toEqual({
+      amountMicros: 25_000_500_000,
+      currencyCode: "INR",
+    });
+  });
+
+  it("returns null for null input", () => {
+    expect(toCurrency(null)).toBeNull();
+  });
+
+  it("returns null for undefined input", () => {
+    expect(toCurrency(undefined)).toBeNull();
+  });
+
+  it("returns null for empty string", () => {
+    expect(toCurrency("")).toBeNull();
+  });
+
+  it("returns null for non-numeric string", () => {
+    expect(toCurrency("not-a-number")).toBeNull();
+  });
+
+  it("handles zero correctly", () => {
+    expect(toCurrency(0)).toEqual({
+      amountMicros: 0,
+      currencyCode: "INR",
+    });
+  });
+
+  it("handles zero string correctly", () => {
+    expect(toCurrency("0")).toEqual({
+      amountMicros: 0,
+      currencyCode: "INR",
+    });
+  });
+
+  it("uses custom currency code", () => {
+    expect(toCurrency(100, "USD")).toEqual({
+      amountMicros: 100_000_000,
+      currencyCode: "USD",
+    });
+  });
+});
 
 // ══════════════════════════════════════════════════════════════════════
 // CONTACTS -> Person + Tenant + Landlord
@@ -65,7 +130,7 @@ describe("mapContact", () => {
     });
   });
 
-  it("maps a Tenant contact to person + tenant records", () => {
+  it("maps a Tenant contact to person + tenant records with currency fields", () => {
     const hs = makeRecord("102", {
       firstname: "Priya",
       lastname: "Patel",
@@ -113,20 +178,20 @@ describe("mapContact", () => {
     expect(tenant!.fields).toMatchObject({
       tenantLifecycle: "Active",
       reserveStatus: "Confirmed",
-      tenantMonthlyRent: 25000,
-      tenantBaseRent: 22000,
-      monthlyMaintenance: 2000,
-      convenienceFee: 500,
-      platformFee: 300,
-      tenantGst: 450,
-      furnishingRental: 3000,
+      tenantMonthlyRent: { amountMicros: 25_000_000_000, currencyCode: "INR" },
+      tenantBaseRent: { amountMicros: 22_000_000_000, currencyCode: "INR" },
+      monthlyMaintenance: { amountMicros: 2_000_000_000, currencyCode: "INR" },
+      convenienceFee: { amountMicros: 500_000_000, currencyCode: "INR" },
+      platformFee: { amountMicros: 300_000_000, currencyCode: "INR" },
+      tenantGst: { amountMicros: 450_000_000, currencyCode: "INR" },
+      furnishingRental: { amountMicros: 3_000_000_000, currencyCode: "INR" },
       rentDue: "1",
       rentStatus: "Paid",
-      firstMonthRent: 25000,
+      firstMonthRent: { amountMicros: 25_000_000_000, currencyCode: "INR" },
       realMoveInDate: "2025-03-01",
       moveOutDate: null,
       preferredArea: "Koramangala",
-      budget: 30000,
+      budget: { amountMicros: 30_000_000_000, currencyCode: "INR" },
       foodPreference: "Vegetarian",
       smokingPreference: "No",
       petPreference: "No",
@@ -327,6 +392,51 @@ describe("mapContact", () => {
     const result = mapContact(hs);
     expect(result.records.find((r) => r.objectType === "tenant")).toBeDefined();
   });
+
+  it("maps null currency fields as null in tenant", () => {
+    const hs = makeRecord("108", {
+      firstname: "Null",
+      lastname: "Currency",
+      email: "null@example.com",
+      phone: null,
+      customer_type: "Tenant",
+      city: null,
+      aadhar_number: null,
+      pan_card: null,
+      country_code: null,
+      lead_source: null,
+      lead_sub_source: null,
+      tenant_lifecycle: null,
+      reserve_status: null,
+      tenant_monthly_rent: null,
+      tenant_base_rent: null,
+      monthly_maintenance: null,
+      convenience_fee: null,
+      platform_fee: null,
+      tenant_gst: null,
+      furnishing_rental: null,
+      rent_due: null,
+      rent_status: null,
+      first_month_rent: null,
+      real_move_in_date: null,
+      move_out_date: null,
+      preferred_area: null,
+      budget: null,
+      food_preference: null,
+      smoking_preference: null,
+      pet_preference: null,
+      nps_score: null,
+      customer_status: null,
+    });
+
+    const result = mapContact(hs);
+    const tenant = result.records.find((r) => r.objectType === "tenant");
+    expect(tenant).toBeDefined();
+    expect(tenant!.fields.tenantMonthlyRent).toBeNull();
+    expect(tenant!.fields.tenantBaseRent).toBeNull();
+    expect(tenant!.fields.budget).toBeNull();
+    expect(tenant!.fields.npsScore).toBeNull();
+  });
 });
 
 // ══════════════════════════════════════════════════════════════════════
@@ -334,7 +444,7 @@ describe("mapContact", () => {
 // ══════════════════════════════════════════════════════════════════════
 
 describe("mapDeal", () => {
-  it("maps a deal to an opportunity with pipeline mapping", () => {
+  it("maps a deal to an opportunity with pipeline mapping and currency amount", () => {
     const hs = makeRecord("201", {
       dealname: "Reserve - Aarav - HSR Layout",
       amount: "150000",
@@ -352,7 +462,7 @@ describe("mapDeal", () => {
     expect(opp.hubspotId).toBe("201");
     expect(opp.fields).toMatchObject({
       dealName: "Reserve - Aarav - HSR Layout",
-      amount: 150000,
+      amount: { amountMicros: 150_000_000_000, currencyCode: "INR" },
       closeDate: "2025-06-15",
       dealStage: "contractsent",
       pipeline: "Reserve",
@@ -371,6 +481,7 @@ describe("mapDeal", () => {
     const result = mapDeal(hs);
     const opp = result.records[0]!;
     expect(opp.fields.pipeline).toBe("Occupancy");
+    expect(opp.fields.amount).toEqual({ amountMicros: 25_000_000_000, currencyCode: "INR" });
   });
 
   it("maps F4B pipeline correctly", () => {
@@ -437,7 +548,7 @@ describe("mapDeal", () => {
 // ══════════════════════════════════════════════════════════════════════
 
 describe("mapContract", () => {
-  it("maps a contract custom object with all 30 fields", () => {
+  it("maps a contract custom object with currency fields in amountMicros format", () => {
     const hs = makeRecord("301", {
       contract_id: "FLENT-C-2025-001",
       contract_uid: "UID-001",
@@ -491,14 +602,14 @@ describe("mapContract", () => {
       goLiveDate: "2025-01-15",
       lockInEndDate: "2025-07-01",
       lockInPlan: "6 months",
-      monthlyLicenseFee: 25000,
-      propertyBaseRent: 22000,
-      securityDeposit: 50000,
-      platformFees: 1000,
-      convenienceFee: 500,
-      gst: 4500,
-      tdsAmount: 2200,
-      maintenanceAmount: 2000,
+      monthlyLicenseFee: { amountMicros: 25_000_000_000, currencyCode: "INR" },
+      propertyBaseRent: { amountMicros: 22_000_000_000, currencyCode: "INR" },
+      securityDeposit: { amountMicros: 50_000_000_000, currencyCode: "INR" },
+      platformFees: { amountMicros: 1_000_000_000, currencyCode: "INR" },
+      convenienceFee: { amountMicros: 500_000_000, currencyCode: "INR" },
+      gst: { amountMicros: 4_500_000_000, currencyCode: "INR" },
+      tdsAmount: { amountMicros: 2_200_000_000, currencyCode: "INR" },
+      maintenanceAmount: { amountMicros: 2_000_000_000, currencyCode: "INR" },
       incrementPercentage: 5,
       rentalCycle: "Monthly",
       shortTermFlag: "false",
@@ -508,7 +619,7 @@ describe("mapContract", () => {
       moveOutInspector: null,
       moveOutStatus: null,
       depositSettled: "false",
-      settlementAmount: 0,
+      settlementAmount: { amountMicros: 0, currencyCode: "INR" },
     });
   });
 
@@ -521,6 +632,21 @@ describe("mapContract", () => {
     expect(result.records).toHaveLength(1);
     expect(result.records[0]!.fields.contractId).toBeNull();
   });
+
+  it("handles null currency fields as null", () => {
+    const hs = makeRecord("303", {
+      contract_id: "C-NULL",
+      monthly_license_fee: null,
+      security_deposit: null,
+      gst: null,
+    });
+
+    const result = mapContract(hs);
+    const contract = result.records[0]!;
+    expect(contract.fields.monthlyLicenseFee).toBeNull();
+    expect(contract.fields.securityDeposit).toBeNull();
+    expect(contract.fields.gst).toBeNull();
+  });
 });
 
 // ══════════════════════════════════════════════════════════════════════
@@ -528,7 +654,7 @@ describe("mapContract", () => {
 // ══════════════════════════════════════════════════════════════════════
 
 describe("mapProperty", () => {
-  it("maps a property custom object with all 25 fields", () => {
+  it("maps a property custom object with currency fields in amountMicros format", () => {
     const hs = makeRecord("401", {
       pid: "PROP-BLR-001",
       property_name: "Sunrise Residency",
@@ -578,8 +704,8 @@ describe("mapProperty", () => {
       floors: 3,
       washrooms: 2,
       furnishings: "Semi-Furnished",
-      monthlyLicenseFee: 25000,
-      maintenanceFee: 3000,
+      monthlyLicenseFee: { amountMicros: 25_000_000_000, currencyCode: "INR" },
+      maintenanceFee: { amountMicros: 3_000_000_000, currencyCode: "INR" },
       rentCycle: "Monthly",
       maintenanceCycle: "Quarterly",
       tdsDeduction: "Yes",
@@ -608,7 +734,7 @@ describe("mapProperty", () => {
 // ══════════════════════════════════════════════════════════════════════
 
 describe("mapRoom", () => {
-  it("maps a room custom object with all 5 fields", () => {
+  it("maps a room custom object with currency fields in amountMicros format", () => {
     const hs = makeRecord("501", {
       roomid: "ROOM-BLR-001-A",
       n3_month_lock_in_rent: "15000",
@@ -626,10 +752,10 @@ describe("mapRoom", () => {
     expect(room.hubspotId).toBe("501");
     expect(room.fields).toMatchObject({
       roomId: "ROOM-BLR-001-A",
-      n3MonthLockInRent: 15000,
-      n6MonthLockInRent: 14000,
-      n11MonthLockInRent: 13000,
-      noLockInRent: 16000,
+      n3MonthLockInRent: { amountMicros: 15_000_000_000, currencyCode: "INR" },
+      n6MonthLockInRent: { amountMicros: 14_000_000_000, currencyCode: "INR" },
+      n11MonthLockInRent: { amountMicros: 13_000_000_000, currencyCode: "INR" },
+      noLockInRent: { amountMicros: 16_000_000_000, currencyCode: "INR" },
     });
   });
 
@@ -642,7 +768,7 @@ describe("mapRoom", () => {
     expect(result.records[0]!.fields.roomId).toBeNull();
   });
 
-  it("handles null rent values as null (not 0)", () => {
+  it("handles null rent values as null (not currency object)", () => {
     const hs = makeRecord("503", {
       roomid: "ROOM-003",
       n3_month_lock_in_rent: null,
@@ -665,7 +791,7 @@ describe("mapRoom", () => {
 // ══════════════════════════════════════════════════════════════════════
 
 describe("mapTicket", () => {
-  it("maps a ticket record with all 12 spec fields", () => {
+  it("maps a ticket record with currency field in amountMicros format", () => {
     const hs = makeRecord("601", {
       hs_pipeline: "Support Pipeline",
       hs_pipeline_stage: "In Progress",
@@ -693,7 +819,7 @@ describe("mapTicket", () => {
       hsPipelineStage: "In Progress",
       ticketCategory: "Maintenance",
       hsTicketPriority: "HIGH",
-      costAssociated: 500,
+      costAssociated: { amountMicros: 500_000_000, currencyCode: "INR" },
       costPaidBy: "Tenant",
       resolutionNotes: "Fixed leaking tap",
       tenantRating: 4,

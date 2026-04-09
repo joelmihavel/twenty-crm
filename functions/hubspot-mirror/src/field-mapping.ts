@@ -36,18 +36,38 @@ function parseNumeric(value: string | null | undefined): number | null {
   return Number.isNaN(num) ? null : num;
 }
 
+/**
+ * Convert a plain number to Twenty's CURRENCY field format.
+ * Amount is stored in micro-units (amount * 1,000,000).
+ * Returns null if the input is null/undefined/NaN.
+ */
+export function toCurrency(
+  value: string | number | null | undefined,
+  currencyCode = "INR",
+): { amountMicros: number; currencyCode: string } | null {
+  const num = typeof value === "number" ? value : parseNumeric(value as string | null | undefined);
+  if (num === null) return null;
+  return {
+    amountMicros: Math.round(num * 1_000_000),
+    currencyCode,
+  };
+}
+
 /** Pick whitelisted fields from a HubSpot record and transform keys to camelCase */
 function pickFields(
   properties: Record<string, string | null>,
   whitelist: readonly string[],
   numericFields: ReadonlySet<string> = new Set(),
   keyOverrides: Record<string, string> = {},
+  currencyFields: ReadonlySet<string> = new Set(),
 ): Record<string, unknown> {
   const result: Record<string, unknown> = {};
   for (const field of whitelist) {
     const rawValue = properties[field];
     const camelKey = keyOverrides[field] ?? snakeToCamel(field);
-    if (numericFields.has(field)) {
+    if (currencyFields.has(field)) {
+      result[camelKey] = toCurrency(rawValue);
+    } else if (numericFields.has(field)) {
       result[camelKey] = parseNumeric(rawValue);
     } else {
       result[camelKey] = normalizeValue(rawValue);
@@ -72,9 +92,31 @@ const TICKET_KEY_OVERRIDES: Record<string, string> = {
   hs_object_id: "hsObjectId",
 };
 
-// ── Numeric field sets ───────────────────────────────────────────────
+// ── Numeric field sets (plain numbers: counts, scores, percentages) ──
 
 const TENANT_NUMERIC_FIELDS = new Set([
+  "nps_score",
+]);
+
+const CONTRACT_NUMERIC_FIELDS = new Set([
+  "increment_percentage",
+]);
+
+const PROPERTY_NUMERIC_FIELDS = new Set([
+  "units",
+  "floors",
+  "washrooms",
+]);
+
+const ROOM_NUMERIC_FIELDS = new Set<string>([]);
+
+const TICKET_NUMERIC_FIELDS = new Set([
+  "tenant_rating",
+]);
+
+// ── Currency field sets (monetary amounts -> { amountMicros, currencyCode }) ──
+
+const TENANT_CURRENCY_FIELDS = new Set([
   "tenant_monthly_rent",
   "tenant_base_rent",
   "monthly_maintenance",
@@ -84,10 +126,9 @@ const TENANT_NUMERIC_FIELDS = new Set([
   "furnishing_rental",
   "first_month_rent",
   "budget",
-  "nps_score",
 ]);
 
-const CONTRACT_NUMERIC_FIELDS = new Set([
+const CONTRACT_CURRENCY_FIELDS = new Set([
   "monthly_license_fee",
   "property_base_rent",
   "security_deposit",
@@ -96,28 +137,23 @@ const CONTRACT_NUMERIC_FIELDS = new Set([
   "gst",
   "tds_amount",
   "maintenance_amount",
-  "increment_percentage",
   "settlement_amount",
 ]);
 
-const PROPERTY_NUMERIC_FIELDS = new Set([
-  "units",
-  "floors",
-  "washrooms",
+const PROPERTY_CURRENCY_FIELDS = new Set([
   "monthly_license_fee",
   "maintenance_fee",
 ]);
 
-const ROOM_NUMERIC_FIELDS = new Set([
+const ROOM_CURRENCY_FIELDS = new Set([
   "n3_month_lock_in_rent",
   "n6_month_lock_in_rent",
   "n11_month_lock_in_rent",
   "no_lock_in_rent",
 ]);
 
-const TICKET_NUMERIC_FIELDS = new Set([
+const TICKET_CURRENCY_FIELDS = new Set([
   "cost_associated",
-  "tenant_rating",
 ]);
 
 // ── Contact Mapping (-> Person + Tenant + Landlord) ─────────────────
@@ -139,7 +175,7 @@ export function mapContact(record: HubSpotRecord): MappedOutput {
 
   // Check for Tenant role (case-insensitive)
   if (customerType && customerType.toLowerCase().includes("tenant")) {
-    const tenantFields = pickFields(props, TENANT_FIELDS, TENANT_NUMERIC_FIELDS);
+    const tenantFields = pickFields(props, TENANT_FIELDS, TENANT_NUMERIC_FIELDS, {}, TENANT_CURRENCY_FIELDS);
     records.push({
       objectType: "tenant",
       hubspotId: record.id,
@@ -174,7 +210,7 @@ export function mapDeal(record: HubSpotRecord): MappedOutput {
 
   const fields: Record<string, unknown> = {
     dealName: normalizeValue(props["dealname"]),
-    amount: parseNumeric(props["amount"]),
+    amount: toCurrency(props["amount"]),
     closeDate: normalizeValue(props["closedate"]),
     dealStage: normalizeValue(props["dealstage"]),
     pipeline: mappedPipeline,
@@ -195,7 +231,7 @@ export function mapContract(record: HubSpotRecord): MappedOutput {
   const records: TwentyRecord[] = [];
   const errors: MappingError[] = [];
 
-  const fields = pickFields(record.properties, CONTRACT_FIELDS, CONTRACT_NUMERIC_FIELDS);
+  const fields = pickFields(record.properties, CONTRACT_FIELDS, CONTRACT_NUMERIC_FIELDS, {}, CONTRACT_CURRENCY_FIELDS);
   records.push({
     objectType: "contract",
     hubspotId: record.id,
@@ -211,7 +247,7 @@ export function mapProperty(record: HubSpotRecord): MappedOutput {
   const records: TwentyRecord[] = [];
   const errors: MappingError[] = [];
 
-  const fields = pickFields(record.properties, PROPERTY_FIELDS, PROPERTY_NUMERIC_FIELDS);
+  const fields = pickFields(record.properties, PROPERTY_FIELDS, PROPERTY_NUMERIC_FIELDS, {}, PROPERTY_CURRENCY_FIELDS);
   records.push({
     objectType: "property",
     hubspotId: record.id,
@@ -227,7 +263,7 @@ export function mapRoom(record: HubSpotRecord): MappedOutput {
   const records: TwentyRecord[] = [];
   const errors: MappingError[] = [];
 
-  const fields = pickFields(record.properties, ROOM_FIELDS, ROOM_NUMERIC_FIELDS, ROOM_KEY_OVERRIDES);
+  const fields = pickFields(record.properties, ROOM_FIELDS, ROOM_NUMERIC_FIELDS, ROOM_KEY_OVERRIDES, ROOM_CURRENCY_FIELDS);
   records.push({
     objectType: "room",
     hubspotId: record.id,
@@ -243,7 +279,7 @@ export function mapTicket(record: HubSpotRecord): MappedOutput {
   const records: TwentyRecord[] = [];
   const errors: MappingError[] = [];
 
-  const fields = pickFields(record.properties, TICKET_FIELDS, TICKET_NUMERIC_FIELDS, TICKET_KEY_OVERRIDES);
+  const fields = pickFields(record.properties, TICKET_FIELDS, TICKET_NUMERIC_FIELDS, TICKET_KEY_OVERRIDES, TICKET_CURRENCY_FIELDS);
   records.push({
     objectType: "ticket",
     hubspotId: record.id,

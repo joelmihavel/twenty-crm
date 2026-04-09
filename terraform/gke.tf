@@ -29,8 +29,8 @@ resource "google_container_cluster" "primary" {
 
   master_authorized_networks_config {
     cidr_blocks {
-      cidr_block   = "0.0.0.0/0"
-      display_name = "All (restrict in production after setup)"
+      cidr_block   = "10.0.0.0/8"
+      display_name = "Internal VPC (restrict further with office IP)"
     }
   }
 

@@ -11,3 +11,8 @@ dist/
 k8s/twenty/secrets.yaml
 k8s/twenty/redis-ca-cert.yaml
 
+
+# Secrets (never commit)
+k8s/twenty/secrets.yaml
+k8s/twenty/redis-ca-cert.yaml
+

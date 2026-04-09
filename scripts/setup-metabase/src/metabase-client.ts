@@ -101,14 +101,18 @@ export async function getSetupProperties(): Promise<SetupProperties> {
   return request<SetupProperties>("GET", "/session/properties");
 }
 
+const MB_EMAIL = process.env.METABASE_ADMIN_EMAIL ?? "admin@flent.in";
+const MB_PASSWORD = process.env.METABASE_ADMIN_PASSWORD;
+
 export async function completeSetup(setupToken: string): Promise<MetabaseSession> {
+  if (!MB_PASSWORD) throw new Error("METABASE_ADMIN_PASSWORD env var required");
   return request<MetabaseSession>("POST", "/setup", {
     token: setupToken,
     user: {
       first_name: "Flent",
       last_name: "Admin",
-      email: "admin@flent.in",
-      password: "FlentAdmin2026!",
+      email: MB_EMAIL,
+      password: MB_PASSWORD,
     },
     prefs: {
       site_name: "Flent Analytics",
@@ -118,9 +122,10 @@ export async function completeSetup(setupToken: string): Promise<MetabaseSession
 }
 
 export async function login(): Promise<string> {
+  if (!MB_PASSWORD) throw new Error("METABASE_ADMIN_PASSWORD env var required");
   const session = await request<MetabaseSession>("POST", "/session", {
-    username: "admin@flent.in",
-    password: "FlentAdmin2026!",
+    username: MB_EMAIL,
+    password: MB_PASSWORD,
   });
   return session.id;
 }

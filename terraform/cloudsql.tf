@@ -35,6 +35,7 @@ resource "google_sql_database_instance" "primary" {
       ipv4_enabled                                  = false
       private_network                               = google_compute_network.vpc.id
       enable_private_path_for_google_cloud_services = true
+      require_ssl                                   = true
     }
 
     backup_configuration {
@@ -91,6 +92,23 @@ resource "google_sql_database_instance" "primary" {
       value = "4"
     }
 
+    # Audit logging
+    database_flags {
+      name  = "log_checkpoints"
+      value = "on"
+    }
+    database_flags {
+      name  = "log_connections"
+      value = "on"
+    }
+    database_flags {
+      name  = "log_disconnections"
+      value = "on"
+    }
+    database_flags {
+      name  = "log_lock_waits"
+      value = "on"
+    }
     insights_config {
       query_insights_enabled  = true
       query_plans_per_minute  = 5
@@ -137,6 +155,7 @@ resource "google_sql_database_instance" "read_replica" {
       ipv4_enabled                                  = false
       private_network                               = google_compute_network.vpc.id
       enable_private_path_for_google_cloud_services = true
+      require_ssl                                   = true
     }
 
     # Replica must match primary's max_connections (400).
@@ -191,6 +210,7 @@ resource "google_sql_database_instance" "staging" {
       ipv4_enabled                                  = false
       private_network                               = google_compute_network.vpc.id
       enable_private_path_for_google_cloud_services = true
+      require_ssl                                   = true
     }
 
     backup_configuration {

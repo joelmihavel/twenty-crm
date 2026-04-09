@@ -115,17 +115,5 @@ output "backfill_job_sa_email" {
   value       = google_service_account.backfill_job.email
 }
 
-# ---------------------------------------------------------------------------
-# Database passwords (sensitive)
-# ---------------------------------------------------------------------------
-output "db_password_prod" {
-  description = "Production database password"
-  value       = random_password.db_password.result
-  sensitive   = true
-}
-
-output "db_password_staging" {
-  description = "Staging database password"
-  value       = random_password.db_password_staging.result
-  sensitive   = true
-}
+# Database passwords removed from outputs (security audit P1-6).
+# Retrieve via: gcloud secrets versions access latest --secret=db-password --project=flent-twenty-prod

@@ -139,9 +139,16 @@ resource "google_sql_database_instance" "read_replica" {
       enable_private_path_for_google_cloud_services = true
     }
 
+    # Replica must match primary's max_connections (400).
+    # Cloud SQL does not allow a replica to have a lower value.
     database_flags {
       name  = "max_connections"
-      value = "100"
+      value = "400"
+    }
+
+    database_flags {
+      name  = "max_parallel_workers_per_gather"
+      value = "4"
     }
 
     insights_config {

@@ -1,0 +1,8 @@
+.env.secrets
+terraform.tfvars
+*.tfstate
+*.tfstate.backup
+.terraform/
+node_modules/
+dist/
+

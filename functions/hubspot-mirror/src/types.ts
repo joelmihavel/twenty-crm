@@ -111,8 +111,8 @@ export const DEFAULT_CONFIG: Pick<
   twentyApiUrl: "https://crm.flent.in/api/graphql",
   batchSize: 60,
   maxRetriesOn429: 3,
-  gcsBucket: "flent-hubspot-mirror",
-  gcsCheckpointPath: "checkpoint.json",
+  gcsBucket: "flent-twenty-files",
+  gcsCheckpointPath: "mirror/checkpoint.json",
 };
 
 // ── Object Type IDs for Custom Objects ────────────────────────────────
@@ -140,6 +140,7 @@ export const CONTACT_PEOPLE_FIELDS = [
   "country_code",
   "lead_source",
   "lead_sub_source",
+  "hs_object_id",
 ] as const;
 
 export const TENANT_FIELDS = [
@@ -164,6 +165,9 @@ export const TENANT_FIELDS = [
   "pet_preference",
   "nps_score",
   "customer_status",
+  "rental_link",
+  "cashfree_order_id",
+  "cashfree_link_id",
 ] as const;
 
 export const LANDLORD_FIELDS = [
@@ -186,23 +190,84 @@ export const DEAL_FIELDS = [
 
 export const CONTRACT_FIELDS = [
   "contract_id",
+  "contract_uid",
+  "contract_type",
+  "state",
+  "business_type",
+  "pid",
+  "rid",
+  "contract_start_date",
+  "contract_end_date",
+  "go_live_date",
+  "lock_in_end_date",
+  "lock_in_plan",
+  "monthly_license_fee",
+  "property_base_rent",
+  "security_deposit",
+  "platform_fees",
+  "convenience_fee",
+  "gst",
+  "tds_amount",
+  "maintenance_amount",
+  "increment_percentage",
+  "rental_cycle",
+  "short_term_flag",
+  "water_charges_separate",
+  "move_in_inspector",
+  "move_in_status",
+  "move_out_inspector",
+  "move_out_status",
+  "deposit_settled",
+  "settlement_amount",
 ] as const;
 
 export const PROPERTY_FIELDS = [
   "pid",
+  "property_name",
+  "building_name",
+  "property_address",
+  "area_name",
+  "cluster",
+  "map_link",
+  "property_type",
+  "grade",
+  "units",
+  "floors",
+  "washrooms",
+  "furnishings",
+  "monthly_license_fee",
+  "maintenance_fee",
+  "rent_cycle",
+  "maintenance_cycle",
+  "tds_deduction",
+  "source",
+  "gallery_link",
+  "lock_box_installed",
+  "lock_box_code",
+  "parking_info",
+  "electricity_provider",
+  "electricity_account_id",
 ] as const;
 
 export const ROOM_FIELDS = [
   "roomid",
+  "n3_month_lock_in_rent",
+  "n6_month_lock_in_rent",
+  "n11_month_lock_in_rent",
+  "no_lock_in_rent",
 ] as const;
 
 export const TICKET_FIELDS = [
-  "subject",
-  "content",
   "hs_pipeline",
   "hs_pipeline_stage",
+  "ticket_category",
   "hs_ticket_priority",
-  "hs_ticket_category",
-  "createdate",
-  "hs_lastmodifieddate",
+  "cost_associated",
+  "cost_paid_by",
+  "resolution_notes",
+  "tenant_rating",
+  "scheduled_on",
+  "time_slot",
+  "ticket_flag",
+  "hs_object_id",
 ] as const;

@@ -30,6 +30,13 @@ export class TwentyClient {
   /**
    * Upsert records into Twenty CRM in batches.
    * Individual failures are logged and skipped; the batch continues.
+   *
+   * NOTE ON BATCH STRATEGY: Twenty's GraphQL API exposes individual mutations
+   * per object type (e.g. upsertPerson, upsertContract) and does NOT provide
+   * a bulk/createMany mutation. Therefore we send one GraphQL mutation per
+   * record and use Promise.allSettled with chunking (batchSize, default 60)
+   * for concurrency control. This is the intended integration pattern for
+   * Twenty -- it is NOT a workaround for a missing batch endpoint.
    */
   async upsertBatch(records: TwentyRecord[]): Promise<TwentyBatchResult> {
     const result: TwentyBatchResult = {
@@ -38,7 +45,9 @@ export class TwentyClient {
       errors: [],
     };
 
-    // Process in chunks of batchSize
+    // Process in chunks of batchSize.
+    // Each chunk fires up to batchSize concurrent individual GraphQL mutations
+    // via Promise.allSettled. See method-level JSDoc for rationale.
     for (let i = 0; i < records.length; i += this.batchSize) {
       const chunk = records.slice(i, i + this.batchSize);
       const chunkResults = await Promise.allSettled(

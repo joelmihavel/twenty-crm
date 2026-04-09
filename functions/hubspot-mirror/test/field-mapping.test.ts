@@ -273,10 +273,10 @@ describe("mapContact", () => {
       country_code: null,
       lead_source: null,
       lead_sub_source: null,
+      hs_object_id: "999",
       // These should be ignored
       hs_analytics_source: "ORGANIC_SEARCH",
       some_random_field: "should_be_ignored",
-      hs_object_id: "999",
     });
 
     const result = mapContact(hs);
@@ -284,7 +284,8 @@ describe("mapContact", () => {
     expect(person).toBeDefined();
     expect(person!.fields).not.toHaveProperty("hsAnalyticsSource");
     expect(person!.fields).not.toHaveProperty("someRandomField");
-    expect(person!.fields).not.toHaveProperty("hsObjectId");
+    // hs_object_id IS whitelisted and should be present
+    expect(person!.fields.hsObjectId).toBe("999");
   });
 
   it("detects Tenant with case-insensitive match", () => {
@@ -436,9 +437,38 @@ describe("mapDeal", () => {
 // ══════════════════════════════════════════════════════════════════════
 
 describe("mapContract", () => {
-  it("maps a contract custom object", () => {
+  it("maps a contract custom object with all 30 fields", () => {
     const hs = makeRecord("301", {
       contract_id: "FLENT-C-2025-001",
+      contract_uid: "UID-001",
+      contract_type: "Lease",
+      state: "Active",
+      business_type: "Residential",
+      pid: "PROP-BLR-001",
+      rid: "ROOM-001",
+      contract_start_date: "2025-01-01",
+      contract_end_date: "2026-01-01",
+      go_live_date: "2025-01-15",
+      lock_in_end_date: "2025-07-01",
+      lock_in_plan: "6 months",
+      monthly_license_fee: "25000",
+      property_base_rent: "22000",
+      security_deposit: "50000",
+      platform_fees: "1000",
+      convenience_fee: "500",
+      gst: "4500",
+      tds_amount: "2200",
+      maintenance_amount: "2000",
+      increment_percentage: "5",
+      rental_cycle: "Monthly",
+      short_term_flag: "false",
+      water_charges_separate: "true",
+      move_in_inspector: "Inspector A",
+      move_in_status: "Completed",
+      move_out_inspector: null,
+      move_out_status: null,
+      deposit_settled: "false",
+      settlement_amount: "0",
     });
 
     const result = mapContract(hs);
@@ -450,6 +480,35 @@ describe("mapContract", () => {
     expect(contract.hubspotId).toBe("301");
     expect(contract.fields).toMatchObject({
       contractId: "FLENT-C-2025-001",
+      contractUid: "UID-001",
+      contractType: "Lease",
+      state: "Active",
+      businessType: "Residential",
+      pid: "PROP-BLR-001",
+      rid: "ROOM-001",
+      contractStartDate: "2025-01-01",
+      contractEndDate: "2026-01-01",
+      goLiveDate: "2025-01-15",
+      lockInEndDate: "2025-07-01",
+      lockInPlan: "6 months",
+      monthlyLicenseFee: 25000,
+      propertyBaseRent: 22000,
+      securityDeposit: 50000,
+      platformFees: 1000,
+      convenienceFee: 500,
+      gst: 4500,
+      tdsAmount: 2200,
+      maintenanceAmount: 2000,
+      incrementPercentage: 5,
+      rentalCycle: "Monthly",
+      shortTermFlag: "false",
+      waterChargesSeparate: "true",
+      moveInInspector: "Inspector A",
+      moveInStatus: "Completed",
+      moveOutInspector: null,
+      moveOutStatus: null,
+      depositSettled: "false",
+      settlementAmount: 0,
     });
   });
 
@@ -469,9 +528,33 @@ describe("mapContract", () => {
 // ══════════════════════════════════════════════════════════════════════
 
 describe("mapProperty", () => {
-  it("maps a property custom object", () => {
+  it("maps a property custom object with all 25 fields", () => {
     const hs = makeRecord("401", {
       pid: "PROP-BLR-001",
+      property_name: "Sunrise Residency",
+      building_name: "Tower A",
+      property_address: "123 MG Road",
+      area_name: "Koramangala",
+      cluster: "South Bangalore",
+      map_link: "https://maps.google.com/xyz",
+      property_type: "Apartment",
+      grade: "A",
+      units: "12",
+      floors: "3",
+      washrooms: "2",
+      furnishings: "Semi-Furnished",
+      monthly_license_fee: "25000",
+      maintenance_fee: "3000",
+      rent_cycle: "Monthly",
+      maintenance_cycle: "Quarterly",
+      tds_deduction: "Yes",
+      source: "Direct",
+      gallery_link: "https://gallery.example.com/prop1",
+      lock_box_installed: "true",
+      lock_box_code: "1234",
+      parking_info: "Covered parking available",
+      electricity_provider: "BESCOM",
+      electricity_account_id: "ELEC-001",
     });
 
     const result = mapProperty(hs);
@@ -483,6 +566,30 @@ describe("mapProperty", () => {
     expect(prop.hubspotId).toBe("401");
     expect(prop.fields).toMatchObject({
       pid: "PROP-BLR-001",
+      propertyName: "Sunrise Residency",
+      buildingName: "Tower A",
+      propertyAddress: "123 MG Road",
+      areaName: "Koramangala",
+      cluster: "South Bangalore",
+      mapLink: "https://maps.google.com/xyz",
+      propertyType: "Apartment",
+      grade: "A",
+      units: 12,
+      floors: 3,
+      washrooms: 2,
+      furnishings: "Semi-Furnished",
+      monthlyLicenseFee: 25000,
+      maintenanceFee: 3000,
+      rentCycle: "Monthly",
+      maintenanceCycle: "Quarterly",
+      tdsDeduction: "Yes",
+      source: "Direct",
+      galleryLink: "https://gallery.example.com/prop1",
+      lockBoxInstalled: "true",
+      lockBoxCode: "1234",
+      parkingInfo: "Covered parking available",
+      electricityProvider: "BESCOM",
+      electricityAccountId: "ELEC-001",
     });
   });
 
@@ -501,9 +608,13 @@ describe("mapProperty", () => {
 // ══════════════════════════════════════════════════════════════════════
 
 describe("mapRoom", () => {
-  it("maps a room custom object", () => {
+  it("maps a room custom object with all 5 fields", () => {
     const hs = makeRecord("501", {
       roomid: "ROOM-BLR-001-A",
+      n3_month_lock_in_rent: "15000",
+      n6_month_lock_in_rent: "14000",
+      n11_month_lock_in_rent: "13000",
+      no_lock_in_rent: "16000",
     });
 
     const result = mapRoom(hs);
@@ -515,6 +626,10 @@ describe("mapRoom", () => {
     expect(room.hubspotId).toBe("501");
     expect(room.fields).toMatchObject({
       roomId: "ROOM-BLR-001-A",
+      n3MonthLockInRent: 15000,
+      n6MonthLockInRent: 14000,
+      n11MonthLockInRent: 13000,
+      noLockInRent: 16000,
     });
   });
 
@@ -526,6 +641,23 @@ describe("mapRoom", () => {
     const result = mapRoom(hs);
     expect(result.records[0]!.fields.roomId).toBeNull();
   });
+
+  it("handles null rent values as null (not 0)", () => {
+    const hs = makeRecord("503", {
+      roomid: "ROOM-003",
+      n3_month_lock_in_rent: null,
+      n6_month_lock_in_rent: null,
+      n11_month_lock_in_rent: null,
+      no_lock_in_rent: null,
+    });
+
+    const result = mapRoom(hs);
+    const room = result.records[0]!;
+    expect(room.fields.n3MonthLockInRent).toBeNull();
+    expect(room.fields.n6MonthLockInRent).toBeNull();
+    expect(room.fields.n11MonthLockInRent).toBeNull();
+    expect(room.fields.noLockInRent).toBeNull();
+  });
 });
 
 // ══════════════════════════════════════════════════════════════════════
@@ -533,16 +665,20 @@ describe("mapRoom", () => {
 // ══════════════════════════════════════════════════════════════════════
 
 describe("mapTicket", () => {
-  it("maps a ticket record", () => {
+  it("maps a ticket record with all 12 spec fields", () => {
     const hs = makeRecord("601", {
-      subject: "Maintenance Request - Plumbing",
-      content: "Leaking tap in bathroom",
       hs_pipeline: "Support Pipeline",
       hs_pipeline_stage: "In Progress",
+      ticket_category: "Maintenance",
       hs_ticket_priority: "HIGH",
-      hs_ticket_category: "Maintenance",
-      createdate: "2025-05-01T10:00:00Z",
-      hs_lastmodifieddate: "2025-05-02T14:30:00Z",
+      cost_associated: "500",
+      cost_paid_by: "Tenant",
+      resolution_notes: "Fixed leaking tap",
+      tenant_rating: "4",
+      scheduled_on: "2025-05-03",
+      time_slot: "10:00-12:00",
+      ticket_flag: "Escalated",
+      hs_object_id: "601",
     });
 
     const result = mapTicket(hs);
@@ -553,33 +689,43 @@ describe("mapTicket", () => {
     expect(ticket.objectType).toBe("ticket");
     expect(ticket.hubspotId).toBe("601");
     expect(ticket.fields).toMatchObject({
-      subject: "Maintenance Request - Plumbing",
-      content: "Leaking tap in bathroom",
-      pipeline: "Support Pipeline",
-      pipelineStage: "In Progress",
-      priority: "HIGH",
-      category: "Maintenance",
-      createDate: "2025-05-01T10:00:00Z",
-      lastModifiedDate: "2025-05-02T14:30:00Z",
+      hsPipeline: "Support Pipeline",
+      hsPipelineStage: "In Progress",
+      ticketCategory: "Maintenance",
+      hsTicketPriority: "HIGH",
+      costAssociated: 500,
+      costPaidBy: "Tenant",
+      resolutionNotes: "Fixed leaking tap",
+      tenantRating: 4,
+      scheduledOn: "2025-05-03",
+      timeSlot: "10:00-12:00",
+      ticketFlag: "Escalated",
+      hsObjectId: "601",
     });
   });
 
   it("handles all-null ticket fields", () => {
     const hs = makeRecord("602", {
-      subject: null,
-      content: null,
       hs_pipeline: null,
       hs_pipeline_stage: null,
+      ticket_category: null,
       hs_ticket_priority: null,
-      hs_ticket_category: null,
-      createdate: null,
-      hs_lastmodifieddate: null,
+      cost_associated: null,
+      cost_paid_by: null,
+      resolution_notes: null,
+      tenant_rating: null,
+      scheduled_on: null,
+      time_slot: null,
+      ticket_flag: null,
+      hs_object_id: null,
     });
 
     const result = mapTicket(hs);
     expect(result.records).toHaveLength(1);
     const ticket = result.records[0]!;
-    expect(ticket.fields.subject).toBeNull();
-    expect(ticket.fields.content).toBeNull();
+    expect(ticket.fields.hsPipeline).toBeNull();
+    expect(ticket.fields.ticketCategory).toBeNull();
+    expect(ticket.fields.costAssociated).toBeNull();
+    expect(ticket.fields.tenantRating).toBeNull();
   });
 });

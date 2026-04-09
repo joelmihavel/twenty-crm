@@ -8,6 +8,10 @@ import {
   CONTACT_PEOPLE_FIELDS,
   TENANT_FIELDS,
   LANDLORD_FIELDS,
+  CONTRACT_FIELDS,
+  PROPERTY_FIELDS,
+  ROOM_FIELDS,
+  TICKET_FIELDS,
   PIPELINE_MAP,
 } from "./types.js";
 
@@ -57,11 +61,15 @@ function pickFields(
 const CONTACT_KEY_OVERRIDES: Record<string, string> = {
   firstname: "firstName",
   lastname: "lastName",
-  dealname: "dealName",
-  closedate: "closeDate",
-  dealstage: "dealStage",
+  hs_object_id: "hsObjectId",
+};
+
+const ROOM_KEY_OVERRIDES: Record<string, string> = {
   roomid: "roomId",
-  createdate: "createDate",
+};
+
+const TICKET_KEY_OVERRIDES: Record<string, string> = {
+  hs_object_id: "hsObjectId",
 };
 
 // ── Numeric field sets ───────────────────────────────────────────────
@@ -77,6 +85,39 @@ const TENANT_NUMERIC_FIELDS = new Set([
   "first_month_rent",
   "budget",
   "nps_score",
+]);
+
+const CONTRACT_NUMERIC_FIELDS = new Set([
+  "monthly_license_fee",
+  "property_base_rent",
+  "security_deposit",
+  "platform_fees",
+  "convenience_fee",
+  "gst",
+  "tds_amount",
+  "maintenance_amount",
+  "increment_percentage",
+  "settlement_amount",
+]);
+
+const PROPERTY_NUMERIC_FIELDS = new Set([
+  "units",
+  "floors",
+  "washrooms",
+  "monthly_license_fee",
+  "maintenance_fee",
+]);
+
+const ROOM_NUMERIC_FIELDS = new Set([
+  "n3_month_lock_in_rent",
+  "n6_month_lock_in_rent",
+  "n11_month_lock_in_rent",
+  "no_lock_in_rent",
+]);
+
+const TICKET_NUMERIC_FIELDS = new Set([
+  "cost_associated",
+  "tenant_rating",
 ]);
 
 // ── Contact Mapping (-> Person + Tenant + Landlord) ─────────────────
@@ -154,12 +195,11 @@ export function mapContract(record: HubSpotRecord): MappedOutput {
   const records: TwentyRecord[] = [];
   const errors: MappingError[] = [];
 
+  const fields = pickFields(record.properties, CONTRACT_FIELDS, CONTRACT_NUMERIC_FIELDS);
   records.push({
     objectType: "contract",
     hubspotId: record.id,
-    fields: {
-      contractId: normalizeValue(record.properties["contract_id"]),
-    },
+    fields,
   });
 
   return { records, errors };
@@ -171,12 +211,11 @@ export function mapProperty(record: HubSpotRecord): MappedOutput {
   const records: TwentyRecord[] = [];
   const errors: MappingError[] = [];
 
+  const fields = pickFields(record.properties, PROPERTY_FIELDS, PROPERTY_NUMERIC_FIELDS);
   records.push({
     objectType: "property",
     hubspotId: record.id,
-    fields: {
-      pid: normalizeValue(record.properties["pid"]),
-    },
+    fields,
   });
 
   return { records, errors };
@@ -188,12 +227,11 @@ export function mapRoom(record: HubSpotRecord): MappedOutput {
   const records: TwentyRecord[] = [];
   const errors: MappingError[] = [];
 
+  const fields = pickFields(record.properties, ROOM_FIELDS, ROOM_NUMERIC_FIELDS, ROOM_KEY_OVERRIDES);
   records.push({
     objectType: "room",
     hubspotId: record.id,
-    fields: {
-      roomId: normalizeValue(record.properties["roomid"]),
-    },
+    fields,
   });
 
   return { records, errors };
@@ -204,21 +242,12 @@ export function mapRoom(record: HubSpotRecord): MappedOutput {
 export function mapTicket(record: HubSpotRecord): MappedOutput {
   const records: TwentyRecord[] = [];
   const errors: MappingError[] = [];
-  const props = record.properties;
 
+  const fields = pickFields(record.properties, TICKET_FIELDS, TICKET_NUMERIC_FIELDS, TICKET_KEY_OVERRIDES);
   records.push({
     objectType: "ticket",
     hubspotId: record.id,
-    fields: {
-      subject: normalizeValue(props["subject"]),
-      content: normalizeValue(props["content"]),
-      pipeline: normalizeValue(props["hs_pipeline"]),
-      pipelineStage: normalizeValue(props["hs_pipeline_stage"]),
-      priority: normalizeValue(props["hs_ticket_priority"]),
-      category: normalizeValue(props["hs_ticket_category"]),
-      createDate: normalizeValue(props["createdate"]),
-      lastModifiedDate: normalizeValue(props["hs_lastmodifieddate"]),
-    },
+    fields,
   });
 
   return { records, errors };

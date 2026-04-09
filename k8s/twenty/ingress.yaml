@@ -1,0 +1,49 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: twenty-server
+  namespace: twenty-prod
+  labels:
+    app: twenty-server
+    app.kubernetes.io/part-of: twenty
+  annotations:
+    kubernetes.io/ingress.class: "gce"
+    kubernetes.io/ingress.global-static-ip-name: "twenty-crm-ip"
+    networking.gke.io/managed-certificates: "twenty-crm-cert"
+    networking.gke.io/v1beta1.FrontendConfig: "twenty-frontend-config"
+spec:
+  defaultBackend:
+    service:
+      name: twenty-server
+      port:
+        number: 3000
+  rules:
+    - host: crm.flent.in
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: twenty-server
+                port:
+                  number: 3000
+---
+apiVersion: networking.gke.io/v1
+kind: ManagedCertificate
+metadata:
+  name: twenty-crm-cert
+  namespace: twenty-prod
+spec:
+  domains:
+    - crm.flent.in
+---
+apiVersion: networking.gke.io/v1beta1
+kind: FrontendConfig
+metadata:
+  name: twenty-frontend-config
+  namespace: twenty-prod
+spec:
+  redirectToHttps:
+    enabled: true
+    responseCodeName: MOVED_PERMANENTLY_DEFAULT

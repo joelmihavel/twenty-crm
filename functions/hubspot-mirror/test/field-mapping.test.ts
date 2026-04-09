@@ -120,12 +120,12 @@ describe("mapContact", () => {
       lastName: "Sharma",
       email: "aarav@example.com",
       phone: "+919876543210",
-      customerType: "Lead",
+      personRole: ["LEAD"],
       city: "Bangalore",
       aadharNumber: "1234-5678-9012",
       panCard: "ABCDE1234F",
       countryCode: "+91",
-      leadSource: "Website",
+      leadSource: "WEBSITE",
       leadSubSource: "Google Ads",
     });
   });
@@ -176,27 +176,27 @@ describe("mapContact", () => {
     expect(tenant).toBeDefined();
     expect(tenant!.hubspotId).toBe("102");
     expect(tenant!.fields).toMatchObject({
-      tenantLifecycle: "Active",
-      reserveStatus: "Confirmed",
-      tenantMonthlyRent: { amountMicros: 25_000_000_000, currencyCode: "INR" },
-      tenantBaseRent: { amountMicros: 22_000_000_000, currencyCode: "INR" },
-      monthlyMaintenance: { amountMicros: 2_000_000_000, currencyCode: "INR" },
+      tenantLifecycle: "ACTIVE",
+      reserveStatus: "CONFIRMED",
+      monthlyRent: { amountMicros: 25_000_000_000, currencyCode: "INR" },
+      baseRent: { amountMicros: 22_000_000_000, currencyCode: "INR" },
+      maintenanceAmount: { amountMicros: 2_000_000_000, currencyCode: "INR" },
       convenienceFee: { amountMicros: 500_000_000, currencyCode: "INR" },
       platformFee: { amountMicros: 300_000_000, currencyCode: "INR" },
-      tenantGst: { amountMicros: 450_000_000, currencyCode: "INR" },
+      gst: { amountMicros: 450_000_000, currencyCode: "INR" },
       furnishingRental: { amountMicros: 3_000_000_000, currencyCode: "INR" },
-      rentDue: "1",
-      rentStatus: "Paid",
+      rentDue: { amountMicros: 1_000_000, currencyCode: "INR" },
+      rentStatus: "PAID",
       firstMonthRent: { amountMicros: 25_000_000_000, currencyCode: "INR" },
-      realMoveInDate: "2025-03-01",
+      moveInDate: "2025-03-01",
       moveOutDate: null,
-      preferredArea: "Koramangala",
+      preferredAreas: ["KORAMANGALA"],
       budget: { amountMicros: 30_000_000_000, currencyCode: "INR" },
-      foodPreference: "Vegetarian",
-      smokingPreference: "No",
-      petPreference: "No",
+      foodPreference: "VEGETARIAN",
+      smoking: "NO",
+      petPreference: "NO",
       npsScore: 9,
-      customerStatus: "Active",
+      customerStatus: "ACTIVE",
     });
   });
 
@@ -211,7 +211,7 @@ describe("mapContact", () => {
       aadhar_number: "9876-5432-1098",
       pan_card: "XYZAB5678C",
       country_code: "+91",
-      lead_source: "Direct",
+      lead_source: "DIRECT",
       lead_sub_source: null,
       cashfree_vendor_id: "CF_V_123456",
       vendor_status: "Active",
@@ -233,12 +233,12 @@ describe("mapContact", () => {
     expect(landlord!.hubspotId).toBe("103");
     expect(landlord!.fields).toMatchObject({
       cashfreeVendorId: "CF_V_123456",
-      vendorStatus: "Active",
+      vendorStatus: "ACTIVE",
       bankAccountNumber: "12345678901234",
       ifscCode: "HDFC0001234",
       accountHolderName: "Rajesh Kumar",
-      accountType: "Savings",
-      pennyDropStatus: "Verified",
+      accountType: "SAVINGS",
+      pennyDropStatus: "VERIFIED",
     });
   });
 
@@ -350,7 +350,7 @@ describe("mapContact", () => {
     expect(person!.fields).not.toHaveProperty("hsAnalyticsSource");
     expect(person!.fields).not.toHaveProperty("someRandomField");
     // hs_object_id IS whitelisted and should be present
-    expect(person!.fields.hsObjectId).toBe("999");
+    expect(person!.fields.hubspotRecordId).toBe("999");
   });
 
   it("detects Tenant with case-insensitive match", () => {
@@ -432,8 +432,8 @@ describe("mapContact", () => {
     const result = mapContact(hs);
     const tenant = result.records.find((r) => r.objectType === "tenant");
     expect(tenant).toBeDefined();
-    expect(tenant!.fields.tenantMonthlyRent).toBeNull();
-    expect(tenant!.fields.tenantBaseRent).toBeNull();
+    expect(tenant!.fields.monthlyRent).toBeNull();
+    expect(tenant!.fields.baseRent).toBeNull();
     expect(tenant!.fields.budget).toBeNull();
     expect(tenant!.fields.npsScore).toBeNull();
   });
@@ -461,11 +461,11 @@ describe("mapDeal", () => {
     expect(opp.objectType).toBe("opportunity");
     expect(opp.hubspotId).toBe("201");
     expect(opp.fields).toMatchObject({
-      dealName: "Reserve - Aarav - HSR Layout",
+      name: "Reserve - Aarav - HSR Layout",
       amount: { amountMicros: 150_000_000_000, currencyCode: "INR" },
       closeDate: "2025-06-15",
-      dealStage: "contractsent",
-      pipeline: "Reserve",
+      stage: "CONTRACTSENT",
+      pipelineType: "RESERVE",
     });
   });
 
@@ -480,7 +480,7 @@ describe("mapDeal", () => {
 
     const result = mapDeal(hs);
     const opp = result.records[0]!;
-    expect(opp.fields.pipeline).toBe("Occupancy");
+    expect(opp.fields.pipelineType).toBe("OCCUPANCY");
     expect(opp.fields.amount).toEqual({ amountMicros: 25_000_000_000, currencyCode: "INR" });
   });
 
@@ -495,7 +495,7 @@ describe("mapDeal", () => {
 
     const result = mapDeal(hs);
     const opp = result.records[0]!;
-    expect(opp.fields.pipeline).toBe("F4B");
+    expect(opp.fields.pipelineType).toBe("F4B");
     expect(opp.fields.closeDate).toBeNull();
   });
 
@@ -510,7 +510,7 @@ describe("mapDeal", () => {
 
     const result = mapDeal(hs);
     const opp = result.records[0]!;
-    expect(opp.fields.pipeline).toBe("Some New Pipeline");
+    expect(opp.fields.pipelineType).toBe("SOME_NEW_PIPELINE");
   });
 
   it("handles null amount as null (not 0)", () => {
@@ -553,7 +553,7 @@ describe("mapContract", () => {
       contract_id: "FLENT-C-2025-001",
       contract_uid: "UID-001",
       contract_type: "Lease",
-      state: "Active",
+      state: "ACTIVE",
       business_type: "Residential",
       pid: "PROP-BLR-001",
       rid: "ROOM-001",
@@ -592,18 +592,18 @@ describe("mapContract", () => {
     expect(contract.fields).toMatchObject({
       contractId: "FLENT-C-2025-001",
       contractUid: "UID-001",
-      contractType: "Lease",
-      state: "Active",
-      businessType: "Residential",
+      contractType: "LEASE",
+      state: "ACTIVE",
+      businessType: "RESIDENTIAL",
       pid: "PROP-BLR-001",
       rid: "ROOM-001",
-      contractStartDate: "2025-01-01",
-      contractEndDate: "2026-01-01",
+      startDate: "2025-01-01",
+      endDate: "2026-01-01",
       goLiveDate: "2025-01-15",
-      lockInEndDate: "2025-07-01",
-      lockInPlan: "6 months",
+      lockInEnd: "2025-07-01",
+      lockInPlan: "SIX_MONTHS",
       monthlyLicenseFee: { amountMicros: 25_000_000_000, currencyCode: "INR" },
-      propertyBaseRent: { amountMicros: 22_000_000_000, currencyCode: "INR" },
+      baseRent: { amountMicros: 22_000_000_000, currencyCode: "INR" },
       securityDeposit: { amountMicros: 50_000_000_000, currencyCode: "INR" },
       platformFees: { amountMicros: 1_000_000_000, currencyCode: "INR" },
       convenienceFee: { amountMicros: 500_000_000, currencyCode: "INR" },
@@ -611,11 +611,11 @@ describe("mapContract", () => {
       tdsAmount: { amountMicros: 2_200_000_000, currencyCode: "INR" },
       maintenanceAmount: { amountMicros: 2_000_000_000, currencyCode: "INR" },
       incrementPercentage: 5,
-      rentalCycle: "Monthly",
+      rentalCycle: "MONTHLY",
       shortTermFlag: "false",
       waterChargesSeparate: "true",
       moveInInspector: "Inspector A",
-      moveInStatus: "Completed",
+      moveInStatus: "COMPLETED",
       moveOutInspector: null,
       moveOutStatus: null,
       depositSettled: "false",
@@ -674,7 +674,7 @@ describe("mapProperty", () => {
       rent_cycle: "Monthly",
       maintenance_cycle: "Quarterly",
       tds_deduction: "Yes",
-      source: "Direct",
+      source: "DIRECT",
       gallery_link: "https://gallery.example.com/prop1",
       lock_box_installed: "true",
       lock_box_code: "1234",
@@ -695,10 +695,10 @@ describe("mapProperty", () => {
       propertyName: "Sunrise Residency",
       buildingName: "Tower A",
       propertyAddress: "123 MG Road",
-      areaName: "Koramangala",
+      area: "KORAMANGALA",
       cluster: "South Bangalore",
       mapLink: "https://maps.google.com/xyz",
-      propertyType: "Apartment",
+      propertyType: "APARTMENT",
       grade: "A",
       units: 12,
       floors: 3,
@@ -706,10 +706,10 @@ describe("mapProperty", () => {
       furnishings: "Semi-Furnished",
       monthlyLicenseFee: { amountMicros: 25_000_000_000, currencyCode: "INR" },
       maintenanceFee: { amountMicros: 3_000_000_000, currencyCode: "INR" },
-      rentCycle: "Monthly",
-      maintenanceCycle: "Quarterly",
+      rentCycle: "MONTHLY",
+      maintenanceCycle: "QUARTERLY",
       tdsDeduction: "Yes",
-      source: "Direct",
+      source: "DIRECT",
       galleryLink: "https://gallery.example.com/prop1",
       lockBoxInstalled: "true",
       lockBoxCode: "1234",
@@ -752,9 +752,9 @@ describe("mapRoom", () => {
     expect(room.hubspotId).toBe("501");
     expect(room.fields).toMatchObject({
       roomId: "ROOM-BLR-001-A",
-      n3MonthLockInRent: { amountMicros: 15_000_000_000, currencyCode: "INR" },
-      n6MonthLockInRent: { amountMicros: 14_000_000_000, currencyCode: "INR" },
-      n11MonthLockInRent: { amountMicros: 13_000_000_000, currencyCode: "INR" },
+      threeMonthLockInRent: { amountMicros: 15_000_000_000, currencyCode: "INR" },
+      sixMonthLockInRent: { amountMicros: 14_000_000_000, currencyCode: "INR" },
+      elevenMonthLockInRent: { amountMicros: 13_000_000_000, currencyCode: "INR" },
       noLockInRent: { amountMicros: 16_000_000_000, currencyCode: "INR" },
     });
   });
@@ -779,9 +779,9 @@ describe("mapRoom", () => {
 
     const result = mapRoom(hs);
     const room = result.records[0]!;
-    expect(room.fields.n3MonthLockInRent).toBeNull();
-    expect(room.fields.n6MonthLockInRent).toBeNull();
-    expect(room.fields.n11MonthLockInRent).toBeNull();
+    expect(room.fields.threeMonthLockInRent).toBeNull();
+    expect(room.fields.sixMonthLockInRent).toBeNull();
+    expect(room.fields.elevenMonthLockInRent).toBeNull();
     expect(room.fields.noLockInRent).toBeNull();
   });
 });
@@ -793,9 +793,9 @@ describe("mapRoom", () => {
 describe("mapTicket", () => {
   it("maps a ticket record with currency field in amountMicros format", () => {
     const hs = makeRecord("601", {
-      hs_pipeline: "Support Pipeline",
+      hs_pipeline: "SUPPORT_PIPELINE",
       hs_pipeline_stage: "In Progress",
-      ticket_category: "Maintenance",
+      ticket_category: "MAINTENANCE",
       hs_ticket_priority: "HIGH",
       cost_associated: "500",
       cost_paid_by: "Tenant",
@@ -803,7 +803,7 @@ describe("mapTicket", () => {
       tenant_rating: "4",
       scheduled_on: "2025-05-03",
       time_slot: "10:00-12:00",
-      ticket_flag: "Escalated",
+      ticket_flag: "ESCALATED",
       hs_object_id: "601",
     });
 
@@ -815,18 +815,18 @@ describe("mapTicket", () => {
     expect(ticket.objectType).toBe("ticket");
     expect(ticket.hubspotId).toBe("601");
     expect(ticket.fields).toMatchObject({
-      hsPipeline: "Support Pipeline",
-      hsPipelineStage: "In Progress",
-      ticketCategory: "Maintenance",
-      hsTicketPriority: "HIGH",
-      costAssociated: { amountMicros: 500_000_000, currencyCode: "INR" },
-      costPaidBy: "Tenant",
+      pipeline: "SUPPORT_PIPELINE",
+      ticketStatus: "IN_PROGRESS",
+      category: "MAINTENANCE",
+      priority: "HIGH",
+      cost: { amountMicros: 500_000_000, currencyCode: "INR" },
+      costPaidBy: "TENANT",
       resolutionNotes: "Fixed leaking tap",
-      tenantRating: 4,
+      tenantRating: "4",
       scheduledOn: "2025-05-03",
       timeSlot: "10:00-12:00",
-      ticketFlag: "Escalated",
-      hsObjectId: "601",
+      flag: "ESCALATED",
+      hubspotRecordId: "601",
     });
   });
 
@@ -849,9 +849,9 @@ describe("mapTicket", () => {
     const result = mapTicket(hs);
     expect(result.records).toHaveLength(1);
     const ticket = result.records[0]!;
-    expect(ticket.fields.hsPipeline).toBeNull();
-    expect(ticket.fields.ticketCategory).toBeNull();
-    expect(ticket.fields.costAssociated).toBeNull();
+    expect(ticket.fields.pipeline).toBeNull();
+    expect(ticket.fields.category).toBeNull();
+    expect(ticket.fields.cost).toBeNull();
     expect(ticket.fields.tenantRating).toBeNull();
   });
 });

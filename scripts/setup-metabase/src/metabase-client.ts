@@ -166,7 +166,7 @@ export async function addDatabase(
 }
 
 export async function syncDatabase(token: string, dbId: number): Promise<void> {
-  await request<unknown>("POST", `/database/${dbId}/sync`, undefined, token);
+  await request<unknown>("POST", `/database/${dbId}/sync_schema`, undefined, token);
 }
 
 // ── Queries ─────────────────────────────────────────────────────────────────
@@ -273,25 +273,24 @@ export async function createDashboard(
   );
 }
 
-export async function addCardToDashboard(
+export interface DashcardPlacement {
+  id: number; // Use negative temp IDs for new cards
+  card_id: number;
+  row: number;
+  col: number;
+  size_x: number;
+  size_y: number;
+}
+
+export async function setDashboardCards(
   token: string,
   dashboardId: number,
-  cardId: number,
-  row: number,
-  col: number,
-  sizeX: number,
-  sizeY: number
-): Promise<DashboardCard> {
-  return request<DashboardCard>(
-    "POST",
-    `/dashboard/${dashboardId}/cards`,
-    {
-      cardId,
-      row,
-      col,
-      size_x: sizeX,
-      size_y: sizeY,
-    },
+  dashcards: DashcardPlacement[]
+): Promise<MetabaseDashboard> {
+  return request<MetabaseDashboard>(
+    "PUT",
+    `/dashboard/${dashboardId}`,
+    { dashcards },
     token
   );
 }

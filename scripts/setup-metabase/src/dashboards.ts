@@ -5,11 +5,15 @@
  * with the actual workspace schema name at runtime.
  *
  * Twenty CRM stores custom objects in a workspace-specific schema
- * (e.g. workspace_abc123). Field names in the DB are camelCase
- * (matching the metadata API names). Currency fields use a composite
- * column pattern: "<fieldName>AmountMicros" (bigint) and
- * "<fieldName>CurrencyCode" (text). SELECT fields are stored as text
- * containing the SCREAMING_SNAKE_CASE value.
+ * (e.g. workspace_abc123). Custom objects have an underscore prefix
+ * in the table name (e.g. _room, _property, _contract, _ticket, _tenant).
+ * Standard objects (opportunity, person) have no prefix.
+ *
+ * Field names in the DB are camelCase (matching the metadata API names).
+ * Currency fields use a composite column pattern: "<fieldName>AmountMicros"
+ * (numeric) and "<fieldName>CurrencyCode" (text). SELECT fields are
+ * PostgreSQL enum types with SCREAMING_SNAKE_CASE values. To compare
+ * them in SQL, cast to text: "column"::text = 'VALUE'.
  */
 
 // ── Types ───────────────────────────────────────────────────────────────────
@@ -39,11 +43,11 @@ const occupancyOverview: DashboardDefinition = {
       sql: `
 SELECT
   CASE
-    WHEN "roomStatus" = 'OCCUPIED' THEN 'Occupied'
+    WHEN "roomStatus"::text = 'OCCUPIED' THEN 'Occupied'
     ELSE 'Not Occupied'
   END AS status,
   COUNT(*) AS count
-FROM "{{SCHEMA}}"."room"
+FROM "{{SCHEMA}}"."_room"
 WHERE "deletedAt" IS NULL
 GROUP BY 1
 ORDER BY 1
@@ -59,15 +63,14 @@ ORDER BY 1
       sql: `
 SELECT
   p."propertyName" AS property,
-  COUNT(*) FILTER (WHERE r."roomStatus" = 'OCCUPIED') AS occupied,
+  COUNT(*) FILTER (WHERE r."roomStatus"::text = 'OCCUPIED') AS occupied,
   COUNT(*) AS total,
   ROUND(
-    100.0 * COUNT(*) FILTER (WHERE r."roomStatus" = 'OCCUPIED') / NULLIF(COUNT(*), 0),
+    100.0 * COUNT(*) FILTER (WHERE r."roomStatus"::text = 'OCCUPIED') / NULLIF(COUNT(*), 0),
     1
   ) AS occupancy_pct
-FROM "{{SCHEMA}}"."room" r
-JOIN "{{SCHEMA}}"."room" r2 ON r.id = r2.id
-JOIN "{{SCHEMA}}"."property" p ON r."propertyId" = p.id
+FROM "{{SCHEMA}}"."_room" r
+JOIN "{{SCHEMA}}"."_property" p ON r."propertyId" = p.id
 WHERE r."deletedAt" IS NULL
   AND p."deletedAt" IS NULL
 GROUP BY p."propertyName"
@@ -85,19 +88,19 @@ ORDER BY occupancy_pct DESC
       display: "bar",
       sql: `
 SELECT
-  p."area" AS area,
-  COUNT(*) FILTER (WHERE r."roomStatus" = 'OCCUPIED') AS occupied,
+  p."area"::text AS area,
+  COUNT(*) FILTER (WHERE r."roomStatus"::text = 'OCCUPIED') AS occupied,
   COUNT(*) AS total,
   ROUND(
-    100.0 * COUNT(*) FILTER (WHERE r."roomStatus" = 'OCCUPIED') / NULLIF(COUNT(*), 0),
+    100.0 * COUNT(*) FILTER (WHERE r."roomStatus"::text = 'OCCUPIED') / NULLIF(COUNT(*), 0),
     1
   ) AS occupancy_pct
-FROM "{{SCHEMA}}"."room" r
-JOIN "{{SCHEMA}}"."property" p ON r."propertyId" = p.id
+FROM "{{SCHEMA}}"."_room" r
+JOIN "{{SCHEMA}}"."_property" p ON r."propertyId" = p.id
 WHERE r."deletedAt" IS NULL
   AND p."deletedAt" IS NULL
   AND p."area" IS NOT NULL
-GROUP BY p."area"
+GROUP BY p."area"::text
 ORDER BY occupancy_pct DESC
       `.trim(),
       visualizationSettings: {
@@ -114,16 +117,16 @@ ORDER BY occupancy_pct DESC
 SELECT
   r."roomId" AS room_id,
   p."propertyName" AS property,
-  p."area" AS area,
+  p."area"::text AS area,
   r."noLockInRentAmountMicros" / 1000000.0 AS no_lockin_rent,
   r."threeMonthLockInRentAmountMicros" / 1000000.0 AS three_month_rent,
   r."sixMonthLockInRentAmountMicros" / 1000000.0 AS six_month_rent,
   r."elevenMonthLockInRentAmountMicros" / 1000000.0 AS eleven_month_rent
-FROM "{{SCHEMA}}"."room" r
-JOIN "{{SCHEMA}}"."property" p ON r."propertyId" = p.id
+FROM "{{SCHEMA}}"."_room" r
+JOIN "{{SCHEMA}}"."_property" p ON r."propertyId" = p.id
 WHERE r."deletedAt" IS NULL
   AND p."deletedAt" IS NULL
-  AND r."roomStatus" = 'VACANT'
+  AND r."roomStatus"::text = 'VACANT'
 ORDER BY p."propertyName", r."roomId"
       `.trim(),
     },
@@ -143,12 +146,12 @@ const revenueByProperty: DashboardDefinition = {
 SELECT
   p."propertyName" AS property,
   SUM(c."monthlyLicenseFeeAmountMicros") / 1000000.0 AS monthly_rent
-FROM "{{SCHEMA}}"."contract" c
-JOIN "{{SCHEMA}}"."property" p ON c."propertyId" = p.id
+FROM "{{SCHEMA}}"."_contract" c
+JOIN "{{SCHEMA}}"."_property" p ON c."propertyId" = p.id
 WHERE c."deletedAt" IS NULL
   AND p."deletedAt" IS NULL
-  AND c."state" = 'ACTIVE'
-  AND c."contractType" = 'TENANT_AGREEMENT'
+  AND c."state"::text = 'ACTIVE'
+  AND c."contractType"::text = 'TENANT_AGREEMENT'
 GROUP BY p."propertyName"
 ORDER BY monthly_rent DESC
       `.trim(),
@@ -163,14 +166,14 @@ ORDER BY monthly_rent DESC
       display: "line",
       sql: `
 SELECT
-  DATE_TRUNC('month', c."startDate") AS month,
+  DATE_TRUNC('month', c."startDate"::timestamp) AS month,
   SUM(c."monthlyLicenseFeeAmountMicros") / 1000000.0 AS monthly_revenue
-FROM "{{SCHEMA}}"."contract" c
+FROM "{{SCHEMA}}"."_contract" c
 WHERE c."deletedAt" IS NULL
-  AND c."state" IN ('ACTIVE', 'RENEWED')
-  AND c."contractType" = 'TENANT_AGREEMENT'
+  AND c."state"::text IN ('ACTIVE', 'RENEWED')
+  AND c."contractType"::text = 'TENANT_AGREEMENT'
   AND c."startDate" IS NOT NULL
-GROUP BY DATE_TRUNC('month', c."startDate")
+GROUP BY DATE_TRUNC('month', c."startDate"::timestamp)
 ORDER BY month
       `.trim(),
       visualizationSettings: {
@@ -184,16 +187,16 @@ ORDER BY month
       display: "pie",
       sql: `
 SELECT
-  p."area" AS area,
+  p."area"::text AS area,
   SUM(c."monthlyLicenseFeeAmountMicros") / 1000000.0 AS monthly_rent
-FROM "{{SCHEMA}}"."contract" c
-JOIN "{{SCHEMA}}"."property" p ON c."propertyId" = p.id
+FROM "{{SCHEMA}}"."_contract" c
+JOIN "{{SCHEMA}}"."_property" p ON c."propertyId" = p.id
 WHERE c."deletedAt" IS NULL
   AND p."deletedAt" IS NULL
-  AND c."state" = 'ACTIVE'
-  AND c."contractType" = 'TENANT_AGREEMENT'
+  AND c."state"::text = 'ACTIVE'
+  AND c."contractType"::text = 'TENANT_AGREEMENT'
   AND p."area" IS NOT NULL
-GROUP BY p."area"
+GROUP BY p."area"::text
 ORDER BY monthly_rent DESC
       `.trim(),
       visualizationSettings: {
@@ -215,12 +218,12 @@ const pipelineFunnel: DashboardDefinition = {
       display: "bar",
       sql: `
 SELECT
-  o."stage" AS stage,
+  o."stage"::text AS stage,
   COUNT(*) AS count
 FROM "{{SCHEMA}}"."opportunity" o
 WHERE o."deletedAt" IS NULL
-  AND o."pipelineType" = 'OCCUPANCY'
-GROUP BY o."stage"
+  AND o."pipelineType"::text = 'OCCUPANCY'
+GROUP BY o."stage"::text
 ORDER BY count DESC
       `.trim(),
       visualizationSettings: {
@@ -233,12 +236,12 @@ ORDER BY count DESC
       display: "bar",
       sql: `
 SELECT
-  o."stage" AS stage,
+  o."stage"::text AS stage,
   COUNT(*) AS count
 FROM "{{SCHEMA}}"."opportunity" o
 WHERE o."deletedAt" IS NULL
-  AND o."pipelineType" = 'RESERVE'
-GROUP BY o."stage"
+  AND o."pipelineType"::text = 'RESERVE'
+GROUP BY o."stage"::text
 ORDER BY count DESC
       `.trim(),
       visualizationSettings: {
@@ -251,12 +254,12 @@ ORDER BY count DESC
       display: "bar",
       sql: `
 SELECT
-  o."stage" AS stage,
+  o."stage"::text AS stage,
   COUNT(*) AS count
 FROM "{{SCHEMA}}"."opportunity" o
 WHERE o."deletedAt" IS NULL
-  AND o."pipelineType" = 'SUPPLY'
-GROUP BY o."stage"
+  AND o."pipelineType"::text = 'SUPPLY'
+GROUP BY o."stage"::text
 ORDER BY count DESC
       `.trim(),
       visualizationSettings: {
@@ -269,12 +272,12 @@ ORDER BY count DESC
       display: "pie",
       sql: `
 SELECT
-  o."pipelineType" AS pipeline,
+  o."pipelineType"::text AS pipeline,
   COUNT(*) AS count
 FROM "{{SCHEMA}}"."opportunity" o
 WHERE o."deletedAt" IS NULL
   AND o."pipelineType" IS NOT NULL
-GROUP BY o."pipelineType"
+GROUP BY o."pipelineType"::text
 ORDER BY count DESC
       `.trim(),
       visualizationSettings: {
@@ -288,7 +291,7 @@ ORDER BY count DESC
       sql: `
 SELECT
   COUNT(*) AS move_ins_this_month
-FROM "{{SCHEMA}}"."tenant" t
+FROM "{{SCHEMA}}"."_tenant" t
 WHERE t."deletedAt" IS NULL
   AND t."moveInDate" >= DATE_TRUNC('month', CURRENT_DATE)
   AND t."moveInDate" < DATE_TRUNC('month', CURRENT_DATE) + INTERVAL '1 month'
@@ -307,21 +310,23 @@ const ticketSla: DashboardDefinition = {
       name: "Open Tickets by Age",
       display: "bar",
       sql: `
-SELECT
-  CASE
-    WHEN CURRENT_DATE - t."createdAt"::date <= 3  THEN '0-3 days'
-    WHEN CURRENT_DATE - t."createdAt"::date <= 7  THEN '3-7 days'
-    ELSE '7+ days'
-  END AS age_bucket,
-  COUNT(*) AS count
-FROM "{{SCHEMA}}"."ticket" t
-WHERE t."deletedAt" IS NULL
-  AND t."ticketStatus" NOT IN ('CLOSED', 'READY_FOR_CLOSURE')
-GROUP BY 1
+SELECT age_bucket, count FROM (
+  SELECT
+    CASE
+      WHEN CURRENT_DATE - t."createdAt"::date <= 3  THEN '0-3 days'
+      WHEN CURRENT_DATE - t."createdAt"::date <= 7  THEN '3-7 days'
+      ELSE '7+ days'
+    END AS age_bucket,
+    COUNT(*) AS count
+  FROM "{{SCHEMA}}"."_ticket" t
+  WHERE t."deletedAt" IS NULL
+    AND t."ticketStatus"::text NOT IN ('CLOSED', 'READY_FOR_CLOSURE')
+  GROUP BY 1
+) sub
 ORDER BY
-  CASE
-    WHEN CURRENT_DATE - t."createdAt"::date <= 3 THEN 1
-    WHEN CURRENT_DATE - t."createdAt"::date <= 7 THEN 2
+  CASE age_bucket
+    WHEN '0-3 days' THEN 1
+    WHEN '3-7 days' THEN 2
     ELSE 3
   END
       `.trim(),
@@ -335,18 +340,18 @@ ORDER BY
       display: "bar",
       sql: `
 SELECT
-  t."category" AS category,
+  t."category"::text AS category,
   ROUND(
     AVG(
       EXTRACT(EPOCH FROM (t."updatedAt" - t."createdAt")) / 86400.0
     )::numeric,
     1
   ) AS avg_days_to_resolve
-FROM "{{SCHEMA}}"."ticket" t
+FROM "{{SCHEMA}}"."_ticket" t
 WHERE t."deletedAt" IS NULL
-  AND t."ticketStatus" IN ('CLOSED', 'READY_FOR_CLOSURE')
+  AND t."ticketStatus"::text IN ('CLOSED', 'READY_FOR_CLOSURE')
   AND t."category" IS NOT NULL
-GROUP BY t."category"
+GROUP BY t."category"::text
 ORDER BY avg_days_to_resolve DESC
       `.trim(),
       visualizationSettings: {
@@ -360,15 +365,15 @@ ORDER BY avg_days_to_resolve DESC
       sql: `
 SELECT
   CASE
-    WHEN t."tenantRating" = 'RATING_1' THEN '1 Star'
-    WHEN t."tenantRating" = 'RATING_2' THEN '2 Stars'
-    WHEN t."tenantRating" = 'RATING_3' THEN '3 Stars'
-    WHEN t."tenantRating" = 'RATING_4' THEN '4 Stars'
-    WHEN t."tenantRating" = 'RATING_5' THEN '5 Stars'
+    WHEN t."tenantRating"::text = 'RATING_1' THEN '1 Star'
+    WHEN t."tenantRating"::text = 'RATING_2' THEN '2 Stars'
+    WHEN t."tenantRating"::text = 'RATING_3' THEN '3 Stars'
+    WHEN t."tenantRating"::text = 'RATING_4' THEN '4 Stars'
+    WHEN t."tenantRating"::text = 'RATING_5' THEN '5 Stars'
     ELSE 'Unrated'
   END AS rating,
   COUNT(*) AS count
-FROM "{{SCHEMA}}"."ticket" t
+FROM "{{SCHEMA}}"."_ticket" t
 WHERE t."deletedAt" IS NULL
   AND t."tenantRating" IS NOT NULL
 GROUP BY 1
@@ -384,9 +389,9 @@ ORDER BY rating
       display: "scalar",
       sql: `
 SELECT COUNT(*) AS open_tickets
-FROM "{{SCHEMA}}"."ticket" t
+FROM "{{SCHEMA}}"."_ticket" t
 WHERE t."deletedAt" IS NULL
-  AND t."ticketStatus" NOT IN ('CLOSED', 'READY_FOR_CLOSURE')
+  AND t."ticketStatus"::text NOT IN ('CLOSED', 'READY_FOR_CLOSURE')
       `.trim(),
     },
   ],
@@ -404,18 +409,18 @@ const leaseExpiry: DashboardDefinition = {
       sql: `
 SELECT
   c."contractId" AS contract_id,
-  c."contractType" AS type,
-  c."state" AS state,
+  c."contractType"::text AS type,
+  c."state"::text AS state,
   p."propertyName" AS property,
   r."roomId" AS room,
   c."endDate" AS end_date,
   c."monthlyLicenseFeeAmountMicros" / 1000000.0 AS monthly_rent,
   (c."endDate"::date - CURRENT_DATE) AS days_remaining
-FROM "{{SCHEMA}}"."contract" c
-LEFT JOIN "{{SCHEMA}}"."property" p ON c."propertyId" = p.id
-LEFT JOIN "{{SCHEMA}}"."room" r ON c."roomId" = r.id
+FROM "{{SCHEMA}}"."_contract" c
+LEFT JOIN "{{SCHEMA}}"."_property" p ON c."propertyId" = p.id
+LEFT JOIN "{{SCHEMA}}"."_room" r ON c."roomId" = r.id
 WHERE c."deletedAt" IS NULL
-  AND c."state" IN ('ACTIVE', 'RENEWED')
+  AND c."state"::text IN ('ACTIVE', 'RENEWED')
   AND c."endDate" IS NOT NULL
   AND c."endDate"::date BETWEEN CURRENT_DATE AND CURRENT_DATE + INTERVAL '30 days'
 ORDER BY c."endDate"
@@ -426,9 +431,9 @@ ORDER BY c."endDate"
       display: "scalar",
       sql: `
 SELECT COUNT(*) AS contracts_expiring_60d
-FROM "{{SCHEMA}}"."contract" c
+FROM "{{SCHEMA}}"."_contract" c
 WHERE c."deletedAt" IS NULL
-  AND c."state" IN ('ACTIVE', 'RENEWED')
+  AND c."state"::text IN ('ACTIVE', 'RENEWED')
   AND c."endDate" IS NOT NULL
   AND c."endDate"::date BETWEEN CURRENT_DATE AND CURRENT_DATE + INTERVAL '60 days'
       `.trim(),
@@ -438,9 +443,9 @@ WHERE c."deletedAt" IS NULL
       display: "scalar",
       sql: `
 SELECT COUNT(*) AS contracts_expiring_90d
-FROM "{{SCHEMA}}"."contract" c
+FROM "{{SCHEMA}}"."_contract" c
 WHERE c."deletedAt" IS NULL
-  AND c."state" IN ('ACTIVE', 'RENEWED')
+  AND c."state"::text IN ('ACTIVE', 'RENEWED')
   AND c."endDate" IS NOT NULL
   AND c."endDate"::date BETWEEN CURRENT_DATE AND CURRENT_DATE + INTERVAL '90 days'
       `.trim(),
@@ -450,14 +455,14 @@ WHERE c."deletedAt" IS NULL
       display: "bar",
       sql: `
 SELECT
-  TO_CHAR(DATE_TRUNC('month', c."endDate"), 'YYYY-MM') AS month,
+  TO_CHAR(DATE_TRUNC('month', c."endDate"::timestamp), 'YYYY-MM') AS month,
   COUNT(*) AS expiring_contracts
-FROM "{{SCHEMA}}"."contract" c
+FROM "{{SCHEMA}}"."_contract" c
 WHERE c."deletedAt" IS NULL
-  AND c."state" IN ('ACTIVE', 'RENEWED')
+  AND c."state"::text IN ('ACTIVE', 'RENEWED')
   AND c."endDate" IS NOT NULL
   AND c."endDate"::date BETWEEN CURRENT_DATE AND CURRENT_DATE + INTERVAL '6 months'
-GROUP BY DATE_TRUNC('month', c."endDate")
+GROUP BY DATE_TRUNC('month', c."endDate"::timestamp)
 ORDER BY month
       `.trim(),
       visualizationSettings: {

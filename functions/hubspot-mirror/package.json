@@ -5,6 +5,7 @@
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
+    "gcp-build": "",
     "start": "npx functions-framework --target=hubspotMirror --source=dist/",
     "test": "vitest run",
     "test:watch": "vitest",

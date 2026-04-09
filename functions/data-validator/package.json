@@ -5,6 +5,7 @@
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
+    "gcp-build": "",
     "start": "npx functions-framework --target=dataValidator --signature-type=cloudevent",
     "test": "vitest run",
     "test:watch": "vitest"

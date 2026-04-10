@@ -18,7 +18,7 @@ spec:
       port:
         number: 3000
   rules:
-    - host: crm.flent.in
+    - host: hawkeye.flent.in
       http:
         paths:
           - path: /
@@ -36,7 +36,7 @@ metadata:
   namespace: twenty-prod
 spec:
   domains:
-    - crm.flent.in
+    - hawkeye.flent.in
 ---
 apiVersion: networking.gke.io/v1beta1
 kind: FrontendConfig

@@ -108,7 +108,7 @@ export const DEFAULT_CONFIG: Pick<
   "hubspotBaseUrl" | "twentyApiUrl" | "batchSize" | "maxRetriesOn429" | "gcsBucket" | "gcsCheckpointPath"
 > = {
   hubspotBaseUrl: "https://api.hubapi.com",
-  twentyApiUrl: "http://34.93.202.112/graphql",
+  twentyApiUrl: "https://hawkeye.flent.in/graphql",
   batchSize: 60,
   maxRetriesOn429: 3,
   gcsBucket: "flent-twenty-files",

@@ -14,20 +14,62 @@ metadata:
 spec:
   defaultBackend:
     service:
-      name: twenty-server
+      name: hawkeye
       port:
-        number: 3000
+        number: 3001
   rules:
     - host: hawkeye.flent.in
       http:
         paths:
-          - path: /
+          - path: /graphql
             pathType: Prefix
             backend:
               service:
                 name: twenty-server
                 port:
                   number: 3000
+          - path: /metadata
+            pathType: Prefix
+            backend:
+              service:
+                name: twenty-server
+                port:
+                  number: 3000
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: twenty-server
+                port:
+                  number: 3000
+          - path: /rest
+            pathType: Prefix
+            backend:
+              service:
+                name: twenty-server
+                port:
+                  number: 3000
+          - path: /crmops
+            pathType: Prefix
+            backend:
+              service:
+                name: twenty-server
+                port:
+                  number: 3000
+          - path: /healthz
+            pathType: Exact
+            backend:
+              service:
+                name: twenty-server
+                port:
+                  number: 3000
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: hawkeye
+                port:
+                  number: 3001
 ---
 apiVersion: networking.gke.io/v1
 kind: ManagedCertificate

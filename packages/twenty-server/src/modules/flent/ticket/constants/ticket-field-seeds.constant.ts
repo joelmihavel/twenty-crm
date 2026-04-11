@@ -1,0 +1,163 @@
+import { FieldMetadataType } from 'twenty-shared/types';
+
+import { type FieldMetadataSeed } from 'src/engine/workspace-manager/dev-seeder/metadata/types/field-metadata-seed.type';
+
+export const TICKET_FIELD_SEEDS: FieldMetadataSeed[] = [
+  {
+    type: FieldMetadataType.SELECT,
+    label: 'Pipeline',
+    name: 'pipeline',
+    icon: 'IconFilter',
+    isNullable: false,
+    options: [
+      { label: 'Tenant', value: 'TENANT', position: 0, color: 'blue' },
+      { label: 'Landlord', value: 'LANDLORD', position: 1, color: 'purple' },
+    ],
+  },
+  {
+    type: FieldMetadataType.RICH_TEXT,
+    label: 'Ticket Description',
+    name: 'ticketDescription',
+    icon: 'IconFileDescription',
+    isNullable: true,
+  },
+  {
+    type: FieldMetadataType.SELECT,
+    label: 'Ticket Owner',
+    name: 'ticketOwner',
+    icon: 'IconUser',
+    description: 'Team member assigned as ticket owner',
+    isNullable: true,
+    options: [
+      { label: 'Unassigned', value: 'UNASSIGNED', position: 0, color: 'gray' },
+    ],
+  },
+  {
+    type: FieldMetadataType.SELECT,
+    label: 'Ticket Category',
+    name: 'ticketCategory',
+    icon: 'IconCategory',
+    isNullable: false,
+    options: [
+      { label: 'Plumbing', value: 'PLUMBING', position: 0, color: 'blue' },
+      { label: 'Carpentry', value: 'CARPENTRY', position: 1, color: 'orange' },
+      {
+        label: 'Electrical',
+        value: 'ELECTRICAL',
+        position: 2,
+        color: 'yellow',
+      },
+      { label: 'Utility', value: 'UTILITY', position: 3, color: 'green' },
+      {
+        label: 'Inventory',
+        value: 'INVENTORY',
+        position: 4,
+        color: 'purple',
+      },
+      { label: 'Appliance', value: 'APPLIANCE', position: 5, color: 'sky' },
+      {
+        label: 'Agreement',
+        value: 'AGREEMENT',
+        position: 6,
+        color: 'turquoise',
+      },
+      {
+        label: 'Reimbursement',
+        value: 'REIMBURSEMENT',
+        position: 7,
+        color: 'pink',
+      },
+      { label: 'Other', value: 'OTHER', position: 8, color: 'gray' },
+    ],
+  },
+  {
+    type: FieldMetadataType.SELECT,
+    label: 'Ticket Status',
+    name: 'ticketStatus',
+    icon: 'IconStatusChange',
+    isNullable: false,
+    defaultValue: "'NEW_REQUEST'",
+    options: [
+      {
+        label: 'New Request',
+        value: 'NEW_REQUEST',
+        position: 0,
+        color: 'blue',
+      },
+      {
+        label: 'Waiting on Customer',
+        value: 'WAITING_ON_CUSTOMER',
+        position: 1,
+        color: 'orange',
+      },
+      {
+        label: 'Waiting on Vendor',
+        value: 'WAITING_ON_VENDOR',
+        position: 2,
+        color: 'yellow',
+      },
+      {
+        label: 'Waiting on Product',
+        value: 'WAITING_ON_PRODUCT',
+        position: 3,
+        color: 'purple',
+      },
+      { label: 'Blocked', value: 'BLOCKED', position: 4, color: 'red' },
+      {
+        label: 'Waiting on Landlord',
+        value: 'WAITING_ON_LANDLORD',
+        position: 5,
+        color: 'turquoise',
+      },
+      {
+        label: 'Waiting for Payment',
+        value: 'WAITING_FOR_PAYMENT',
+        position: 6,
+        color: 'pink',
+      },
+      {
+        label: 'Ready for Closure',
+        value: 'READY_FOR_CLOSURE',
+        position: 7,
+        color: 'green',
+      },
+      { label: 'Closed', value: 'CLOSED', position: 8, color: 'gray' },
+    ],
+  },
+  {
+    type: FieldMetadataType.SELECT,
+    label: 'Priority',
+    name: 'priority',
+    icon: 'IconUrgent',
+    isNullable: false,
+    defaultValue: "'MEDIUM'",
+    options: [
+      { label: 'Low', value: 'LOW', position: 0, color: 'gray' },
+      { label: 'Medium', value: 'MEDIUM', position: 1, color: 'blue' },
+      { label: 'High', value: 'HIGH', position: 2, color: 'orange' },
+      { label: 'Urgent', value: 'URGENT', position: 3, color: 'red' },
+      { label: 'Critical', value: 'CRITICAL', position: 4, color: 'pink' },
+    ],
+  },
+  {
+    type: FieldMetadataType.RICH_TEXT,
+    label: 'Resolution Notes',
+    name: 'resolutionNotes',
+    icon: 'IconNotes',
+    isNullable: true,
+  },
+  {
+    type: FieldMetadataType.CURRENCY,
+    label: 'Collected from Tenant',
+    name: 'collectedFromTenant',
+    icon: 'IconCurrencyRupee',
+    isNullable: true,
+  },
+  {
+    type: FieldMetadataType.CURRENCY,
+    label: 'Collected from Merchant',
+    name: 'collectedFromMerchant',
+    icon: 'IconCurrencyRupee',
+    isNullable: true,
+  },
+];

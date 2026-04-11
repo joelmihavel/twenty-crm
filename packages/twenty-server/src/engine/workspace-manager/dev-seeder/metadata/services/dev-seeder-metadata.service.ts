@@ -65,6 +65,17 @@ import { VENDOR_CAPABILITY_FIELD_SEEDS } from 'src/modules/flent/vendor/constant
 import { VENDOR_COMMERCIALS_OBJECT_SEED } from 'src/modules/flent/vendor/constants/vendor-commercials-object-seed.constant';
 import { VENDOR_COMMERCIALS_FIELD_SEEDS } from 'src/modules/flent/vendor/constants/vendor-commercials-field-seeds.constant';
 
+// --- Flent Phase 5: Ticket ---
+import { TICKET_OBJECT_SEED } from 'src/modules/flent/ticket/constants/ticket-object-seed.constant';
+import { TICKET_FIELD_SEEDS } from 'src/modules/flent/ticket/constants/ticket-field-seeds.constant';
+import { TICKET_RELATION_FIELD_SEEDS } from 'src/modules/flent/ticket/constants/ticket-relation-field-seeds.constant';
+import { TENANT_TICKET_DETAILS_OBJECT_SEED } from 'src/modules/flent/ticket/constants/tenant-ticket-details-object-seed.constant';
+import { TENANT_TICKET_DETAILS_FIELD_SEEDS } from 'src/modules/flent/ticket/constants/tenant-ticket-details-field-seeds.constant';
+import { TENANT_TICKET_DETAILS_RELATION_FIELD_SEEDS } from 'src/modules/flent/ticket/constants/tenant-ticket-details-relation-field-seeds.constant';
+import { VENDOR_TICKET_DETAILS_OBJECT_SEED } from 'src/modules/flent/ticket/constants/vendor-ticket-details-object-seed.constant';
+import { VENDOR_TICKET_DETAILS_FIELD_SEEDS } from 'src/modules/flent/ticket/constants/vendor-ticket-details-field-seeds.constant';
+import { VENDOR_TICKET_DETAILS_RELATION_FIELD_SEEDS } from 'src/modules/flent/ticket/constants/vendor-ticket-details-relation-field-seeds.constant';
+
 type MorphRelationSeed = FieldMetadataSeed & {
   targetObjectMetadataNames: string[];
 };
@@ -142,6 +153,11 @@ export class DevSeederMetadataService {
         { seed: VENDOR_BILLING_OBJECT_SEED, fields: VENDOR_BILLING_FIELD_SEEDS },
         { seed: VENDOR_CAPABILITY_OBJECT_SEED, fields: VENDOR_CAPABILITY_FIELD_SEEDS },
         { seed: VENDOR_COMMERCIALS_OBJECT_SEED, fields: VENDOR_COMMERCIALS_FIELD_SEEDS },
+
+        // --- Flent Phase 5: Ticket (base + 2 extensions) ---
+        { seed: TICKET_OBJECT_SEED, fields: TICKET_FIELD_SEEDS },
+        { seed: TENANT_TICKET_DETAILS_OBJECT_SEED, fields: TENANT_TICKET_DETAILS_FIELD_SEEDS },
+        { seed: VENDOR_TICKET_DETAILS_OBJECT_SEED, fields: VENDOR_TICKET_DETAILS_FIELD_SEEDS },
       ],
       fields: [
         { objectName: 'company', seeds: COMPANY_CUSTOM_FIELD_SEEDS },
@@ -310,6 +326,14 @@ export class DevSeederMetadataService {
           targetFieldLabel: 'Vendor',
           targetFieldIcon: 'IconTruck',
         },
+
+        // --- Flent Ticket relations ---
+        // Ticket -> Property, Vendor, Transaction (MANY_TO_ONE, creates inverses)
+        ...TICKET_RELATION_FIELD_SEEDS,
+        // TenantTicketDetails -> Ticket, Room
+        ...TENANT_TICKET_DETAILS_RELATION_FIELD_SEEDS,
+        // VendorTicketDetails -> Ticket
+        ...VENDOR_TICKET_DETAILS_RELATION_FIELD_SEEDS,
       ],
       junctionConfigs: [
         // Employment History junction configs

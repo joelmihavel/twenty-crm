@@ -1,0 +1,80 @@
+import { FieldMetadataType } from 'twenty-shared/types';
+
+import { type FieldMetadataSeed } from 'src/engine/workspace-manager/dev-seeder/metadata/types/field-metadata-seed.type';
+
+export const VENDOR_BILLING_FIELD_SEEDS: FieldMetadataSeed[] = [
+  {
+    type: FieldMetadataType.TEXT,
+    name: 'gstNumber',
+    label: 'GST Number',
+    description: 'Vendor GST registration number',
+    icon: 'IconFileInvoice',
+    isNullable: true,
+    defaultValue: "''",
+  },
+  {
+    type: FieldMetadataType.TEXT,
+    name: 'pan',
+    label: 'PAN',
+    description: 'Vendor PAN number',
+    icon: 'IconId',
+    isNullable: true,
+    defaultValue: "''",
+  },
+  {
+    type: FieldMetadataType.TEXT,
+    name: 'billingName',
+    label: 'Billing Name',
+    description: 'Name to appear on billing documents',
+    icon: 'IconUser',
+    isNullable: true,
+    defaultValue: "''",
+  },
+  {
+    type: FieldMetadataType.TEXT,
+    name: 'bankName',
+    label: 'Bank Name',
+    description: 'Name of the bank for vendor payments',
+    icon: 'IconBuildingBank',
+    isNullable: true,
+    defaultValue: "''",
+  },
+  {
+    type: FieldMetadataType.TEXT,
+    name: 'bankAccountNumber',
+    label: 'Bank Account Number',
+    description: 'Vendor bank account number',
+    icon: 'IconCreditCard',
+    isNullable: true,
+    defaultValue: "''",
+  },
+  {
+    type: FieldMetadataType.TEXT,
+    name: 'ifscCode',
+    label: 'IFSC Code',
+    description: 'Bank IFSC code for fund transfers',
+    icon: 'IconBuildingBank',
+    isNullable: true,
+    defaultValue: "''",
+  },
+  {
+    type: FieldMetadataType.SELECT,
+    name: 'msmeVendor',
+    label: 'MSME Vendor',
+    description: 'Whether the vendor is MSME registered',
+    icon: 'IconCertificate',
+    options: [
+      { label: 'Yes', value: 'YES', position: 0, color: 'green' },
+      { label: 'No', value: 'NO', position: 1, color: 'red' },
+    ],
+  },
+  {
+    type: FieldMetadataType.TEXT,
+    name: 'udyamAadhaar',
+    label: 'Udyam Aadhaar',
+    description: 'MSME Udyam Aadhaar registration number',
+    icon: 'IconCertificate',
+    isNullable: true,
+    defaultValue: "''",
+  },
+];

@@ -76,6 +76,14 @@ import { VENDOR_TICKET_DETAILS_OBJECT_SEED } from 'src/modules/flent/ticket/cons
 import { VENDOR_TICKET_DETAILS_FIELD_SEEDS } from 'src/modules/flent/ticket/constants/vendor-ticket-details-field-seeds.constant';
 import { VENDOR_TICKET_DETAILS_RELATION_FIELD_SEEDS } from 'src/modules/flent/ticket/constants/vendor-ticket-details-relation-field-seeds.constant';
 
+// --- Flent Phase 6: Inventory (FSIN + Specification) ---
+import { FSIN_OBJECT_SEED } from 'src/modules/flent/inventory/constants/fsin-object-seed.constant';
+import { FSIN_FIELD_SEEDS } from 'src/modules/flent/inventory/constants/fsin-field-seeds.constant';
+import { FSIN_RELATION_FIELD_SEEDS } from 'src/modules/flent/inventory/constants/fsin-relation-field-seeds.constant';
+import { FSIN_SPECIFICATION_OBJECT_SEED } from 'src/modules/flent/inventory/constants/fsin-specification-object-seed.constant';
+import { FSIN_SPECIFICATION_FIELD_SEEDS } from 'src/modules/flent/inventory/constants/fsin-specification-field-seeds.constant';
+import { FSIN_SPECIFICATION_RELATION_FIELD_SEEDS } from 'src/modules/flent/inventory/constants/fsin-specification-relation-field-seeds.constant';
+
 type MorphRelationSeed = FieldMetadataSeed & {
   targetObjectMetadataNames: string[];
 };
@@ -158,6 +166,10 @@ export class DevSeederMetadataService {
         { seed: TICKET_OBJECT_SEED, fields: TICKET_FIELD_SEEDS },
         { seed: TENANT_TICKET_DETAILS_OBJECT_SEED, fields: TENANT_TICKET_DETAILS_FIELD_SEEDS },
         { seed: VENDOR_TICKET_DETAILS_OBJECT_SEED, fields: VENDOR_TICKET_DETAILS_FIELD_SEEDS },
+
+        // --- Flent Phase 6: Inventory (FSIN + Specification) ---
+        { seed: FSIN_OBJECT_SEED, fields: FSIN_FIELD_SEEDS },
+        { seed: FSIN_SPECIFICATION_OBJECT_SEED, fields: FSIN_SPECIFICATION_FIELD_SEEDS },
       ],
       fields: [
         { objectName: 'company', seeds: COMPANY_CUSTOM_FIELD_SEEDS },
@@ -334,6 +346,12 @@ export class DevSeederMetadataService {
         ...TENANT_TICKET_DETAILS_RELATION_FIELD_SEEDS,
         // VendorTicketDetails -> Ticket
         ...VENDOR_TICKET_DETAILS_RELATION_FIELD_SEEDS,
+
+        // --- Flent Inventory relations (FSIN) ---
+        // FSIN -> Vendor
+        ...FSIN_RELATION_FIELD_SEEDS,
+        // FsinSpecification -> FSIN
+        ...FSIN_SPECIFICATION_RELATION_FIELD_SEEDS,
       ],
       junctionConfigs: [
         // Employment History junction configs

@@ -30,6 +30,41 @@ import { SURVEY_RESULT_CUSTOM_OBJECT_SEED } from 'src/engine/workspace-manager/d
 import { type FieldMetadataSeed } from 'src/engine/workspace-manager/dev-seeder/metadata/types/field-metadata-seed.type';
 import { type ObjectMetadataSeed } from 'src/engine/workspace-manager/dev-seeder/metadata/types/object-metadata-seed.type';
 
+// --- Flent Phase 1: Tenant ---
+import { TENANT_OBJECT_SEED } from 'src/modules/flent/tenant/constants/tenant-object-seed.constant';
+import { TENANT_FIELD_SEEDS } from 'src/modules/flent/tenant/constants/tenant-field-seeds.constant';
+import { TENANT_ATTRIBUTION_OBJECT_SEED } from 'src/modules/flent/tenant/constants/tenant-attribution-object-seed.constant';
+import { TENANT_ATTRIBUTION_FIELD_SEEDS } from 'src/modules/flent/tenant/constants/tenant-attribution-field-seeds.constant';
+import { TENANT_REQUIREMENTS_OBJECT_SEED } from 'src/modules/flent/tenant/constants/tenant-requirements-object-seed.constant';
+import { TENANT_REQUIREMENTS_FIELD_SEEDS } from 'src/modules/flent/tenant/constants/tenant-requirements-field-seeds.constant';
+import { TENANT_QUALIFICATION_OBJECT_SEED } from 'src/modules/flent/tenant/constants/tenant-qualification-object-seed.constant';
+import { TENANT_QUALIFICATION_FIELD_SEEDS } from 'src/modules/flent/tenant/constants/tenant-qualification-field-seeds.constant';
+import { TENANT_VISIT_SUMMARY_OBJECT_SEED } from 'src/modules/flent/tenant/constants/tenant-visit-summary-object-seed.constant';
+import { TENANT_VISIT_SUMMARY_FIELD_SEEDS } from 'src/modules/flent/tenant/constants/tenant-visit-summary-field-seeds.constant';
+import { TENANT_SATISFACTION_OBJECT_SEED } from 'src/modules/flent/tenant/constants/tenant-satisfaction-object-seed.constant';
+import { TENANT_SATISFACTION_FIELD_SEEDS } from 'src/modules/flent/tenant/constants/tenant-satisfaction-field-seeds.constant';
+
+// --- Flent Phase 1: Merchant ---
+import { MERCHANT_OBJECT_SEED } from 'src/modules/flent/merchant/constants/merchant-object-seed.constant';
+import { MERCHANT_FIELD_SEEDS } from 'src/modules/flent/merchant/constants/merchant-field-seeds.constant';
+import { MERCHANT_LANDLORD_OBJECT_SEED } from 'src/modules/flent/merchant/constants/merchant-landlord-object-seed.constant';
+import { MERCHANT_LANDLORD_FIELD_SEEDS } from 'src/modules/flent/merchant/constants/merchant-landlord-field-seeds.constant';
+import { MERCHANT_POC_OBJECT_SEED } from 'src/modules/flent/merchant/constants/merchant-poc-object-seed.constant';
+import { MERCHANT_BROKER_OBJECT_SEED } from 'src/modules/flent/merchant/constants/merchant-broker-object-seed.constant';
+import { MERCHANT_MANAGEMENT_OBJECT_SEED } from 'src/modules/flent/merchant/constants/merchant-management-object-seed.constant';
+
+// --- Flent Phase 1: Vendor ---
+import { VENDOR_OBJECT_SEED } from 'src/modules/flent/vendor/constants/vendor-object-seed.constant';
+import { VENDOR_FIELD_SEEDS } from 'src/modules/flent/vendor/constants/vendor-field-seeds.constant';
+import { VENDOR_CONTACT_OBJECT_SEED } from 'src/modules/flent/vendor/constants/vendor-contact-object-seed.constant';
+import { VENDOR_CONTACT_FIELD_SEEDS } from 'src/modules/flent/vendor/constants/vendor-contact-field-seeds.constant';
+import { VENDOR_BILLING_OBJECT_SEED } from 'src/modules/flent/vendor/constants/vendor-billing-object-seed.constant';
+import { VENDOR_BILLING_FIELD_SEEDS } from 'src/modules/flent/vendor/constants/vendor-billing-field-seeds.constant';
+import { VENDOR_CAPABILITY_OBJECT_SEED } from 'src/modules/flent/vendor/constants/vendor-capability-object-seed.constant';
+import { VENDOR_CAPABILITY_FIELD_SEEDS } from 'src/modules/flent/vendor/constants/vendor-capability-field-seeds.constant';
+import { VENDOR_COMMERCIALS_OBJECT_SEED } from 'src/modules/flent/vendor/constants/vendor-commercials-object-seed.constant';
+import { VENDOR_COMMERCIALS_FIELD_SEEDS } from 'src/modules/flent/vendor/constants/vendor-commercials-field-seeds.constant';
+
 type MorphRelationSeed = FieldMetadataSeed & {
   targetObjectMetadataNames: string[];
 };
@@ -85,6 +120,28 @@ export class DevSeederMetadataService {
         // Junction objects (minimal pivots)
         { seed: EMPLOYMENT_HISTORY_CUSTOM_OBJECT_SEED },
         { seed: PET_CARE_AGREEMENT_CUSTOM_OBJECT_SEED },
+
+        // --- Flent Phase 1: Tenant (base + 5 extensions) ---
+        { seed: TENANT_OBJECT_SEED, fields: TENANT_FIELD_SEEDS },
+        { seed: TENANT_ATTRIBUTION_OBJECT_SEED, fields: TENANT_ATTRIBUTION_FIELD_SEEDS },
+        { seed: TENANT_REQUIREMENTS_OBJECT_SEED, fields: TENANT_REQUIREMENTS_FIELD_SEEDS },
+        { seed: TENANT_QUALIFICATION_OBJECT_SEED, fields: TENANT_QUALIFICATION_FIELD_SEEDS },
+        { seed: TENANT_VISIT_SUMMARY_OBJECT_SEED, fields: TENANT_VISIT_SUMMARY_FIELD_SEEDS },
+        { seed: TENANT_SATISFACTION_OBJECT_SEED, fields: TENANT_SATISFACTION_FIELD_SEEDS },
+
+        // --- Flent Phase 1: Merchant (base + 4 extensions) ---
+        { seed: MERCHANT_OBJECT_SEED, fields: MERCHANT_FIELD_SEEDS },
+        { seed: MERCHANT_LANDLORD_OBJECT_SEED, fields: MERCHANT_LANDLORD_FIELD_SEEDS },
+        { seed: MERCHANT_POC_OBJECT_SEED },
+        { seed: MERCHANT_BROKER_OBJECT_SEED },
+        { seed: MERCHANT_MANAGEMENT_OBJECT_SEED },
+
+        // --- Flent Phase 1: Vendor (base + 4 extensions) ---
+        { seed: VENDOR_OBJECT_SEED, fields: VENDOR_FIELD_SEEDS },
+        { seed: VENDOR_CONTACT_OBJECT_SEED, fields: VENDOR_CONTACT_FIELD_SEEDS },
+        { seed: VENDOR_BILLING_OBJECT_SEED, fields: VENDOR_BILLING_FIELD_SEEDS },
+        { seed: VENDOR_CAPABILITY_OBJECT_SEED, fields: VENDOR_CAPABILITY_FIELD_SEEDS },
+        { seed: VENDOR_COMMERCIALS_OBJECT_SEED, fields: VENDOR_COMMERCIALS_FIELD_SEEDS },
       ],
       fields: [
         { objectName: 'company', seeds: COMPANY_CUSTOM_FIELD_SEEDS },
@@ -129,6 +186,129 @@ export class DevSeederMetadataService {
           targetObjectName: PET_CARE_AGREEMENT_CUSTOM_OBJECT_SEED.nameSingular,
           targetFieldLabel: 'Pet',
           targetFieldIcon: 'IconCat',
+        },
+
+        // --- Flent Tenant extensions ---
+        {
+          sourceObjectName: TENANT_OBJECT_SEED.nameSingular,
+          name: 'tenantAttributions',
+          label: 'Attributions',
+          icon: 'IconTarget',
+          targetObjectName: TENANT_ATTRIBUTION_OBJECT_SEED.nameSingular,
+          targetFieldLabel: 'Tenant',
+          targetFieldIcon: 'IconUser',
+        },
+        {
+          sourceObjectName: TENANT_OBJECT_SEED.nameSingular,
+          name: 'tenantRequirements',
+          label: 'Requirements',
+          icon: 'IconChecklist',
+          targetObjectName: TENANT_REQUIREMENTS_OBJECT_SEED.nameSingular,
+          targetFieldLabel: 'Tenant',
+          targetFieldIcon: 'IconUser',
+        },
+        {
+          sourceObjectName: TENANT_OBJECT_SEED.nameSingular,
+          name: 'tenantQualifications',
+          label: 'Qualifications',
+          icon: 'IconShieldCheck',
+          targetObjectName: TENANT_QUALIFICATION_OBJECT_SEED.nameSingular,
+          targetFieldLabel: 'Tenant',
+          targetFieldIcon: 'IconUser',
+        },
+        {
+          sourceObjectName: TENANT_OBJECT_SEED.nameSingular,
+          name: 'tenantVisitSummaries',
+          label: 'Visit Summaries',
+          icon: 'IconMapPin',
+          targetObjectName: TENANT_VISIT_SUMMARY_OBJECT_SEED.nameSingular,
+          targetFieldLabel: 'Tenant',
+          targetFieldIcon: 'IconUser',
+        },
+        {
+          sourceObjectName: TENANT_OBJECT_SEED.nameSingular,
+          name: 'tenantSatisfactions',
+          label: 'Satisfaction Scores',
+          icon: 'IconStar',
+          targetObjectName: TENANT_SATISFACTION_OBJECT_SEED.nameSingular,
+          targetFieldLabel: 'Tenant',
+          targetFieldIcon: 'IconUser',
+        },
+
+        // --- Flent Merchant extensions ---
+        {
+          sourceObjectName: MERCHANT_OBJECT_SEED.nameSingular,
+          name: 'merchantLandlords',
+          label: 'Landlord Details',
+          icon: 'IconHome',
+          targetObjectName: MERCHANT_LANDLORD_OBJECT_SEED.nameSingular,
+          targetFieldLabel: 'Merchant',
+          targetFieldIcon: 'IconBuildingSkyscraper',
+        },
+        {
+          sourceObjectName: MERCHANT_OBJECT_SEED.nameSingular,
+          name: 'merchantPocs',
+          label: 'POC Details',
+          icon: 'IconUserCircle',
+          targetObjectName: MERCHANT_POC_OBJECT_SEED.nameSingular,
+          targetFieldLabel: 'Merchant',
+          targetFieldIcon: 'IconBuildingSkyscraper',
+        },
+        {
+          sourceObjectName: MERCHANT_OBJECT_SEED.nameSingular,
+          name: 'merchantBrokers',
+          label: 'Broker Details',
+          icon: 'IconBriefcase',
+          targetObjectName: MERCHANT_BROKER_OBJECT_SEED.nameSingular,
+          targetFieldLabel: 'Merchant',
+          targetFieldIcon: 'IconBuildingSkyscraper',
+        },
+        {
+          sourceObjectName: MERCHANT_OBJECT_SEED.nameSingular,
+          name: 'merchantManagements',
+          label: 'Management Details',
+          icon: 'IconSettings',
+          targetObjectName: MERCHANT_MANAGEMENT_OBJECT_SEED.nameSingular,
+          targetFieldLabel: 'Merchant',
+          targetFieldIcon: 'IconBuildingSkyscraper',
+        },
+
+        // --- Flent Vendor extensions ---
+        {
+          sourceObjectName: VENDOR_OBJECT_SEED.nameSingular,
+          name: 'vendorContacts',
+          label: 'Contacts',
+          icon: 'IconAddressBook',
+          targetObjectName: VENDOR_CONTACT_OBJECT_SEED.nameSingular,
+          targetFieldLabel: 'Vendor',
+          targetFieldIcon: 'IconTruck',
+        },
+        {
+          sourceObjectName: VENDOR_OBJECT_SEED.nameSingular,
+          name: 'vendorBillings',
+          label: 'Billing Details',
+          icon: 'IconFileInvoice',
+          targetObjectName: VENDOR_BILLING_OBJECT_SEED.nameSingular,
+          targetFieldLabel: 'Vendor',
+          targetFieldIcon: 'IconTruck',
+        },
+        {
+          sourceObjectName: VENDOR_OBJECT_SEED.nameSingular,
+          name: 'vendorCapabilities',
+          label: 'Capabilities',
+          icon: 'IconTools',
+          targetObjectName: VENDOR_CAPABILITY_OBJECT_SEED.nameSingular,
+          targetFieldLabel: 'Vendor',
+          targetFieldIcon: 'IconTruck',
+        },
+        {
+          sourceObjectName: VENDOR_OBJECT_SEED.nameSingular,
+          name: 'vendorCommercials',
+          label: 'Commercials',
+          icon: 'IconCash',
+          targetObjectName: VENDOR_COMMERCIALS_OBJECT_SEED.nameSingular,
+          targetFieldLabel: 'Vendor',
+          targetFieldIcon: 'IconTruck',
         },
       ],
       junctionConfigs: [

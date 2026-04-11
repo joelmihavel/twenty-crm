@@ -14,6 +14,7 @@ import { type TenantRequirementsWorkspaceEntity } from 'src/modules/flent/tenant
 import { type TenantQualificationWorkspaceEntity } from 'src/modules/flent/tenant/standard-objects/tenant-qualification.workspace-entity';
 import { type TenantVisitSummaryWorkspaceEntity } from 'src/modules/flent/tenant/standard-objects/tenant-visit-summary.workspace-entity';
 import { type TenantSatisfactionWorkspaceEntity } from 'src/modules/flent/tenant/standard-objects/tenant-satisfaction.workspace-entity';
+import { type TenantContractDetailsWorkspaceEntity } from 'src/modules/flent/contract/standard-objects/tenant-contract-details.workspace-entity';
 
 const NAME_FIELD_NAME = 'name';
 const EMAILS_FIELD_NAME = 'emails';
@@ -56,6 +57,7 @@ export class TenantWorkspaceEntity extends BaseWorkspaceEntity {
   tenantQualifications: EntityRelation<TenantQualificationWorkspaceEntity[]>;
   tenantVisitSummaries: EntityRelation<TenantVisitSummaryWorkspaceEntity[]>;
   tenantSatisfactions: EntityRelation<TenantSatisfactionWorkspaceEntity[]>;
+  tenantContracts: EntityRelation<TenantContractDetailsWorkspaceEntity[]>;
 
   // Deferred relations (Phase 2 - Property and Room)
   // currentProperty: EntityRelation<PropertyWorkspaceEntity> | null;

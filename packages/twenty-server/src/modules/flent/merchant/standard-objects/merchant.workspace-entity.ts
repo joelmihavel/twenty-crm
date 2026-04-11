@@ -12,6 +12,7 @@ import { type MerchantLandlordWorkspaceEntity } from 'src/modules/flent/merchant
 import { type MerchantPocWorkspaceEntity } from 'src/modules/flent/merchant/standard-objects/merchant-poc.workspace-entity';
 import { type MerchantBrokerWorkspaceEntity } from 'src/modules/flent/merchant/standard-objects/merchant-broker.workspace-entity';
 import { type MerchantManagementWorkspaceEntity } from 'src/modules/flent/merchant/standard-objects/merchant-management.workspace-entity';
+import { type MerchantContractDetailsWorkspaceEntity } from 'src/modules/flent/contract/standard-objects/merchant-contract-details.workspace-entity';
 
 const NAME_FIELD_NAME = 'name';
 const EMAILS_FIELD_NAME = 'emails';
@@ -41,6 +42,7 @@ export class MerchantWorkspaceEntity extends BaseWorkspaceEntity {
   merchantPocs: EntityRelation<MerchantPocWorkspaceEntity[]>;
   merchantBrokers: EntityRelation<MerchantBrokerWorkspaceEntity[]>;
   merchantManagements: EntityRelation<MerchantManagementWorkspaceEntity[]>;
+  merchantContracts: EntityRelation<MerchantContractDetailsWorkspaceEntity[]>;
 
   searchVector: string;
 }

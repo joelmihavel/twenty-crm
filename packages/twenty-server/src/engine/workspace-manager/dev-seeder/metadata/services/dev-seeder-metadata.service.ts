@@ -84,6 +84,18 @@ import { FSIN_SPECIFICATION_OBJECT_SEED } from 'src/modules/flent/inventory/cons
 import { FSIN_SPECIFICATION_FIELD_SEEDS } from 'src/modules/flent/inventory/constants/fsin-specification-field-seeds.constant';
 import { FSIN_SPECIFICATION_RELATION_FIELD_SEEDS } from 'src/modules/flent/inventory/constants/fsin-specification-relation-field-seeds.constant';
 
+// --- Flent Phase 6: Inventory (Item + ItemState + ItemTransactionLinks) ---
+import { ITEM_OBJECT_SEED } from 'src/modules/flent/inventory/constants/item-object-seed.constant';
+import { ITEM_FIELD_SEEDS } from 'src/modules/flent/inventory/constants/item-field-seeds.constant';
+import { ITEM_RELATION_FIELD_SEEDS } from 'src/modules/flent/inventory/constants/item-relation-field-seeds.constant';
+import { ITEM_STATE_OBJECT_SEED } from 'src/modules/flent/inventory/constants/item-state-object-seed.constant';
+import { ITEM_STATE_FIELD_SEEDS } from 'src/modules/flent/inventory/constants/item-state-field-seeds.constant';
+import { ITEM_STATE_RELATION_FIELD_SEEDS } from 'src/modules/flent/inventory/constants/item-state-relation-field-seeds.constant';
+import { ITEM_TRANSACTION_LINKS_OBJECT_SEED } from 'src/modules/flent/inventory/constants/item-transaction-links-object-seed.constant';
+import { ITEM_TRANSACTION_LINKS_FIELD_SEEDS } from 'src/modules/flent/inventory/constants/item-transaction-links-field-seeds.constant';
+import { ITEM_TRANSACTION_LINKS_RELATION_FIELD_SEEDS } from 'src/modules/flent/inventory/constants/item-transaction-links-relation-field-seeds.constant';
+import { PO_LINE_FSIN_RELATION_FIELD_SEED } from 'src/modules/flent/inventory/constants/po-line-fsin-relation-field-seed.constant';
+
 type MorphRelationSeed = FieldMetadataSeed & {
   targetObjectMetadataNames: string[];
 };
@@ -170,6 +182,11 @@ export class DevSeederMetadataService {
         // --- Flent Phase 6: Inventory (FSIN + Specification) ---
         { seed: FSIN_OBJECT_SEED, fields: FSIN_FIELD_SEEDS },
         { seed: FSIN_SPECIFICATION_OBJECT_SEED, fields: FSIN_SPECIFICATION_FIELD_SEEDS },
+
+        // --- Flent Phase 6: Inventory (Item + extensions) ---
+        { seed: ITEM_OBJECT_SEED, fields: ITEM_FIELD_SEEDS },
+        { seed: ITEM_STATE_OBJECT_SEED, fields: ITEM_STATE_FIELD_SEEDS },
+        { seed: ITEM_TRANSACTION_LINKS_OBJECT_SEED, fields: ITEM_TRANSACTION_LINKS_FIELD_SEEDS },
       ],
       fields: [
         { objectName: 'company', seeds: COMPANY_CUSTOM_FIELD_SEEDS },
@@ -352,6 +369,16 @@ export class DevSeederMetadataService {
         ...FSIN_RELATION_FIELD_SEEDS,
         // FsinSpecification -> FSIN
         ...FSIN_SPECIFICATION_RELATION_FIELD_SEEDS,
+
+        // --- Flent Inventory relations (Item) ---
+        // Item -> FSIN, PoLine
+        ...ITEM_RELATION_FIELD_SEEDS,
+        // ItemState -> Item
+        ...ITEM_STATE_RELATION_FIELD_SEEDS,
+        // ItemTransactionLinks -> Item, Transaction
+        ...ITEM_TRANSACTION_LINKS_RELATION_FIELD_SEEDS,
+        // PoLine -> FSIN (cross-wire)
+        PO_LINE_FSIN_RELATION_FIELD_SEED,
       ],
       junctionConfigs: [
         // Employment History junction configs

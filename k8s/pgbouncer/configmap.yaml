@@ -1,0 +1,41 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pgbouncer-config
+  namespace: twenty-prod
+  labels:
+    app: pgbouncer
+    app.kubernetes.io/part-of: twenty
+data:
+  pgbouncer.ini: |
+    [databases]
+    twenty = host=127.0.0.1 port=5432 dbname=twenty
+
+    [pgbouncer]
+    listen_addr = 0.0.0.0
+    listen_port = 6432
+    auth_type = plain
+    auth_file = /etc/pgbouncer/userlist.txt
+    pool_mode = transaction
+    max_client_conn = 500
+    default_pool_size = 150
+    min_pool_size = 10
+    reserve_pool_size = 10
+    reserve_pool_timeout = 3
+    server_lifetime = 3600
+    server_idle_timeout = 600
+    server_connect_timeout = 15
+    server_login_retry = 1
+    query_timeout = 120
+    query_wait_timeout = 60
+    client_idle_timeout = 0
+    log_connections = 1
+    log_disconnections = 1
+    log_pooler_errors = 1
+    stats_period = 60
+    ignore_startup_parameters = extra_float_digits,search_path
+    admin_users = twenty
+    tcp_keepalive = 1
+    tcp_keepcnt = 5
+    tcp_keepidle = 30
+    tcp_keepintvl = 30

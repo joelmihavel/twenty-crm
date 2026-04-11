@@ -1,0 +1,27 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: metabase
+  namespace: twenty-prod
+  labels:
+    app: metabase
+    app.kubernetes.io/name: metabase
+    app.kubernetes.io/part-of: twenty
+    app.kubernetes.io/component: analytics
+  annotations:
+    # Uncomment when DNS is configured and cert-manager / managed certs are set up
+    # kubernetes.io/ingress.class: "gce"
+    # networking.gke.io/managed-certificates: "metabase-cert"
+    # kubernetes.io/ingress.global-static-ip-name: "metabase-ip"
+spec:
+  rules:
+    - host: metabase.flent.in
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: metabase
+                port:
+                  number: 3000

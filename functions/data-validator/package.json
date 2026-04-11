@@ -1,0 +1,25 @@
+{
+  "name": "flent-data-validator",
+  "version": "1.0.0",
+  "description": "Cloud Function to validate Indian-format data on Twenty CRM record writes",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "gcp-build": "",
+    "start": "npx functions-framework --target=dataValidator --signature-type=cloudevent",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@google-cloud/functions-framework": "^3.4.0",
+    "@google-cloud/secret-manager": "^5.6.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "typescript": "^5.5.0",
+    "vitest": "^2.0.0"
+  }
+}

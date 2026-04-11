@@ -1,136 +1,81 @@
-<p align="center">
-  <a href="https://www.twenty.com">
-    <img src="./packages/twenty-website/public/images/core/logo.svg" width="100px" alt="Twenty logo" />
-  </a>
-</p>
+# Flent Twenty CRM
 
-<h2 align="center" >The #1 Open-Source CRM </h2>
+Self-hosted Twenty CRM on GCP for Flent's property & co-living management operations. Migrating from HubSpot.
 
-<p align="center"><a href="https://twenty.com">🌐 Website</a> · <a href="https://docs.twenty.com">📚 Documentation</a> · <a href="https://github.com/orgs/twentyhq/projects/1"><img src="./packages/twenty-website/public/images/readme/planner-icon.svg" width="12" height="12"/> Roadmap </a> · <a href="https://discord.gg/cx5n4Jzs57"><img src="./packages/twenty-website/public/images/readme/discord-icon.svg" width="12" height="12"/> Discord</a> · <a href="https://www.figma.com/file/xt8O9mFeLl46C5InWwoMrN/Twenty"><img src="./packages/twenty-website/public/images/readme/figma-icon.png"  width="12" height="12"/>  Figma</a></p>
-<br />
+## Architecture
 
+```
+GKE Cluster (asia-south1) — flent-twenty
+├── Twenty Server (3 pods, HPA 3-5)
+├── Twenty Worker (2 pods, Spot VMs, HPA 2-4)
+├── PgBouncer (centralized, 150 pool)
+└── Metabase (read replica analytics)
 
-<p align="center">
-  <a href="https://www.twenty.com">
-    <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/twentyhq/twenty/refs/heads/main/packages/twenty-website/public/images/readme/github-cover-dark.png" />
-      <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/twentyhq/twenty/refs/heads/main/packages/twenty-website/public/images/readme/github-cover-light.png" />
-      <img src="./packages/twenty-website/public/images/readme/github-cover-light.png" alt="Cover" />
-    </picture>
-  </a>
-</p>
+Cloud SQL PostgreSQL 16 (8vCPU/32GB, HA)
+├── Primary: flent-twenty-db
+├── Read Replica: flent-twenty-db-replica (Metabase)
+└── Staging: flent-twenty-staging
 
-<br />
+Memorystore Redis 5GB (STANDARD_HA)
+Cloud Functions: hubspot-mirror (hourly), data-validator (Pub/Sub)
+Pub/Sub: 6 topics + 3 DLQ
+Secret Manager: 10 secrets
+```
 
-# Installation
+## Repository Structure
 
-See:
-🚀 [Self-hosting](https://docs.twenty.com/developers/self-host/capabilities/docker-compose)
-🖥️ [Local Setup](https://docs.twenty.com/developers/contribute/capabilities/local-setup)
+```
+.
+├── terraform/          # GCP infrastructure as code (82 resources)
+├── k8s/
+│   ├── twenty/         # Twenty CRM K8s manifests
+│   ├── pgbouncer/      # Centralized PgBouncer service
+│   └── metabase/       # Metabase analytics deployment
+├── functions/
+│   ├── hubspot-mirror/ # Hourly HubSpot sync (45 tests, 120 field mappings)
+│   └── data-validator/ # Phone/Aadhaar/PAN/IFSC validation (76 tests)
+├── docs/
+│   ├── evaluation/     # HubSpot vs Twenty comparison (50-dimension gap analysis)
+│   ├── specs/          # Migration design spec (CEO + Eng reviewed)
+│   ├── plans/          # Phase implementation plans
+│   └── gaps/           # Feature parity analysis data
+└── scripts/            # Deployment and setup scripts
+```
 
-# Why Twenty
+## Quick Start
 
-We built Twenty for three reasons:
+```bash
+# Get GKE credentials
+gcloud container clusters get-credentials flent-twenty --region asia-south1 --project flent-twenty-prod
 
-**CRMs are too expensive, and users are trapped.** Companies use locked-in customer data to hike prices. It shouldn't be that way.
+# Check status
+kubectl get pods -n twenty-prod
 
-**A fresh start is required to build a better experience.** We can learn from past mistakes and craft a cohesive experience inspired by new UX patterns from tools like Notion, Airtable or Linear.
+# Port-forward to Twenty
+kubectl port-forward -n twenty-prod svc/twenty-server 3000:3000
+# Open http://localhost:3000
 
-**We believe in open-source and community.** Hundreds of developers are already building Twenty together. Once we have plugin capabilities, a whole ecosystem will grow around it.
+# Port-forward to Metabase
+kubectl port-forward -n twenty-prod svc/metabase 3001:3000
+# Open http://localhost:3001
+```
 
-<br />
+## Migration Phases
 
-# What You Can Do With Twenty
+| Phase | Status | Description |
+|-------|--------|-------------|
+| **Phase 1**: Infrastructure + Mirror | **COMPLETE** | GKE, Cloud SQL, Redis, Twenty, Metabase, Cloud Functions |
+| **Phase 2**: Custom Data Model + Views | Planned | 7 objects, 17 views, 9 roles, RBAC |
+| **Phase 3**: Workflows + Integrations | Planned | Zoho Sign, Cal.com, 30 workflows |
+| **Phase 4**: Payment Operations | Planned | Cashfree rent collection + landlord payouts |
+| **Phase 5**: WhatsApp + Cutover | Planned | Galabox/Superchat, full team migration |
 
-Please feel free to flag any specific needs you have by creating an issue.
+## Cost
 
-Below are a few features we have implemented to date:
+~$1,337/mo for 40 users (vs $4,800-6,800/mo HubSpot equivalent)
 
-+ [Personalize layouts with filters, sort, group by, kanban and table views](#personalize-layouts-with-filters-sort-group-by-kanban-and-table-views)
-+ [Customize your objects and fields](#customize-your-objects-and-fields)
-+ [Create and manage permissions with custom roles](#create-and-manage-permissions-with-custom-roles)
-+ [Automate workflow with triggers and actions](#automate-workflow-with-triggers-and-actions)
-+ [Emails, calendar events, files, and more](#emails-calendar-events-files-and-more)
+## GCP Project
 
-
-## Personalize layouts with filters, sort, group by, kanban and table views
-
-<p align="center">
-    <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/twentyhq/twenty/refs/heads/main/packages/twenty-website/public/images/readme/views-dark.png" />
-      <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/twentyhq/twenty/refs/heads/main/packages/twenty-website/public/images/readme/views-light.png" />
-      <img src="./packages/twenty-website/public/images/readme/views-light.png" alt="Companies Kanban Views" />
-    </picture>
-</p>
-
-## Customize your objects and fields
-
-<p align="center">
-    <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/twentyhq/twenty/refs/heads/main/packages/twenty-website/public/images/readme/data-model-dark.png" />
-      <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/twentyhq/twenty/refs/heads/main/packages/twenty-website/public/images/readme/data-model-light.png" />
-      <img src="./packages/twenty-website/public/images/readme/data-model-light.png" alt="Setting Custom Objects" />
-    </picture>
-</p>
-
-## Create and manage permissions with custom roles
-
-<p align="center">
-    <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/twentyhq/twenty/refs/heads/main/packages/twenty-website/public/images/readme/permissions-dark.png" />
-      <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/twentyhq/twenty/refs/heads/main/packages/twenty-website/public/images/readme/permissions-light.png" />
-      <img src="./packages/twenty-website/public/images/readme/permissions-light.png" alt="Permissions" />
-    </picture>
-</p>
-
-## Automate workflow with triggers and actions
-
-<p align="center">
-    <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/twentyhq/twenty/refs/heads/main/packages/twenty-website/public/images/readme/workflows-dark.png" />
-      <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/twentyhq/twenty/refs/heads/main/packages/twenty-website/public/images/readme/workflows-light.png" />
-      <img src="./packages/twenty-website/public/images/readme/workflows-light.png" alt="Workflows" />
-    </picture>
-</p>
-
-## Emails, calendar events, files, and more
-
-<p align="center">
-    <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/twentyhq/twenty/refs/heads/main/packages/twenty-website/public/images/readme/plus-other-features-dark.png" />
-      <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/twentyhq/twenty/refs/heads/main/packages/twenty-website/public/images/readme/plus-other-features-light.png" />
-      <img src="./packages/twenty-website/public/images/readme/plus-other-features-light.png" alt="Other Features" />
-    </picture>
-</p>
-
-<br />
-
-# Stack
-- [TypeScript](https://www.typescriptlang.org/)
-- [Nx](https://nx.dev/)
-- [NestJS](https://nestjs.com/), with [BullMQ](https://bullmq.io/), [PostgreSQL](https://www.postgresql.org/), [Redis](https://redis.io/)
-- [React](https://reactjs.org/), with [Jotai](https://jotai.org/), [Linaria](https://linaria.dev/) and [Lingui](https://lingui.dev/)
-
-
-
-# Thanks
-
-<p align="center">
-  <a href="https://www.chromatic.com/"><img src="./packages/twenty-website/public/images/readme/chromatic.png" height="30" alt="Chromatic" /></a>
-  <a href="https://greptile.com"><img src="./packages/twenty-website/public/images/readme/greptile.png" height="30" alt="Greptile" /></a>
-  <a href="https://sentry.io/"><img src="./packages/twenty-website/public/images/readme/sentry.png" height="30" alt="Sentry" /></a>
-  <a href="https://crowdin.com/"><img src="./packages/twenty-website/public/images/readme/crowdin.png" height="30" alt="Crowdin" /></a>
-  <a href="https://e2b.dev/"><img src="./packages/twenty-website/public/images/readme/e2b.svg" height="30" alt="E2B" /></a>
-</p>
-
-  Thanks to these amazing services that we use and recommend for UI testing (Chromatic), code review (Greptile), catching bugs (Sentry) and translating (Crowdin).
-
-
-# Join the Community
-
-- Star the repo
-- Subscribe to releases (watch -> custom -> releases)
-- Follow us on [Twitter](https://twitter.com/twentycrm) or [LinkedIn](https://www.linkedin.com/company/twenty/)
-- Join our [Discord](https://discord.gg/cx5n4Jzs57)
-- Improve translations on [Crowdin](https://twenty.crowdin.com/twenty)
-- [Contributions](https://github.com/twentyhq/twenty/contribute) are, of course, most welcome!
+- Project: `flent-twenty-prod`
+- Region: `asia-south1` (Mumbai)
+- Domain: `crm.flent.in` (pending DNS)

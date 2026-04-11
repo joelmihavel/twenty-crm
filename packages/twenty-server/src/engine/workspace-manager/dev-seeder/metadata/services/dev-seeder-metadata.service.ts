@@ -65,6 +65,48 @@ import { VENDOR_CAPABILITY_FIELD_SEEDS } from 'src/modules/flent/vendor/constant
 import { VENDOR_COMMERCIALS_OBJECT_SEED } from 'src/modules/flent/vendor/constants/vendor-commercials-object-seed.constant';
 import { VENDOR_COMMERCIALS_FIELD_SEEDS } from 'src/modules/flent/vendor/constants/vendor-commercials-field-seeds.constant';
 
+// --- Flent Phase 2: Property ---
+import { PROPERTY_OBJECT_SEED } from 'src/modules/flent/property/constants/property-object-seed.constant';
+import { PROPERTY_FIELD_SEEDS } from 'src/modules/flent/property/constants/property-field-seeds.constant';
+import { PROPERTY_LEAD_STAGE_OBJECT_SEED } from 'src/modules/flent/property/constants/property-lead-stage-object-seed.constant';
+import { PROPERTY_LEAD_STAGE_FIELD_SEEDS } from 'src/modules/flent/property/constants/property-lead-stage-field-seeds.constant';
+import { PROPERTY_ACTIVE_OBJECT_SEED } from 'src/modules/flent/property/constants/property-active-object-seed.constant';
+import { PROPERTY_ACTIVE_FIELD_SEEDS } from 'src/modules/flent/property/constants/property-active-field-seeds.constant';
+import { PROPERTY_CHURNED_OBJECT_SEED } from 'src/modules/flent/property/constants/property-churned-object-seed.constant';
+import { PROPERTY_CHURNED_FIELD_SEEDS } from 'src/modules/flent/property/constants/property-churned-field-seeds.constant';
+
+// --- Flent Phase 2: Room ---
+import { ROOM_OBJECT_SEED } from 'src/modules/flent/room/constants/room-object-seed.constant';
+import { ROOM_FIELD_SEEDS } from 'src/modules/flent/room/constants/room-field-seeds.constant';
+import { ROOM_SPECIFICATIONS_OBJECT_SEED } from 'src/modules/flent/room/constants/room-specifications-object-seed.constant';
+import { ROOM_SPECIFICATIONS_FIELD_SEEDS } from 'src/modules/flent/room/constants/room-specifications-field-seeds.constant';
+import { ROOM_FURNISHING_OBJECT_SEED } from 'src/modules/flent/room/constants/room-furnishing-object-seed.constant';
+import { ROOM_FURNISHING_FIELD_SEEDS } from 'src/modules/flent/room/constants/room-furnishing-field-seeds.constant';
+import { ROOM_COMMERCIALS_OBJECT_SEED } from 'src/modules/flent/room/constants/room-commercials-object-seed.constant';
+import { ROOM_COMMERCIALS_FIELD_SEEDS } from 'src/modules/flent/room/constants/room-commercials-field-seeds.constant';
+import { ROOM_AVAILABILITY_OBJECT_SEED } from 'src/modules/flent/room/constants/room-availability-object-seed.constant';
+import { ROOM_AVAILABILITY_FIELD_SEEDS } from 'src/modules/flent/room/constants/room-availability-field-seeds.constant';
+
+// --- Flent Phase 2: Overhead ---
+import { OVERHEAD_OBJECT_SEED } from 'src/modules/flent/overhead/constants/overhead-object-seed.constant';
+import { OVERHEAD_FIELD_SEEDS } from 'src/modules/flent/overhead/constants/overhead-field-seeds.constant';
+import { OVERHEAD_MAINTENANCE_OBJECT_SEED } from 'src/modules/flent/overhead/constants/overhead-maintenance-object-seed.constant';
+import { OVERHEAD_MAINTENANCE_FIELD_SEEDS } from 'src/modules/flent/overhead/constants/overhead-maintenance-field-seeds.constant';
+import { OVERHEAD_WIFI_OBJECT_SEED } from 'src/modules/flent/overhead/constants/overhead-wifi-object-seed.constant';
+import { OVERHEAD_WIFI_FIELD_SEEDS } from 'src/modules/flent/overhead/constants/overhead-wifi-field-seeds.constant';
+import { OVERHEAD_ELECTRICITY_OBJECT_SEED } from 'src/modules/flent/overhead/constants/overhead-electricity-object-seed.constant';
+import { OVERHEAD_ELECTRICITY_FIELD_SEEDS } from 'src/modules/flent/overhead/constants/overhead-electricity-field-seeds.constant';
+import { OVERHEAD_DG_OBJECT_SEED } from 'src/modules/flent/overhead/constants/overhead-dg-object-seed.constant';
+import { OVERHEAD_DG_FIELD_SEEDS } from 'src/modules/flent/overhead/constants/overhead-dg-field-seeds.constant';
+import { OVERHEAD_WATER_OBJECT_SEED } from 'src/modules/flent/overhead/constants/overhead-water-object-seed.constant';
+import { OVERHEAD_WATER_FIELD_SEEDS } from 'src/modules/flent/overhead/constants/overhead-water-field-seeds.constant';
+import { OVERHEAD_WATER_PURIFIER_OBJECT_SEED } from 'src/modules/flent/overhead/constants/overhead-water-purifier-object-seed.constant';
+import { OVERHEAD_WATER_PURIFIER_FIELD_SEEDS } from 'src/modules/flent/overhead/constants/overhead-water-purifier-field-seeds.constant';
+import { OVERHEAD_GAS_OBJECT_SEED } from 'src/modules/flent/overhead/constants/overhead-gas-object-seed.constant';
+import { OVERHEAD_GAS_FIELD_SEEDS } from 'src/modules/flent/overhead/constants/overhead-gas-field-seeds.constant';
+import { OVERHEAD_HELPER_OBJECT_SEED } from 'src/modules/flent/overhead/constants/overhead-helper-object-seed.constant';
+import { OVERHEAD_HELPER_FIELD_SEEDS } from 'src/modules/flent/overhead/constants/overhead-helper-field-seeds.constant';
+
 // --- Flent Phase 5: Ticket ---
 import { TICKET_OBJECT_SEED } from 'src/modules/flent/ticket/constants/ticket-object-seed.constant';
 import { TICKET_FIELD_SEEDS } from 'src/modules/flent/ticket/constants/ticket-field-seeds.constant';
@@ -173,6 +215,30 @@ export class DevSeederMetadataService {
         { seed: VENDOR_BILLING_OBJECT_SEED, fields: VENDOR_BILLING_FIELD_SEEDS },
         { seed: VENDOR_CAPABILITY_OBJECT_SEED, fields: VENDOR_CAPABILITY_FIELD_SEEDS },
         { seed: VENDOR_COMMERCIALS_OBJECT_SEED, fields: VENDOR_COMMERCIALS_FIELD_SEEDS },
+
+        // --- Flent Phase 2: Property ---
+        { seed: PROPERTY_OBJECT_SEED, fields: PROPERTY_FIELD_SEEDS },
+        { seed: PROPERTY_LEAD_STAGE_OBJECT_SEED, fields: PROPERTY_LEAD_STAGE_FIELD_SEEDS },
+        { seed: PROPERTY_ACTIVE_OBJECT_SEED, fields: PROPERTY_ACTIVE_FIELD_SEEDS },
+        { seed: PROPERTY_CHURNED_OBJECT_SEED, fields: PROPERTY_CHURNED_FIELD_SEEDS },
+
+        // --- Flent Phase 2: Room ---
+        { seed: ROOM_OBJECT_SEED, fields: ROOM_FIELD_SEEDS },
+        { seed: ROOM_SPECIFICATIONS_OBJECT_SEED, fields: ROOM_SPECIFICATIONS_FIELD_SEEDS },
+        { seed: ROOM_FURNISHING_OBJECT_SEED, fields: ROOM_FURNISHING_FIELD_SEEDS },
+        { seed: ROOM_COMMERCIALS_OBJECT_SEED, fields: ROOM_COMMERCIALS_FIELD_SEEDS },
+        { seed: ROOM_AVAILABILITY_OBJECT_SEED, fields: ROOM_AVAILABILITY_FIELD_SEEDS },
+
+        // --- Flent Phase 2: Overhead ---
+        { seed: OVERHEAD_OBJECT_SEED, fields: OVERHEAD_FIELD_SEEDS },
+        { seed: OVERHEAD_MAINTENANCE_OBJECT_SEED, fields: OVERHEAD_MAINTENANCE_FIELD_SEEDS },
+        { seed: OVERHEAD_WIFI_OBJECT_SEED, fields: OVERHEAD_WIFI_FIELD_SEEDS },
+        { seed: OVERHEAD_ELECTRICITY_OBJECT_SEED, fields: OVERHEAD_ELECTRICITY_FIELD_SEEDS },
+        { seed: OVERHEAD_DG_OBJECT_SEED, fields: OVERHEAD_DG_FIELD_SEEDS },
+        { seed: OVERHEAD_WATER_OBJECT_SEED, fields: OVERHEAD_WATER_FIELD_SEEDS },
+        { seed: OVERHEAD_WATER_PURIFIER_OBJECT_SEED, fields: OVERHEAD_WATER_PURIFIER_FIELD_SEEDS },
+        { seed: OVERHEAD_GAS_OBJECT_SEED, fields: OVERHEAD_GAS_FIELD_SEEDS },
+        { seed: OVERHEAD_HELPER_OBJECT_SEED, fields: OVERHEAD_HELPER_FIELD_SEEDS },
 
         // --- Flent Phase 5: Ticket (base + 2 extensions) ---
         { seed: TICKET_OBJECT_SEED, fields: TICKET_FIELD_SEEDS },
@@ -355,6 +421,39 @@ export class DevSeederMetadataService {
           targetFieldLabel: 'Vendor',
           targetFieldIcon: 'IconTruck',
         },
+
+        // --- Property cross-domain ---
+        { sourceObjectName: MERCHANT_OBJECT_SEED.nameSingular, name: 'properties', label: 'Properties', icon: 'IconBuilding', targetObjectName: PROPERTY_OBJECT_SEED.nameSingular, targetFieldLabel: 'Merchant', targetFieldIcon: 'IconBuildingSkyscraper' },
+        { sourceObjectName: 'workspaceMember', name: 'dealOwnedProperties', label: 'Deal Owned Properties', icon: 'IconBuilding', targetObjectName: PROPERTY_OBJECT_SEED.nameSingular, targetFieldLabel: 'Deal Owner', targetFieldIcon: 'IconUser' },
+        { sourceObjectName: 'workspaceMember', name: 'psmOwnedProperties', label: 'PSM Owned Properties', icon: 'IconBuilding', targetObjectName: PROPERTY_OBJECT_SEED.nameSingular, targetFieldLabel: 'PSM Owner', targetFieldIcon: 'IconUser' },
+
+        // --- Property lifecycle extensions ---
+        { sourceObjectName: PROPERTY_OBJECT_SEED.nameSingular, name: 'propertyLeadStages', label: 'Lead Stages', icon: 'IconFilter', targetObjectName: PROPERTY_LEAD_STAGE_OBJECT_SEED.nameSingular, targetFieldLabel: 'Property', targetFieldIcon: 'IconBuilding' },
+        { sourceObjectName: PROPERTY_OBJECT_SEED.nameSingular, name: 'propertyActives', label: 'Active Details', icon: 'IconCircleCheck', targetObjectName: PROPERTY_ACTIVE_OBJECT_SEED.nameSingular, targetFieldLabel: 'Property', targetFieldIcon: 'IconBuilding' },
+        { sourceObjectName: PROPERTY_OBJECT_SEED.nameSingular, name: 'propertyChurneds', label: 'Churned Details', icon: 'IconArrowBack', targetObjectName: PROPERTY_CHURNED_OBJECT_SEED.nameSingular, targetFieldLabel: 'Property', targetFieldIcon: 'IconBuilding' },
+
+        // --- Room -> Property ---
+        { sourceObjectName: PROPERTY_OBJECT_SEED.nameSingular, name: 'rooms', label: 'Rooms', icon: 'IconDoor', targetObjectName: ROOM_OBJECT_SEED.nameSingular, targetFieldLabel: 'Property', targetFieldIcon: 'IconBuilding' },
+
+        // --- Room extensions ---
+        { sourceObjectName: ROOM_OBJECT_SEED.nameSingular, name: 'roomSpecifications', label: 'Specifications', icon: 'IconRuler', targetObjectName: ROOM_SPECIFICATIONS_OBJECT_SEED.nameSingular, targetFieldLabel: 'Room', targetFieldIcon: 'IconDoor' },
+        { sourceObjectName: ROOM_OBJECT_SEED.nameSingular, name: 'roomFurnishings', label: 'Furnishing Details', icon: 'IconArmchair', targetObjectName: ROOM_FURNISHING_OBJECT_SEED.nameSingular, targetFieldLabel: 'Room', targetFieldIcon: 'IconDoor' },
+        { sourceObjectName: ROOM_OBJECT_SEED.nameSingular, name: 'roomCommercials', label: 'Commercials', icon: 'IconCash', targetObjectName: ROOM_COMMERCIALS_OBJECT_SEED.nameSingular, targetFieldLabel: 'Room', targetFieldIcon: 'IconDoor' },
+        { sourceObjectName: ROOM_OBJECT_SEED.nameSingular, name: 'roomAvailabilities', label: 'Availability', icon: 'IconCalendarCheck', targetObjectName: ROOM_AVAILABILITY_OBJECT_SEED.nameSingular, targetFieldLabel: 'Room', targetFieldIcon: 'IconDoor' },
+
+        // --- Overhead cross-domain ---
+        { sourceObjectName: PROPERTY_OBJECT_SEED.nameSingular, name: 'overheads', label: 'Overheads', icon: 'IconReceipt', targetObjectName: OVERHEAD_OBJECT_SEED.nameSingular, targetFieldLabel: 'Property', targetFieldIcon: 'IconBuilding' },
+        { sourceObjectName: MERCHANT_OBJECT_SEED.nameSingular, name: 'merchantOverheads', label: 'Merchant Overheads', icon: 'IconReceipt', targetObjectName: OVERHEAD_OBJECT_SEED.nameSingular, targetFieldLabel: 'Merchant', targetFieldIcon: 'IconBuildingSkyscraper' },
+
+        // --- Overhead category extensions ---
+        { sourceObjectName: OVERHEAD_OBJECT_SEED.nameSingular, name: 'overheadMaintenances', label: 'Maintenance Details', icon: 'IconTool', targetObjectName: OVERHEAD_MAINTENANCE_OBJECT_SEED.nameSingular, targetFieldLabel: 'Overhead', targetFieldIcon: 'IconReceipt' },
+        { sourceObjectName: OVERHEAD_OBJECT_SEED.nameSingular, name: 'overheadWifis', label: 'WiFi Details', icon: 'IconWifi', targetObjectName: OVERHEAD_WIFI_OBJECT_SEED.nameSingular, targetFieldLabel: 'Overhead', targetFieldIcon: 'IconReceipt' },
+        { sourceObjectName: OVERHEAD_OBJECT_SEED.nameSingular, name: 'overheadElectricities', label: 'Electricity Details', icon: 'IconBolt', targetObjectName: OVERHEAD_ELECTRICITY_OBJECT_SEED.nameSingular, targetFieldLabel: 'Overhead', targetFieldIcon: 'IconReceipt' },
+        { sourceObjectName: OVERHEAD_OBJECT_SEED.nameSingular, name: 'overheadDgs', label: 'DG Details', icon: 'IconEngine', targetObjectName: OVERHEAD_DG_OBJECT_SEED.nameSingular, targetFieldLabel: 'Overhead', targetFieldIcon: 'IconReceipt' },
+        { sourceObjectName: OVERHEAD_OBJECT_SEED.nameSingular, name: 'overheadWaters', label: 'Water Details', icon: 'IconDroplet', targetObjectName: OVERHEAD_WATER_OBJECT_SEED.nameSingular, targetFieldLabel: 'Overhead', targetFieldIcon: 'IconReceipt' },
+        { sourceObjectName: OVERHEAD_OBJECT_SEED.nameSingular, name: 'overheadWaterPurifiers', label: 'Water Purifier Details', icon: 'IconFilter', targetObjectName: OVERHEAD_WATER_PURIFIER_OBJECT_SEED.nameSingular, targetFieldLabel: 'Overhead', targetFieldIcon: 'IconReceipt' },
+        { sourceObjectName: OVERHEAD_OBJECT_SEED.nameSingular, name: 'overheadGases', label: 'Gas Details', icon: 'IconFlame', targetObjectName: OVERHEAD_GAS_OBJECT_SEED.nameSingular, targetFieldLabel: 'Overhead', targetFieldIcon: 'IconReceipt' },
+        { sourceObjectName: OVERHEAD_OBJECT_SEED.nameSingular, name: 'overheadHelpers', label: 'Helper Details', icon: 'IconUsers', targetObjectName: OVERHEAD_HELPER_OBJECT_SEED.nameSingular, targetFieldLabel: 'Overhead', targetFieldIcon: 'IconReceipt' },
 
         // --- Flent Ticket relations ---
         // Ticket -> Property, Vendor, Transaction (MANY_TO_ONE, creates inverses)

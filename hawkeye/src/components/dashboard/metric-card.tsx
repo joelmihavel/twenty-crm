@@ -4,16 +4,49 @@ import type { FC } from "react";
 import { ArrowUp, ArrowDown } from "@untitledui/icons";
 import { FeaturedIcon } from "@/components/foundations/featured-icon/featured-icon";
 import { BadgeWithIcon } from "@/components/base/badges/badges";
-import { cx } from "@/utils/cx";
+import { ProgressBarCircle } from "@/components/base/progress-indicators/progress-circles";
 
-interface MetricCardProps {
+interface MetricCardBaseProps {
   title: string;
+  loading?: boolean;
+  icon?: FC<{ className?: string }>;
+  subtitle?: string;
+}
+
+interface MetricCardDefaultProps extends MetricCardBaseProps {
   value: number;
   change?: number;
   changeType?: "increase" | "decrease" | "neutral";
-  icon?: FC<{ className?: string }>;
-  loading?: boolean;
+  progress?: undefined;
 }
+
+interface MetricCardProgressProps extends MetricCardBaseProps {
+  progress: {
+    value: number;
+    max: number;
+    label?: string;
+  };
+  value?: undefined;
+  change?: undefined;
+  changeType?: undefined;
+}
+
+interface MetricCardSkeletonProps {
+  title: string;
+  loading: true;
+  icon?: FC<{ className?: string }>;
+  subtitle?: string;
+  value?: number;
+  change?: number;
+  changeType?: "increase" | "decrease" | "neutral";
+  progress?: {
+    value: number;
+    max: number;
+    label?: string;
+  };
+}
+
+type MetricCardProps = MetricCardDefaultProps | MetricCardProgressProps | MetricCardSkeletonProps;
 
 function formatNumber(value: number): string {
   if (value >= 1_000_000) {
@@ -41,17 +74,61 @@ function MetricCardSkeleton() {
   );
 }
 
-export function MetricCard({
-  title,
-  value,
-  change,
-  changeType = "neutral",
-  icon,
-  loading = false,
-}: MetricCardProps) {
+export function MetricCard(props: MetricCardProps) {
+  const { title, loading = false } = props;
+
   if (loading) {
     return <MetricCardSkeleton />;
   }
+
+  // Progress variant: shows a circular progress indicator
+  if (props.progress !== undefined) {
+    const { progress, subtitle, icon } = props;
+    const rate = progress.max > 0
+      ? Math.round((progress.value / progress.max) * 100)
+      : 0;
+
+    return (
+      <div className="flex flex-col rounded-xl border border-secondary bg-primary p-5 shadow-xs transition duration-100 ease-linear hover:shadow-md">
+        <div className="flex items-center justify-between">
+          <p className="text-sm font-medium text-tertiary">{title}</p>
+          {icon && (
+            <FeaturedIcon
+              icon={icon}
+              color="brand"
+              theme="light"
+              size="sm"
+            />
+          )}
+        </div>
+
+        <div className="mt-3 flex items-center gap-4">
+          <ProgressBarCircle
+            value={progress.value}
+            min={0}
+            max={progress.max}
+            size="xxs"
+            label={progress.label}
+          />
+          <div className="flex flex-col gap-0.5">
+            <p className="text-display-sm font-semibold text-primary">
+              {rate}%
+            </p>
+            {subtitle && (
+              <p className="text-sm text-tertiary">{subtitle}</p>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Default variant: shows a large number
+  const displayValue = props.value ?? 0;
+  const change = props.change;
+  const changeType = props.changeType ?? "neutral";
+  const icon = props.icon;
+  const subtitle = props.subtitle;
 
   const hasChange = change !== undefined && change !== null;
   const resolvedChangeType =
@@ -64,23 +141,27 @@ export function MetricCard({
           : "neutral";
 
   return (
-    <div className="flex flex-col gap-4 rounded-xl border border-secondary bg-primary p-5 shadow-xs transition duration-100 ease-linear hover:shadow-md">
+    <div className="flex flex-col rounded-xl border border-secondary bg-primary p-5 shadow-xs transition duration-100 ease-linear hover:shadow-md">
       <div className="flex items-center justify-between">
         <p className="text-sm font-medium text-tertiary">{title}</p>
         {icon && (
           <FeaturedIcon
             icon={icon}
             color="brand"
-            theme="modern"
+            theme="light"
             size="sm"
           />
         )}
       </div>
 
-      <div className="mt-3 flex flex-col gap-2">
-        <p className="text-display-xs font-semibold text-primary">
-          {formatNumber(value)}
+      <div className="mt-3 flex flex-col gap-1">
+        <p className="text-display-sm font-semibold text-primary">
+          {formatNumber(displayValue)}
         </p>
+
+        {subtitle && !hasChange && (
+          <p className="text-sm text-tertiary">{subtitle}</p>
+        )}
 
         {hasChange && (
           <div className="flex items-center gap-2">

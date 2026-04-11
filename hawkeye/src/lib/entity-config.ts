@@ -80,7 +80,8 @@ export const ENTITIES: EntityConfig[] = [
     label: "Tenants",
     labelSingular: "Tenant",
     icon: Users01,
-    defaultView: "table",
+    defaultView: "kanban",
+    kanbanField: "tenantLifecycle",
     children: [
       { label: "Requirements", objectName: "tenantRequirement", icon: FileCheck01 },
       { label: "Qualification", objectName: "tenantQualification", icon: Award01 },

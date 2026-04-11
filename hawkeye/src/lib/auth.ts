@@ -21,11 +21,11 @@ export function clearStoredToken(): void {
   document.cookie = `${TOKEN_KEY}=; path=/; max-age=0`;
 }
 
-// Get the effective API key: user token > env var (server-side only)
+// Get the effective API key: user token > public env var > server-side env var
 export function getEffectiveApiKey(): string {
   const userToken = getStoredToken();
   if (userToken) return userToken;
-  return process.env.TWENTY_API_KEY || "";
+  return process.env.NEXT_PUBLIC_TWENTY_API_KEY || process.env.TWENTY_API_KEY || "";
 }
 
 // Parse a cookie string to extract the token (used in middleware)

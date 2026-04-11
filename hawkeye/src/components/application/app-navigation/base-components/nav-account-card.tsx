@@ -11,6 +11,7 @@ import { AvatarLabelGroup } from "@/components/base/avatar/avatar-label-group";
 import { Button } from "@/components/base/buttons/button";
 import { RadioButtonBase } from "@/components/base/radio-buttons/radio-buttons";
 import { useBreakpoint } from "@/hooks/use-breakpoint";
+import { useWorkspaceMember } from "@/lib/hooks/use-workspace-member";
 import { cx } from "@/utils/cx";
 
 export type NavAccountType = {
@@ -28,17 +29,10 @@ export type NavAccountType = {
 
 const placeholderAccounts: NavAccountType[] = [
     {
-        id: "caitlyn",
-        name: "Caitlyn King",
-        email: "caitlyn@untitledui.com",
-        avatar: "https://www.untitledui.com/images/avatars/caitlyn-king?fm=webp&q=80",
-        status: "online",
-    },
-    {
-        id: "sienna",
-        name: "Sienna Hewitt",
-        email: "sienna@untitledui.com",
-        avatar: "https://www.untitledui.com/images/avatars/transparent/sienna-hewitt?bg=%23E0E0E0",
+        id: "workspace-owner",
+        name: "Workspace Owner",
+        email: "",
+        avatar: "",
         status: "online",
     },
 ];
@@ -156,8 +150,8 @@ const NavAccountCardMenuItem = ({
 
 export const NavAccountCard = ({
     popoverPlacement,
-    selectedAccountId = "caitlyn",
-    items = placeholderAccounts,
+    selectedAccountId = "workspace-owner",
+    items,
     avatarRounded,
 }: {
     popoverPlacement?: Placement;
@@ -168,10 +162,20 @@ export const NavAccountCard = ({
     const triggerRef = useRef<HTMLDivElement>(null);
     const isDesktop = useBreakpoint("lg");
 
-    const selectedAccount = items.find((account) => account.id === selectedAccountId);
+    // Use workspace member data if no items provided
+    const { member } = useWorkspaceMember();
+
+    const accounts = items ?? (member ? [{
+        id: "workspace-owner",
+        name: [member.name.firstName, member.name.lastName].filter(Boolean).join(" ") || "User",
+        email: member.userEmail || "",
+        avatar: member.avatarUrl || "",
+        status: "online" as const,
+    }] : placeholderAccounts);
+
+    const selectedAccount = accounts.find((account) => account.id === selectedAccountId) ?? accounts[0];
 
     if (!selectedAccount) {
-        console.warn(`Account with ID ${selectedAccountId} not found in <NavAccountCard />`);
         return null;
     }
 

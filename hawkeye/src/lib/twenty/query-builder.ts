@@ -1,15 +1,83 @@
-import type { FieldMetadata, ObjectMetadata } from "./types";
+import type { FieldMetadata, ObjectMetadata, RecordData } from "./types";
 import { SYSTEM_FIELD_TYPES, SYSTEM_FIELD_NAMES } from "./types";
 
-/** Get user-visible fields (exclude system/internal) */
+// Smart importance scores for field types (higher = more important)
+const FIELD_TYPE_SCORES: Record<string, number> = {
+  FULL_NAME: 100,
+  EMAILS: 90,
+  PHONES: 85,
+  SELECT: 70,
+  MULTI_SELECT: 65,
+  CURRENCY: 60,
+  NUMBER: 50,
+  NUMERIC: 50,
+  DATE: 40,
+  DATE_TIME: 40,
+  BOOLEAN: 30,
+  TEXT: 20,
+  RATING: 15,
+  LINKS: 10,
+  ADDRESS: 5,
+};
+
+/** Maximum number of columns to display in the desktop table */
+export const MAX_TABLE_COLUMNS = 7;
+
+/** Score a field by its importance for table display */
+export function scoreField(field: FieldMetadata): number {
+  // TEXT fields named "name" or "title" get elevated priority
+  if (
+    field.type === "TEXT" &&
+    /^(name|title)$/i.test(field.name)
+  ) {
+    return 95;
+  }
+
+  return FIELD_TYPE_SCORES[field.type] ?? 5;
+}
+
+/** Get user-visible fields (exclude system/internal), sorted by importance score descending */
 export function getVisibleFields(object: ObjectMetadata): FieldMetadata[] {
-  return object.fields.filter(
-    (f) =>
-      !SYSTEM_FIELD_TYPES.includes(f.type) &&
-      !SYSTEM_FIELD_NAMES.includes(f.name) &&
-      f.type !== "RELATION" && // Relations need special handling
-      f.type !== "MORPH_RELATION",
-  );
+  return object.fields
+    .filter(
+      (f) =>
+        !SYSTEM_FIELD_TYPES.includes(f.type) &&
+        !SYSTEM_FIELD_NAMES.includes(f.name) &&
+        f.type !== "RELATION" &&
+        f.type !== "MORPH_RELATION",
+    )
+    .sort((a, b) => {
+      const aScore = scoreField(a);
+      const bScore = scoreField(b);
+      if (aScore !== bScore) return bScore - aScore;
+
+      // Tie-break: alphabetical by label
+      return a.label.localeCompare(b.label);
+    });
+}
+
+/**
+ * Filter out fields where ALL records in the current page have null/empty values.
+ * This removes "dashboard of dashes" columns from the table.
+ */
+export function filterPopulatedFields(
+  fields: FieldMetadata[],
+  records: RecordData[],
+): FieldMetadata[] {
+  if (records.length === 0) return fields;
+
+  return fields.filter((field) => {
+    return records.some((record) => {
+      const val = record[field.name];
+      if (val === null || val === undefined || val === "") return false;
+      if (typeof val === "object" && val !== null) {
+        return !Object.values(val as Record<string, unknown>).every(
+          (v) => v === null || v === undefined || v === "",
+        );
+      }
+      return true;
+    });
+  });
 }
 
 /** Build the field selection fragment for a GraphQL query */

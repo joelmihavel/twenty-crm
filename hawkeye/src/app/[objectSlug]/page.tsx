@@ -13,7 +13,7 @@ import { useExportRecords } from "@/lib/hooks/use-export-records";
 import { exportToCsv } from "@/lib/csv-export";
 import { useToast } from "@/lib/hooks/use-toast";
 import { useBreakpoint } from "@/hooks/use-breakpoint";
-import { getVisibleFields } from "@/lib/twenty/query-builder";
+import { getVisibleFields, filterPopulatedFields, MAX_TABLE_COLUMNS } from "@/lib/twenty/query-builder";
 import { FIELD_TYPE_REGISTRY } from "@/lib/twenty/field-type-registry";
 import { getRecordTitle } from "@/lib/twenty/record-utils";
 import type { FieldMetadata, RecordData } from "@/lib/twenty/types";
@@ -37,6 +37,7 @@ import type { ViewType } from "@/components/views/view-switcher";
 import { KanbanView } from "@/components/views/kanban-view";
 import { CalendarView } from "@/components/views/calendar-view";
 import { getObjectViewConfig } from "./object-config";
+import { DialogTrigger, ModalOverlay, Modal, Dialog } from "@/components/application/modals/modal";
 import type { Selection, SortDescriptor } from "react-aria-components";
 
 const PAGE_SIZE = 50;
@@ -139,12 +140,19 @@ function GenericObjectPage({ objectSlug }: { objectSlug: string }) {
   const { toast } = useToast();
   const [bulkDeleteConfirm, setBulkDeleteConfirm] = useState(false);
 
-  const visibleFields = useMemo(() => {
+  // Base visible fields from smart scoring (before record-aware filtering)
+  const baseVisibleFields = useMemo(() => {
     if (!object) return [];
     return getVisibleFields(object).filter(
       (f) => FIELD_TYPE_REGISTRY[f.type]?.showInTable,
     );
   }, [object]);
+
+  // Filter out empty columns and cap at MAX_TABLE_COLUMNS for desktop table
+  const visibleFields = useMemo(() => {
+    if (records.length === 0) return baseVisibleFields.slice(0, MAX_TABLE_COLUMNS);
+    return filterPopulatedFields(baseVisibleFields, records).slice(0, MAX_TABLE_COLUMNS);
+  }, [baseVisibleFields, records]);
 
   // All visible fields (for card view, not limited to showInTable)
   const allVisibleFields = useMemo(() => {
@@ -520,62 +528,72 @@ function GenericObjectPage({ objectSlug }: { objectSlug: string }) {
         />
       )}
 
-      {/* Delete confirmation dialog (single record) */}
-      {deleteConfirmId && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-overlay/60 backdrop-blur-sm">
-          <div className="w-full max-w-sm rounded-xl bg-primary p-6 shadow-xl ring-1 ring-secondary">
-            <h3 className="text-lg font-semibold text-primary">Delete {object.labelSingular}?</h3>
-            <p className="mt-2 text-sm text-tertiary">
-              This action cannot be undone. Are you sure you want to delete this {object.labelSingular.toLowerCase()}?
-            </p>
-            <div className="mt-5 flex justify-end gap-3">
-              <Button size="sm" color="secondary" onClick={() => setDeleteConfirmId(null)}>
-                Cancel
-              </Button>
-              <Button
-                size="sm"
-                color="primary-destructive"
-                iconLeading={Trash01}
-                onClick={() => handleDeleteRecord(deleteConfirmId)}
-              >
-                Delete
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Delete confirmation dialog (single record) — Modal */}
+      <DialogTrigger isOpen={!!deleteConfirmId} onOpenChange={(open) => { if (!open) setDeleteConfirmId(null); }}>
+        <ModalOverlay>
+          <Modal className="max-w-sm">
+            <Dialog>
+              <div className="w-full rounded-xl bg-primary p-6 shadow-xl ring-1 ring-secondary">
+                <h3 className="text-lg font-semibold text-primary">Delete {object.labelSingular}?</h3>
+                <p className="mt-2 text-sm text-tertiary">
+                  This action cannot be undone. Are you sure you want to delete this {object.labelSingular.toLowerCase()}?
+                </p>
+                <div className="mt-5 flex justify-end gap-3">
+                  <Button size="sm" color="secondary" onClick={() => setDeleteConfirmId(null)}>
+                    Cancel
+                  </Button>
+                  <Button
+                    size="sm"
+                    color="primary-destructive"
+                    iconLeading={Trash01}
+                    onClick={() => {
+                      if (deleteConfirmId) handleDeleteRecord(deleteConfirmId);
+                    }}
+                  >
+                    Delete
+                  </Button>
+                </div>
+              </div>
+            </Dialog>
+          </Modal>
+        </ModalOverlay>
+      </DialogTrigger>
 
-      {/* Bulk delete confirmation dialog */}
-      {bulkDeleteConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-overlay/60 backdrop-blur-sm">
-          <div className="w-full max-w-sm rounded-xl bg-primary p-6 shadow-xl ring-1 ring-secondary">
-            <h3 className="text-lg font-semibold text-primary">
-              Delete {selectedCount} {selectedCount === 1 ? object.labelSingular : object.labelPlural}?
-            </h3>
-            <p className="mt-2 text-sm text-tertiary">
-              This action cannot be undone. Are you sure you want to delete{" "}
-              {selectedCount === 1
-                ? `this ${object.labelSingular.toLowerCase()}`
-                : `these ${selectedCount} ${object.labelPlural.toLowerCase()}`}?
-            </p>
-            <div className="mt-5 flex justify-end gap-3">
-              <Button size="sm" color="secondary" onClick={() => setBulkDeleteConfirm(false)}>
-                Cancel
-              </Button>
-              <Button
-                size="sm"
-                color="primary-destructive"
-                iconLeading={Trash01}
-                isLoading={bulkDeleteLoading}
-                showTextWhileLoading
-                onClick={handleBulkDelete}
-              >
-                Delete {selectedCount}
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Bulk delete confirmation dialog — Modal */}
+      <DialogTrigger isOpen={bulkDeleteConfirm} onOpenChange={(open) => { if (!open) setBulkDeleteConfirm(false); }}>
+        <ModalOverlay>
+          <Modal className="max-w-sm">
+            <Dialog>
+              <div className="w-full rounded-xl bg-primary p-6 shadow-xl ring-1 ring-secondary">
+                <h3 className="text-lg font-semibold text-primary">
+                  Delete {selectedCount} {selectedCount === 1 ? object.labelSingular : object.labelPlural}?
+                </h3>
+                <p className="mt-2 text-sm text-tertiary">
+                  This action cannot be undone. Are you sure you want to delete{" "}
+                  {selectedCount === 1
+                    ? `this ${object.labelSingular.toLowerCase()}`
+                    : `these ${selectedCount} ${object.labelPlural.toLowerCase()}`}?
+                </p>
+                <div className="mt-5 flex justify-end gap-3">
+                  <Button size="sm" color="secondary" onClick={() => setBulkDeleteConfirm(false)}>
+                    Cancel
+                  </Button>
+                  <Button
+                    size="sm"
+                    color="primary-destructive"
+                    iconLeading={Trash01}
+                    isLoading={bulkDeleteLoading}
+                    showTextWhileLoading
+                    onClick={handleBulkDelete}
+                  >
+                    Delete {selectedCount}
+                  </Button>
+                </div>
+              </div>
+            </Dialog>
+          </Modal>
+        </ModalOverlay>
+      </DialogTrigger>
 
       {/* Bulk action bar */}
       <BulkActionBar

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import type { ObjectMetadata } from "../twenty/types";
 import { useMetadata } from "./use-metadata";
 import { graphqlQuery } from "../twenty/graphql-client";
+import { ENTITIES } from "../entity-config";
 
 interface ObjectStat {
   name: string;
@@ -18,6 +19,8 @@ interface UseDashboardStatsResult {
   error: Error | null;
   refetch: () => void;
 }
+
+const BATCH_SIZE = 15; // Twenty limits to 20 root resolvers per query
 
 function buildCountQuery(objects: ObjectMetadata[]): string {
   const fragments = objects.map(
@@ -44,17 +47,40 @@ export function useDashboardStats(): UseDashboardStatsResult {
     setError(null);
 
     try {
-      const query = buildCountQuery(objects);
-      const data = await graphqlQuery<
-        Record<string, { totalCount: number }>
-      >(query);
+      // Batch queries to stay under Twenty's 20 root resolver limit
+      const batches: ObjectMetadata[][] = [];
+      for (let i = 0; i < objects.length; i += BATCH_SIZE) {
+        batches.push(objects.slice(i, i + BATCH_SIZE));
+      }
 
-      const stats: ObjectStat[] = objects.map((obj) => ({
-        name: obj.nameSingular,
-        label: obj.labelPlural,
-        icon: obj.icon,
-        count: data[obj.namePlural]?.totalCount ?? 0,
-      }));
+      const results = await Promise.all(
+        batches.map((batch) =>
+          graphqlQuery<Record<string, { totalCount: number }>>(
+            buildCountQuery(batch),
+          ),
+        ),
+      );
+
+      // Merge all batch results
+      const merged: Record<string, { totalCount: number }> = {};
+      for (const result of results) {
+        Object.assign(merged, result);
+      }
+
+      const coreNames = new Set(ENTITIES.map((e) => e.objectName));
+      const stats: ObjectStat[] = objects
+        .map((obj) => ({
+          name: obj.nameSingular,
+          label: obj.labelPlural,
+          icon: obj.icon,
+          count: merged[obj.namePlural]?.totalCount ?? 0,
+        }))
+        .sort((a, b) => {
+          const aCore = coreNames.has(a.name) ? 0 : 1;
+          const bCore = coreNames.has(b.name) ? 0 : 1;
+          if (aCore !== bCore) return aCore - bCore;
+          return b.count - a.count;
+        });
 
       setObjectStats(stats);
     } catch (err) {

@@ -1,0 +1,1133 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Flent Property Management CRM — Data Model Architecture</title>
+<style>
+  @page {
+    size: A3 landscape;
+    margin: 1.5cm;
+  }
+  body {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-size: 9pt;
+    color: #1a1a2e;
+    line-height: 1.4;
+  }
+  h1 {
+    font-size: 22pt;
+    color: #0f0f23;
+    border-bottom: 3px solid #6c5ce7;
+    padding-bottom: 8px;
+    margin-top: 0;
+  }
+  h2 {
+    font-size: 14pt;
+    color: #6c5ce7;
+    margin-top: 28px;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 4px;
+    page-break-after: avoid;
+  }
+  h3 {
+    font-size: 11pt;
+    color: #2d3436;
+    margin-top: 16px;
+    margin-bottom: 6px;
+    page-break-after: avoid;
+  }
+  h4 {
+    font-size: 9pt;
+    color: #636e72;
+    margin-top: 10px;
+    margin-bottom: 4px;
+    page-break-after: avoid;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 12px;
+    font-size: 8pt;
+    page-break-inside: auto;
+  }
+  tr { page-break-inside: avoid; }
+  th {
+    background: #6c5ce7;
+    color: white;
+    padding: 5px 6px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 7.5pt;
+  }
+  td {
+    padding: 4px 6px;
+    border-bottom: 1px solid #eee;
+    vertical-align: top;
+  }
+  tr:nth-child(even) td { background: #f8f9fa; }
+  .base-tag {
+    display: inline-block;
+    background: #6c5ce7;
+    color: white;
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-size: 7pt;
+    font-weight: 600;
+  }
+  .ext-tag {
+    display: inline-block;
+    background: #00b894;
+    color: white;
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-size: 7pt;
+    font-weight: 600;
+  }
+  .child-tag {
+    display: inline-block;
+    background: #fdcb6e;
+    color: #2d3436;
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-size: 7pt;
+    font-weight: 600;
+  }
+  .pk { color: #d63031; font-weight: 700; }
+  .fk { color: #0984e3; font-weight: 600; }
+  .new { color: #00b894; font-weight: 700; }
+  .derived { color: #e17055; font-style: italic; }
+  .section-desc {
+    color: #636e72;
+    font-size: 8.5pt;
+    margin-bottom: 8px;
+    font-style: italic;
+  }
+  .meta-box {
+    background: #f0f0f8;
+    border-left: 3px solid #6c5ce7;
+    padding: 8px 12px;
+    margin: 10px 0;
+    font-size: 8.5pt;
+  }
+  .rel-diagram {
+    background: #fafafa;
+    border: 1px solid #ddd;
+    padding: 12px;
+    margin: 10px 0;
+    font-family: 'Courier New', monospace;
+    font-size: 8pt;
+    white-space: pre;
+    line-height: 1.5;
+  }
+  .page-break { page-break-before: always; }
+  .toc a { text-decoration: none; color: #6c5ce7; }
+  .toc li { margin-bottom: 3px; }
+  .legend { display: flex; gap: 12px; margin: 8px 0; flex-wrap: wrap; }
+  .legend span { font-size: 7.5pt; }
+  .comment { background: #fff3cd; padding: 2px 4px; font-size: 7.5pt; }
+</style>
+</head>
+<body>
+
+<!-- COVER -->
+<h1>Flent Property Management CRM<br>Data Model Architecture</h1>
+<div class="meta-box">
+  <strong>Project:</strong> Twenty CRM (Custom Architecture)<br>
+  <strong>Database:</strong> PostgreSQL 16<br>
+  <strong>Pattern:</strong> Shared Base + Extension Tables<br>
+  <strong>Total Objects:</strong> 11 + Team (retained from Twenty)<br>
+  <strong>Total Tables:</strong> ~48 (11 base + 33 extensions + 4 child tables)<br>
+  <strong>Date:</strong> 2026-04-11<br>
+  <strong>Version:</strong> 1.0
+</div>
+
+<h3>Legend</h3>
+<div class="legend">
+  <span><span class="base-tag">BASE</span> Shared base table</span>
+  <span><span class="ext-tag">EXT</span> Extension table</span>
+  <span><span class="child-tag">CHILD</span> Child/line-item table</span>
+  <span><span class="pk">PK</span> Primary Key</span>
+  <span><span class="fk">FK</span> Foreign Key</span>
+  <span><span class="new">NEW</span> Added in latest sheet update</span>
+  <span><span class="derived">Derived</span> Denormalized / auto-calculated</span>
+</div>
+
+<h3>Architecture Principles</h3>
+<div class="meta-box">
+  <strong>1. Shared Base + Extensions:</strong> Every object has a base table (core identity + cross-object FKs). Extension tables hold group-specific, lifecycle-specific, or sub-type-specific fields. All FKs from other objects point to base tables only.<br>
+  <strong>2. Denormalized fields as real columns:</strong> High-frequency lookups (current_pid, current_tenant_name) are stored and updated by triggers/workflows.<br>
+  <strong>3. Pragmatic splits:</strong> Lifecycle phases (PID), field groups (Tenant), sub-types (Contract/Ticket), category types (Overheads).<br>
+  <strong>4. JSONB for schedules:</strong> base_rent on Merchant Contract stores rent hike schedules as JSONB.<br>
+  <strong>5. PO as Transaction type:</strong> Purchase Orders extend the Transaction base with PO-specific fields and po_lines child table.
+</div>
+
+<!-- TABLE OF CONTENTS -->
+<h2>Table of Contents</h2>
+<ol class="toc">
+  <li><a href="#relationships">Cross-Object Relationship Map</a></li>
+  <li><a href="#tenant">1. Tenant (6 tables)</a></li>
+  <li><a href="#pid">2. PID / Property (4 tables)</a></li>
+  <li><a href="#rid">3. RID / Room (5 tables)</a></li>
+  <li><a href="#contract">4. Contract (3 tables)</a></li>
+  <li><a href="#transaction">5. Transaction (7 tables)</a></li>
+  <li><a href="#ticket">6. Ticket (3 tables)</a></li>
+  <li><a href="#merchant">7. Merchant (5 tables)</a></li>
+  <li><a href="#vendor">8. Vendor (5 tables)</a></li>
+  <li><a href="#overheads">9. Overheads (9 tables)</a></li>
+  <li><a href="#fsin">10. FSIN (2 tables)</a></li>
+  <li><a href="#item">11. Item (4 tables)</a></li>
+  <li><a href="#po-flow">PO → Item Creation Flow</a></li>
+  <li><a href="#summary">Summary Statistics</a></li>
+</ol>
+
+<!-- ═══════════════════════════════════════════════ -->
+<div class="page-break"></div>
+<h2 id="relationships">Cross-Object Relationship Map</h2>
+
+<div class="rel-diagram">
+                                    ┌─────────────┐
+                                    │   MERCHANT   │
+                                    │  (landlord)  │
+                                    └──────┬───────┘
+                                           │ merchant_id
+                     ┌─────────────────────┼─────────────────────┐
+                     ▼                     ▼                     ▼
+              ┌─────────────┐      ┌─────────────┐      ┌─────────────┐
+              │  CONTRACTS   │      │     PID      │      │ TRANSACTIONS │
+              │ (base)       │◄────►│  (property)  │◄────►│   (base)     │
+              └──┬───────┬──┘      └──────┬───────┘      └──────┬───────┘
+                 │       │                │                      │
+    ┌────────────┤       │                │                      │
+    ▼            ▼       │                ▼                      │
+┌────────┐  ┌────────┐   │         ┌─────────────┐              │
+│TENANT  │  │MERCHANT│   │         │     RID      │              │
+│CONTRACT│  │CONTRACT│   │         │   (room)     │              │
+│DETAILS │  │DETAILS │   │         └──────┬───────┘              │
+└────────┘  └────────┘   │                │                      │
+                         │                ▼                      │
+                   ┌─────┴────┐    ┌─────────────┐              │
+                   │  TENANT   │    │   TICKETS    │◄────────────┘
+                   │  (base)   │◄──►│   (base)     │
+                   └───────────┘    └──┬───────┬──┘
+                                      │       │
+                                      ▼       ▼
+                                 ┌────────┐ ┌────────┐
+                                 │TENANT  │ │VENDOR  │
+                                 │TICKET  │ │TICKET  │
+                                 │DETAILS │ │DETAILS │
+                                 └────────┘ └────────┘
+
+              ┌─────────────┐      ┌─────────────┐      ┌─────────────┐
+              │   VENDOR     │◄────►│    FSIN      │◄────►│    ITEM      │
+              │  (supplier)  │      │  (product    │      │  (physical   │
+              └──────┬───────┘      │   template)  │      │   unit)      │
+                     │              └──────────────┘      └──────┬───────┘
+                     │                                           │
+                     ▼                                           ▼
+              ┌─────────────┐                            ┌─────────────┐
+              │ TRANSACTIONS │                            │  PO_LINES    │
+              │ (vendor pay) │                            │  (from PO)   │
+              └─────────────┘                            └─────────────┘
+
+              ┌─────────────┐
+              │  OVERHEADS   │──► 8 category extension tables
+              │  (base)      │    (maintenance, wifi, electricity,
+              └──────┬───────┘     dg, water, purifier, gas, helper)
+                     │
+                     ▼
+              ┌─────────────┐
+              │     PID      │
+              │  (property)  │
+              └─────────────┘
+</div>
+
+<h3>FK Reference Map</h3>
+<table>
+  <tr><th>From Table</th><th>Column</th><th>→ To Table</th><th>Column</th><th>Relationship</th></tr>
+  <tr><td>rooms</td><td>pid</td><td>properties</td><td>pid</td><td>Room belongs to Property</td></tr>
+  <tr><td>contracts</td><td>pid</td><td>properties</td><td>pid</td><td>Contract covers a Property</td></tr>
+  <tr><td>contracts</td><td>rid</td><td>rooms</td><td>rid</td><td>Contract covers a Room</td></tr>
+  <tr><td>tenant_contract_details</td><td>tenant_id</td><td>tenants</td><td>record_id</td><td>Tenant party on contract</td></tr>
+  <tr><td>merchant_contract_details</td><td>merchant_id</td><td>merchants</td><td>record_id</td><td>Merchant party on contract</td></tr>
+  <tr><td>tenants</td><td>current_pid</td><td>properties</td><td>pid</td><td class="derived">Denormalized current property</td></tr>
+  <tr><td>tenants</td><td>current_rid</td><td>rooms</td><td>rid</td><td class="derived">Denormalized current room</td></tr>
+  <tr><td>rooms</td><td>current_contract_id</td><td>contracts</td><td>contract_uid</td><td class="derived">Denormalized active contract</td></tr>
+  <tr><td>transactions</td><td>contract_uid</td><td>contracts</td><td>contract_uid</td><td>Transaction for a contract</td></tr>
+  <tr><td>transactions</td><td>contact_id</td><td>tenants/merchants/vendors</td><td>record_id</td><td>Transaction party (polymorphic)</td></tr>
+  <tr><td>transactions</td><td>pid</td><td>properties</td><td>pid</td><td>Property-level reporting</td></tr>
+  <tr><td>transactions</td><td>rid</td><td>rooms</td><td>rid</td><td>Room-level P&L</td></tr>
+  <tr><td>tickets</td><td>pid</td><td>properties</td><td>pid</td><td>Ticket for a property</td></tr>
+  <tr><td>tickets</td><td>rid</td><td>rooms</td><td>rid</td><td>Ticket for a room</td></tr>
+  <tr><td>tickets</td><td>assigned_vendor</td><td>vendors</td><td>vendor_code</td><td>Vendor assigned to ticket</td></tr>
+  <tr><td>tickets</td><td>transaction_id</td><td>transactions</td><td>utn</td><td>Cost recovery transaction</td></tr>
+  <tr><td>overheads</td><td>pid</td><td>properties</td><td>pid</td><td>Overhead for a property</td></tr>
+  <tr><td>properties</td><td>merchant_id</td><td>merchants</td><td>record_id</td><td>Property owner</td></tr>
+  <tr><td>fsins</td><td>vendor_code</td><td>vendors</td><td>vendor_code</td><td>FSIN supplied by vendor</td></tr>
+  <tr><td>items</td><td>fsin_code</td><td>fsins</td><td>fsin_code</td><td>Item is instance of FSIN</td></tr>
+  <tr><td>po_lines</td><td>transaction_id</td><td>transactions</td><td>utn</td><td>PO line belongs to PO transaction</td></tr>
+  <tr><td>po_lines</td><td>fsin_code</td><td>fsins</td><td>fsin_code</td><td>PO line orders an FSIN</td></tr>
+  <tr><td>transaction_purchase_order</td><td>txn_id_advance</td><td>transactions</td><td>utn</td><td>Advance payment transaction</td></tr>
+  <tr><td>transaction_purchase_order</td><td>txn_id_remaining</td><td>transactions</td><td>utn</td><td>Remaining payment transaction</td></tr>
+  <tr><td>transaction_purchase_order</td><td>vendor_code</td><td>vendors</td><td>vendor_code</td><td>PO vendor</td></tr>
+</table>
+
+<!-- ═══════════════════════════════════════════════ -->
+<div class="page-break"></div>
+<h2 id="tenant">1. TENANT</h2>
+<p class="section-desc">Every person who inquires about or lives in a Flent property. Full lifecycle: first inquiry → move-out.</p>
+
+<h3><span class="base-tag">BASE</span> tenants</h3>
+<table>
+  <tr><th>Column</th><th>Type</th><th>Null?</th><th>Input</th><th>Notes</th></tr>
+  <tr><td class="pk">record_id</td><td>UUID</td><td>NOT NULL</td><td>System</td><td>Primary key</td></tr>
+  <tr><td>first_name</td><td>VARCHAR(255)</td><td>NOT NULL</td><td>Manual</td><td>Dedup key with email</td></tr>
+  <tr><td>last_name</td><td>VARCHAR(255)</td><td>NOT NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>email</td><td>VARCHAR(255)</td><td>NOT NULL</td><td>Manual</td><td>Dedup key</td></tr>
+  <tr><td>mobile_phone</td><td>VARCHAR(20)</td><td>NOT NULL</td><td>Manual</td><td>+91XXXXXXXXXX</td></tr>
+  <tr><td>whatsapp_phone</td><td>VARCHAR(20)</td><td>NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>gender</td><td>VARCHAR(100)</td><td>NOT NULL</td><td>Manual</td><td>Male / Female</td></tr>
+  <tr><td>date_of_birth</td><td>DATE</td><td>NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>aadhaar_number</td><td>VARCHAR(255)</td><td>NOT NULL</td><td>Workflow/Manual</td><td>XXXX XXXX XXXX</td></tr>
+  <tr><td>aadhaar_front_image</td><td>VARCHAR(500)</td><td>NOT NULL</td><td>Workflow/Manual</td><td>File URL</td></tr>
+  <tr><td>aadhaar_back_image</td><td>VARCHAR(500)</td><td>NOT NULL</td><td>Workflow/Manual</td><td>File URL</td></tr>
+  <tr><td>pan</td><td>VARCHAR(255)</td><td>NOT NULL</td><td>Workflow/Manual</td><td>AAAPX1234A</td></tr>
+  <tr><td>pan_card_image</td><td>VARCHAR(500)</td><td>NULL</td><td>Workflow/Manual</td><td>File URL</td></tr>
+  <tr><td>linkedin_url</td><td>VARCHAR(500)</td><td>NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>twitter_url</td><td>VARCHAR(500)</td><td>NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>instagram_id</td><td>VARCHAR(500)</td><td>NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>occupation</td><td>VARCHAR(255)</td><td>NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>employer_name</td><td>VARCHAR(255)</td><td>NULL</td><td>Manual</td><td></td></tr>
+  <tr><td class="new">tenant_lifecycle</td><td>VARCHAR(100)</td><td>NOT NULL</td><td>Webhook/Manual</td><td><span class="new">NEW</span> SINGLE SOURCE OF TRUTH. New Inquiry / Visit Scheduled / Visit Done / Negotiation / Converted / Gestation / Moved In / Notice Period / Moved Out / Dead Lead</td></tr>
+  <tr><td class="fk derived">current_pid</td><td>INTEGER</td><td>NULL</td><td>Derived</td><td>FK → properties. Updated by workflow on move-in.</td></tr>
+  <tr><td class="fk derived">current_rid</td><td>VARCHAR(255)</td><td>NULL</td><td>Derived</td><td>FK → rooms. Updated on move-in and transfer.</td></tr>
+</table>
+
+<h3><span class="ext-tag">EXT</span> tenant_attribution</h3>
+<p class="section-desc">Captured at first touch, never overwritten.</p>
+<table>
+  <tr><th>Column</th><th>Type</th><th>Null?</th><th>Input</th><th>Notes</th></tr>
+  <tr><td class="fk pk">tenant_id</td><td>UUID</td><td>NOT NULL</td><td>—</td><td>FK → tenants.record_id, PK</td></tr>
+  <tr><td>create_date</td><td>TIMESTAMP</td><td>NOT NULL</td><td>System</td><td></td></tr>
+  <tr><td>first_inquiry_channel</td><td>VARCHAR(100)</td><td>NOT NULL</td><td>Workflow/Manual</td><td>WhatsApp / Website / Instagram / Facebook / Direct Call / Walk-in / Platform / Referral / Offline Activation / <span class="new">Linkedin</span></td></tr>
+  <tr><td>source_drilldown_1</td><td>VARCHAR(100)</td><td>NULL</td><td>Manual</td><td>Google Ads / Meta Ads / Instagram Ads / YouTube Ads / Housing.com / MagicBricks / NoBroker / 99acres / WhatsApp Organic / Walk-in / Referral / Direct Call / Other</td></tr>
+  <tr><td>source_drilldown_2</td><td>VARCHAR(255)</td><td>NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>wax_code</td><td>VARCHAR(255)</td><td>NULL</td><td>System</td><td></td></tr>
+  <tr><td>google_click_id</td><td>VARCHAR(255)</td><td>NULL</td><td>System</td><td></td></tr>
+  <tr><td>facebook_click_id</td><td>VARCHAR(255)</td><td>NULL</td><td>System</td><td></td></tr>
+  <tr><td>utm_source</td><td>VARCHAR(255)</td><td>NULL</td><td>Workflow</td><td></td></tr>
+  <tr><td>utm_medium</td><td>VARCHAR(255)</td><td>NULL</td><td>Workflow</td><td></td></tr>
+  <tr><td>utm_campaign</td><td>VARCHAR(255)</td><td>NULL</td><td>Workflow</td><td></td></tr>
+  <tr><td>utm_content</td><td>VARCHAR(255)</td><td>NULL</td><td>Workflow</td><td></td></tr>
+  <tr><td>utm_term</td><td>VARCHAR(255)</td><td>NULL</td><td>Workflow</td><td></td></tr>
+</table>
+
+<h3><span class="ext-tag">EXT</span> tenant_requirements</h3>
+<table>
+  <tr><th>Column</th><th>Type</th><th>Null?</th><th>Input</th><th>Notes</th></tr>
+  <tr><td class="fk pk">tenant_id</td><td>UUID</td><td>NOT NULL</td><td>—</td><td>FK → tenants.record_id, PK</td></tr>
+  <tr><td>preferred_micromarkets</td><td>TEXT[]</td><td>NULL</td><td>Manual</td><td>Multi-select</td></tr>
+  <tr><td>preferred_occupancy_type</td><td>VARCHAR(100)</td><td>NULL</td><td>Manual</td><td>Full Home / Private Room</td></tr>
+  <tr><td>preferred_furnished_type</td><td>VARCHAR(100)</td><td>NULL</td><td>Manual</td><td>Furnished / Semi-Furnished / Unfurnished</td></tr>
+  <tr><td>preferred_move_in_timeline</td><td>VARCHAR(100)</td><td>NULL</td><td>Manual</td><td>Immediate / Within 2 Weeks / Flexible</td></tr>
+  <tr><td>gender_preferences</td><td>VARCHAR(100)</td><td>NULL</td><td>Manual</td><td>Male Only / Female Only / No Preference</td></tr>
+  <tr><td>food_preferences</td><td>VARCHAR(100)</td><td>NULL</td><td>Manual</td><td>Vegetarian / Non-Vegetarian / Vegan / No Preference</td></tr>
+  <tr><td>has_pet</td><td>BOOLEAN</td><td>NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>smoking_preferences</td><td>VARCHAR(100)</td><td>NULL</td><td>Manual</td><td>Smoker / Non-Smoker / Occasional</td></tr>
+  <tr><td>custom_preference</td><td>TEXT</td><td>NULL</td><td>Manual</td><td></td></tr>
+  <tr><td class="new">budget_max</td><td>DECIMAL(12,2)</td><td>NULL</td><td>Manual</td><td><span class="new">NEW</span> Maximum budget</td></tr>
+</table>
+
+<h3><span class="ext-tag">EXT</span> tenant_qualification</h3>
+<table>
+  <tr><th>Column</th><th>Type</th><th>Null?</th><th>Input</th><th>Notes</th></tr>
+  <tr><td class="fk pk">tenant_id</td><td>UUID</td><td>NOT NULL</td><td>—</td><td>FK → tenants.record_id, PK</td></tr>
+  <tr><td class="new">qualification_status</td><td>VARCHAR(100)</td><td>NULL</td><td>Manual</td><td><span class="new">NEW</span> Qualified / Not Qualified / Dead / Paused. Separate from lifecycle.</td></tr>
+  <tr><td>disqualification_reason</td><td>VARCHAR(100)</td><td>NULL</td><td>Manual</td><td>Budget / Location / Availability / No Response / Chose Competitor / Life Event / Other</td></tr>
+  <tr><td>disqualification_detail</td><td>TEXT</td><td>NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>bgv_status</td><td>VARCHAR(100)</td><td>NULL</td><td>Manual</td><td>Not Started / In Progress / Passed / Failed</td></tr>
+  <tr><td>bgv_report</td><td>VARCHAR(500)</td><td>NULL</td><td>Manual</td><td>File URL</td></tr>
+  <tr><td>bgv_completed_date</td><td>DATE</td><td>NULL</td><td>Manual</td><td></td></tr>
+</table>
+
+<h3><span class="ext-tag">EXT</span> tenant_visit_summary</h3>
+<table>
+  <tr><th>Column</th><th>Type</th><th>Null?</th><th>Input</th><th>Notes</th></tr>
+  <tr><td class="fk pk">tenant_id</td><td>UUID</td><td>NOT NULL</td><td>—</td><td>FK → tenants.record_id, PK</td></tr>
+  <tr><td class="new">total_visits_count</td><td>INTEGER</td><td>NOT NULL</td><td>Workflow</td><td><span class="new">NEW</span> All statuses</td></tr>
+  <tr><td>visits_cancelled</td><td>INTEGER</td><td>NULL</td><td>Workflow</td><td></td></tr>
+  <tr><td>visits_completed</td><td>INTEGER</td><td>NULL</td><td>Workflow</td><td></td></tr>
+  <tr><td>first_visit_date</td><td>DATE</td><td>NULL</td><td>Workflow</td><td>Set once, never overwritten</td></tr>
+  <tr><td>rids_visited</td><td>VARCHAR(255)</td><td>NULL</td><td>Workflow</td><td>R101, R205, R318</td></tr>
+  <tr><td>feedback</td><td>TEXT</td><td>NULL</td><td>Manual</td><td></td></tr>
+</table>
+
+<h3><span class="ext-tag">EXT</span> tenant_satisfaction</h3>
+<table>
+  <tr><th>Column</th><th>Type</th><th>Null?</th><th>Input</th><th>Notes</th></tr>
+  <tr><td class="fk pk">tenant_id</td><td>UUID</td><td>NOT NULL</td><td>—</td><td>FK → tenants.record_id, PK</td></tr>
+  <tr><td class="new">onboarding_csat_score</td><td>SMALLINT</td><td>NULL</td><td>Webhook/Manual</td><td><span class="new">NEW</span> 1-5 scale. Post-move-in.</td></tr>
+  <tr><td>offboarding_csat_score</td><td>SMALLINT</td><td>NULL</td><td>Webhook/Manual</td><td>1-5 scale</td></tr>
+  <tr><td>last_nps_score</td><td>SMALLINT</td><td>NULL</td><td>Webhook/Manual</td><td>0-10 scale</td></tr>
+  <tr><td>last_nps_date</td><td>DATE</td><td>NULL</td><td>Workflow</td><td></td></tr>
+  <tr><td class="derived">nps_category</td><td>VARCHAR(100)</td><td>NULL</td><td>Auto-calculated</td><td>Promoter (9-10) / Passive (7-8) / Detractor (0-6)</td></tr>
+  <tr><td>last_nps_comment</td><td>TEXT</td><td>NULL</td><td>Webhook</td><td></td></tr>
+</table>
+
+<!-- ═══════════════════════════════════════════════ -->
+<div class="page-break"></div>
+<h2 id="pid">2. PID / PROPERTY</h2>
+<p class="section-desc">A property unit managed by Flent. Lifecycle: lead acquisition → active management → churn.</p>
+
+<h3><span class="base-tag">BASE</span> properties</h3>
+<table>
+  <tr><th>Column</th><th>Type</th><th>Null?</th><th>Input</th><th>Notes</th></tr>
+  <tr><td class="pk">pid</td><td>VARCHAR(255)</td><td>NOT NULL</td><td>System</td><td>Primary key. Property ID.</td></tr>
+  <tr><td>property_type</td><td>VARCHAR(100)</td><td>NOT NULL</td><td>Manual</td><td></td></tr>
+  <tr><td class="fk derived">merchant_id</td><td>UUID</td><td>NULL</td><td>Derived</td><td>FK → merchants.record_id</td></tr>
+  <tr><td class="fk derived">deal_owner</td><td>UUID</td><td>NOT NULL</td><td>Manual</td><td>FK → team.user_id</td></tr>
+  <tr><td class="fk derived">psm_owner</td><td>UUID</td><td>NULL</td><td>Manual</td><td>FK → team.user_id (post-onboarding)</td></tr>
+  <tr><td>cluster</td><td>VARCHAR(100)</td><td>NOT NULL</td><td>Manual</td><td>HSR / KRM / IDR / MHD / BLD / MGR / HBL / WHF</td></tr>
+</table>
+
+<h3><span class="ext-tag">EXT</span> property_lead_stage</h3>
+<p class="section-desc">Fields tracked during property acquisition.</p>
+<table>
+  <tr><th>Column</th><th>Type</th><th>Null?</th><th>Input</th><th>Notes</th></tr>
+  <tr><td class="fk pk">pid</td><td>VARCHAR(255)</td><td>NOT NULL</td><td>—</td><td>FK → properties.pid, PK</td></tr>
+  <tr><td>ppid</td><td>VARCHAR(255)</td><td>NOT NULL</td><td>System</td><td>Prospect Property ID</td></tr>
+  <tr><td>date_added</td><td>TIMESTAMP</td><td>NOT NULL</td><td>System</td><td></td></tr>
+  <tr><td>units_count</td><td>INTEGER</td><td>NOT NULL</td><td>Manual</td><td>Min: 1</td></tr>
+  <tr><td>deal_type</td><td>VARCHAR(100)</td><td>NOT NULL</td><td>Manual</td><td>Residence Lead / Enterprise Lead</td></tr>
+  <tr><td>apartment_count</td><td>INTEGER</td><td>NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>property_type_lead</td><td>VARCHAR(100)</td><td>NOT NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>furnishing_lead</td><td>VARCHAR(100)</td><td>NULL</td><td>Manual</td><td>Unfurnished / Semi / Partially / Fully</td></tr>
+  <tr><td>expected_rent</td><td>DECIMAL(12,2)</td><td>NOT NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>google_map_location_lead</td><td>VARCHAR(500)</td><td>NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>deal_stage</td><td>VARCHAR(100)</td><td>NOT NULL</td><td>Manual</td><td>To be contacted / In touch / LL Interested / Qualified / Evaluation / Negotiations / Offer Extended / Under Contract / To nurture</td></tr>
+  <tr><td>disqualification_reason</td><td>VARCHAR(100)</td><td>NULL</td><td>Manual</td><td>Rented Out / Family Only / Not Flent Standard / etc.</td></tr>
+  <tr><td>lost_reason</td><td>VARCHAR(100)</td><td>NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>exploratory_visit_score</td><td>INTEGER</td><td>NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>potential_report</td><td>VARCHAR(500)</td><td>NULL</td><td>Manual</td><td>File URL</td></tr>
+</table>
+
+<h3><span class="ext-tag">EXT</span> property_active</h3>
+<p class="section-desc">Fields for onboarded, actively managed properties.</p>
+<table>
+  <tr><th>Column</th><th>Type</th><th>Null?</th><th>Input</th><th>Notes</th></tr>
+  <tr><td class="fk pk">pid</td><td>VARCHAR(255)</td><td>NOT NULL</td><td>—</td><td>FK → properties.pid, PK</td></tr>
+  <tr><td>house_no</td><td>VARCHAR(255)</td><td>NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>active_units_count</td><td>INTEGER</td><td>NOT NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>tier</td><td>VARCHAR(255)</td><td>NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>floor</td><td>VARCHAR(255)</td><td>NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>google_map_location</td><td>VARCHAR(500)</td><td>NOT NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>address</td><td>TEXT</td><td>NOT NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>building_society</td><td>VARCHAR(255)</td><td>NOT NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>parking_type</td><td>TEXT[]</td><td>NULL</td><td>Manual</td><td>Multi-select</td></tr>
+  <tr><td>parking_number</td><td>VARCHAR(255)</td><td>NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>power_backup</td><td>VARCHAR(100)</td><td>NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>water_source</td><td>TEXT[]</td><td>NULL</td><td>Manual</td><td>Multi-select</td></tr>
+  <tr><td>restrictions</td><td>VARCHAR(100)</td><td>NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>other_notes</td><td>TEXT</td><td>NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>furniture_movement</td><td>VARCHAR(100)</td><td>NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>furnishing_status</td><td>VARCHAR(100)</td><td>NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>final_approved_amt</td><td>DECIMAL(12,2)</td><td>NULL</td><td>Manual</td><td>Fixture budget</td></tr>
+  <tr><td>final_invoice</td><td>VARCHAR(500)</td><td>NULL</td><td>Manual</td><td>File URL</td></tr>
+  <tr><td>ll_extra_clauses</td><td>TEXT</td><td>NULL</td><td>Manual</td><td>Extra clauses in auth agreement</td></tr>
+  <tr><td>payment_collection</td><td>VARCHAR(100)</td><td>NULL</td><td>Manual</td><td>Upfront / Straight Deduction / EMI</td></tr>
+  <tr><td>emi_period</td><td>INTEGER</td><td>NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>opex_collections</td><td>DECIMAL(12,2)</td><td>NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>prop_mgmt_app</td><td>VARCHAR(100)</td><td>NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>rules_regulations</td><td>VARCHAR(500)</td><td>NULL</td><td>Manual</td><td>File URL</td></tr>
+  <tr><td>garbage_disposal</td><td>VARCHAR(255)</td><td>NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>timing_restrictions</td><td>VARCHAR(255)</td><td>NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>move_in_out_formalities</td><td>TEXT</td><td>NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>rent_deadline</td><td>VARCHAR(255)</td><td>NOT NULL</td><td>Manual</td><td>e.g. 5th</td></tr>
+  <tr><td>overheads_deadline</td><td>VARCHAR(255)</td><td>NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>active_deal_owner</td><td>VARCHAR(255)</td><td>NOT NULL</td><td>Manual</td><td></td></tr>
+</table>
+
+<h3><span class="ext-tag">EXT</span> property_churned</h3>
+<table>
+  <tr><th>Column</th><th>Type</th><th>Null?</th><th>Input</th><th>Notes</th></tr>
+  <tr><td class="fk pk">pid</td><td>VARCHAR(255)</td><td>NOT NULL</td><td>—</td><td>FK → properties.pid, PK</td></tr>
+  <tr><td>deposit_refunded</td><td>BOOLEAN</td><td>NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>exit_cost_opx</td><td>DECIMAL(12,2)</td><td>NULL</td><td>Manual</td><td></td></tr>
+</table>
+
+<!-- ═══════════════════════════════════════════════ -->
+<div class="page-break"></div>
+<h2 id="rid">3. RID / ROOM</h2>
+<p class="section-desc">Individual room within a property. Most granular unit for pricing, occupancy, and contract assignment.</p>
+
+<h3><span class="base-tag">BASE</span> rooms</h3>
+<table>
+  <tr><th>Column</th><th>Type</th><th>Null?</th><th>Input</th><th>Notes</th></tr>
+  <tr><td class="pk">rid</td><td>VARCHAR(255)</td><td>NOT NULL</td><td>System</td><td>Primary key</td></tr>
+  <tr><td class="fk">pid</td><td>VARCHAR(255)</td><td>NOT NULL</td><td>Derived</td><td>FK → properties.pid</td></tr>
+</table>
+
+<h3><span class="ext-tag">EXT</span> room_specifications</h3>
+<table>
+  <tr><th>Column</th><th>Type</th><th>Null?</th><th>Input</th><th>Notes</th></tr>
+  <tr><td class="fk pk">rid</td><td>VARCHAR(255)</td><td>NOT NULL</td><td>—</td><td>FK → rooms.rid, PK</td></tr>
+  <tr><td>attached_bathroom</td><td>BOOLEAN</td><td>NULL</td><td>Manual</td><td>Drives pricing differential</td></tr>
+  <tr><td>balcony</td><td>BOOLEAN</td><td>NULL</td><td>Manual</td><td></td></tr>
+</table>
+
+<h3><span class="ext-tag">EXT</span> room_furnishing</h3>
+<table>
+  <tr><th>Column</th><th>Type</th><th>Null?</th><th>Input</th><th>Notes</th></tr>
+  <tr><td class="fk pk">rid</td><td>VARCHAR(255)</td><td>NOT NULL</td><td>—</td><td>FK → rooms.rid, PK</td></tr>
+  <tr><td>bed_type</td><td>VARCHAR(100)</td><td>NULL</td><td>Manual</td><td>Single / Double / Queen / King</td></tr>
+  <tr><td>ac</td><td>BOOLEAN</td><td>NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>ac_type</td><td>VARCHAR(100)</td><td>NULL</td><td>Manual</td><td>Split / Window / Portable / Not Possible</td></tr>
+  <tr><td>ac_feasibility</td><td>VARCHAR(100)</td><td>NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>study_table</td><td>BOOLEAN</td><td>NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>annexure</td><td>VARCHAR(500)</td><td>NULL</td><td>Manual</td><td>File URL — room walkthrough</td></tr>
+  <tr><td>annexure_last_update_date</td><td>DATE</td><td>NULL</td><td>Workflow</td><td></td></tr>
+</table>
+
+<h3><span class="ext-tag">EXT</span> room_commercials</h3>
+<table>
+  <tr><th>Column</th><th>Type</th><th>Null?</th><th>Input</th><th>Notes</th></tr>
+  <tr><td class="fk pk">rid</td><td>VARCHAR(255)</td><td>NOT NULL</td><td>—</td><td>FK → rooms.rid, PK</td></tr>
+  <tr><td>base_rent</td><td>DECIMAL(12,2)</td><td>NOT NULL</td><td>Manual</td><td>Source of truth for pricing</td></tr>
+  <tr><td>maintenance_fee</td><td>DECIMAL(12,2)</td><td>NULL</td><td>Manual</td><td></td></tr>
+</table>
+
+<h3><span class="ext-tag">EXT</span> room_availability</h3>
+<table>
+  <tr><th>Column</th><th>Type</th><th>Null?</th><th>Input</th><th>Notes</th></tr>
+  <tr><td class="fk pk">rid</td><td>VARCHAR(255)</td><td>NOT NULL</td><td>—</td><td>FK → rooms.rid, PK</td></tr>
+  <tr><td>room_status</td><td>VARCHAR(100)</td><td>NOT NULL</td><td>Workflow</td><td>Available / Occupied / Under Maintenance / Blocked</td></tr>
+  <tr><td class="fk derived">current_contract_id</td><td>UUID</td><td>NULL</td><td>Derived</td><td>FK → contracts.contract_uid</td></tr>
+  <tr><td class="derived">current_tenant_name</td><td>VARCHAR(255)</td><td>NULL</td><td>Derived</td><td>From active contract → tenant</td></tr>
+  <tr><td>available_from</td><td>DATE</td><td>NULL</td><td>Workflow</td><td></td></tr>
+</table>
+
+<!-- ═══════════════════════════════════════════════ -->
+<div class="page-break"></div>
+<h2 id="contract">4. CONTRACT</h2>
+<p class="section-desc">Legal agreements. Sub-types: Tenant Contract (room occupancy) and Merchant Contract (property management).</p>
+
+<h3><span class="base-tag">BASE</span> contracts</h3>
+<table>
+  <tr><th>Column</th><th>Type</th><th>Null?</th><th>Input</th><th>Notes</th></tr>
+  <tr><td class="pk">contract_uid</td><td>UUID</td><td>NOT NULL</td><td>System</td><td>Primary key</td></tr>
+  <tr><td>contract_type</td><td>VARCHAR(100)</td><td>NOT NULL</td><td>Manual</td><td>L&L / Authorisation / C&S (discriminator)</td></tr>
+  <tr><td class="fk">pid</td><td>VARCHAR(255)</td><td>NOT NULL</td><td>Manual</td><td>FK → properties.pid</td></tr>
+  <tr><td>contract_start_date</td><td>DATE</td><td>NOT NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>contract_end_date</td><td>DATE</td><td>NOT NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>service_term</td><td>INTEGER</td><td>NOT NULL</td><td>Manual</td><td>Months</td></tr>
+  <tr><td>lock_in_duration</td><td>INTEGER</td><td>NULL</td><td>Manual</td><td>Months</td></tr>
+  <tr><td class="derived">lock_in_end_date</td><td>DATE</td><td>NULL</td><td>Auto-calculated</td><td>start + lock_in months</td></tr>
+  <tr><td>notice_period</td><td>INTEGER</td><td>NULL</td><td>Manual</td><td>Days</td></tr>
+  <tr><td>agreement_pdf</td><td>VARCHAR(500)</td><td>NULL</td><td>Workflow</td><td>File URL</td></tr>
+</table>
+
+<h3><span class="ext-tag">EXT</span> tenant_contract_details</h3>
+<table>
+  <tr><th>Column</th><th>Type</th><th>Null?</th><th>Input</th><th>Notes</th></tr>
+  <tr><td class="fk pk">contract_uid</td><td>UUID</td><td>NOT NULL</td><td>—</td><td>FK → contracts, PK</td></tr>
+  <tr><td class="fk">tenant_id</td><td>UUID</td><td>NOT NULL</td><td>—</td><td>FK → tenants.record_id</td></tr>
+  <tr><td class="fk">rid</td><td>VARCHAR(255)</td><td>NOT NULL</td><td>Manual</td><td>FK → rooms.rid</td></tr>
+  <tr><td class="derived">party_name_tenant</td><td>VARCHAR(255)</td><td>NOT NULL</td><td>Derived</td><td>From Tenant.full_name</td></tr>
+  <tr><td>preferred_move_out_date</td><td>DATE</td><td>NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>payment_lifecycle</td><td>VARCHAR(100)</td><td>NULL</td><td>Workflow</td><td>Token Paid / FMR Paid / SD Paid / FMR and SD Cleared / Payments Done</td></tr>
+  <tr><td>agreement_lifecycle</td><td>VARCHAR(100)</td><td>NULL</td><td>Workflow</td><td>L&L and C&S Released / L&L Signed / C&S Signed / All agreements signed</td></tr>
+  <tr><td>total_retail_rent</td><td>DECIMAL(12,2)</td><td>NULL</td><td>Derived</td><td>Gross rack rent</td></tr>
+  <tr><td>monthly_license_fee</td><td>DECIMAL(12,2)</td><td>NULL</td><td>Derived/Workflow</td><td></td></tr>
+  <tr><td>maintenance_fee</td><td>DECIMAL(12,2)</td><td>NULL</td><td>Derived/Workflow</td><td></td></tr>
+  <tr><td>furnishing_fee</td><td>DECIMAL(12,2)</td><td>NULL</td><td>Workflow</td><td></td></tr>
+  <tr><td>convenience_fee</td><td>DECIMAL(12,2)</td><td>NULL</td><td>Workflow</td><td></td></tr>
+  <tr><td>gst</td><td>DECIMAL(12,2)</td><td>NULL</td><td>Workflow</td><td></td></tr>
+  <tr><td>discount_amount</td><td>DECIMAL(12,2)</td><td>NULL</td><td>Manual</td><td></td></tr>
+  <tr><td class="derived">effective_retail_rent</td><td>DECIMAL(12,2)</td><td>NULL</td><td>Auto-calculated</td><td>total_retail_rent - discount_amount</td></tr>
+  <tr><td>security_deposit</td><td>DECIMAL(12,2)</td><td>NULL</td><td>Workflow</td><td></td></tr>
+  <tr><td>caution_deposit</td><td>DECIMAL(12,2)</td><td>NULL</td><td>Workflow</td><td></td></tr>
+  <tr><td>lock_in_fee</td><td>DECIMAL(12,2)</td><td>NULL</td><td>Workflow</td><td></td></tr>
+  <tr><td>exit_fee</td><td>DECIMAL(12,2)</td><td>NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>damages_deductions</td><td>DECIMAL(12,2)</td><td>NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>society_fees</td><td>DECIMAL(12,2)</td><td>NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>penalty</td><td>DECIMAL(12,2)</td><td>NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>fmr_status</td><td>VARCHAR(100)</td><td>NULL</td><td>Workflow</td><td></td></tr>
+  <tr><td>deposit_paid_status</td><td>VARCHAR(100)</td><td>NULL</td><td>Workflow</td><td></td></tr>
+</table>
+
+<h3><span class="ext-tag">EXT</span> merchant_contract_details</h3>
+<table>
+  <tr><th>Column</th><th>Type</th><th>Null?</th><th>Input</th><th>Notes</th></tr>
+  <tr><td class="fk pk">contract_uid</td><td>UUID</td><td>NOT NULL</td><td>—</td><td>FK → contracts, PK</td></tr>
+  <tr><td class="fk">merchant_id</td><td>UUID</td><td>NOT NULL</td><td>—</td><td>FK → merchants.record_id</td></tr>
+  <tr><td class="derived">party_name_merchant</td><td>VARCHAR(255)</td><td>NOT NULL</td><td>Derived</td><td>From Merchant.full_name. <span class="comment">Only landlord-type merchants.</span></td></tr>
+  <tr><td>key_handover_date</td><td>DATE</td><td>NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>increment_percentage</td><td>DECIMAL(5,2)</td><td>NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>increment_frequency</td><td>VARCHAR(100)</td><td>NULL</td><td>Manual</td><td>Annual / Biennial / None</td></tr>
+  <tr><td>agreement_status</td><td>VARCHAR(100)</td><td>NULL</td><td>Manual</td><td>Negotiation / Triggered / Active</td></tr>
+  <tr><td>base_rent</td><td>JSONB</td><td>NOT NULL</td><td>Manual</td><td><span class="comment">Rent schedule with hikes. Format: [{"month":0,"amount":60000},{"month":12,"amount":66000}]. Calculated based on tenure + increment_frequency.</span></td></tr>
+  <tr><td>merchant_security_deposit</td><td>DECIMAL(12,2)</td><td>NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>management_fee_per_month</td><td>DECIMAL(12,2)</td><td>NULL</td><td>Manual</td><td></td></tr>
+  <tr><td class="derived">total_cogs</td><td>DECIMAL(12,2)</td><td>NULL</td><td>Derived</td><td><span class="comment">From base_rent (contracts) + overheads data. NOT from transactions.</span></td></tr>
+  <tr><td>contract_acquisition_cost</td><td>DECIMAL(12,2)</td><td>NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>contract_acquisition_cost_paid_to</td><td>DECIMAL(12,2)</td><td>NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>payment_cycle</td><td>VARCHAR(100)</td><td>NOT NULL</td><td>Manual</td><td>Prepaid / Postpaid</td></tr>
+  <tr><td>payment_deadline</td><td>DATE</td><td>NOT NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>inventory_list</td><td>VARCHAR(500)</td><td>NULL</td><td>Manual</td><td>File URL</td></tr>
+</table>
+
+<!-- ═══════════════════════════════════════════════ -->
+<div class="page-break"></div>
+<h2 id="transaction">5. TRANSACTION</h2>
+<p class="section-desc">Every money movement in/out of the platform. Includes Purchase Orders as a transaction type.</p>
+
+<h3><span class="base-tag">BASE</span> transactions</h3>
+<table>
+  <tr><th>Column</th><th>Type</th><th>Null?</th><th>Input</th><th>Notes</th></tr>
+  <tr><td class="pk">utn</td><td>VARCHAR(255)</td><td>NOT NULL</td><td>System</td><td>PK. Format: TXN-YYYYMMDD-XXXXX</td></tr>
+  <tr><td>transaction_type</td><td>VARCHAR(100)</td><td>NOT NULL</td><td>Manual</td><td>Discriminator: Payment / Payout / Refund / PurchaseOrder / etc.</td></tr>
+  <tr><td>credit_debit</td><td>VARCHAR(100)</td><td>NOT NULL</td><td>Manual</td><td>Credit / Debit</td></tr>
+  <tr><td>transaction_date</td><td>DATE</td><td>NOT NULL</td><td>Manual/Webhook</td><td></td></tr>
+  <tr><td>amount</td><td>DECIMAL(12,2)</td><td>NOT NULL</td><td>Manual/Webhook</td><td>Always positive</td></tr>
+  <tr><td>created_by</td><td>VARCHAR(255)</td><td>NOT NULL</td><td>System</td><td></td></tr>
+  <tr><td>created_date</td><td>TIMESTAMP</td><td>NOT NULL</td><td>System</td><td></td></tr>
+  <tr><td>authorised_by</td><td>VARCHAR(255)</td><td>NULL</td><td>Manual</td><td>Dual-control</td></tr>
+  <tr><td>authorised_date</td><td>TIMESTAMP</td><td>NULL</td><td>System</td><td></td></tr>
+</table>
+
+<h3><span class="ext-tag">EXT</span> transaction_classification</h3>
+<table>
+  <tr><th>Column</th><th>Type</th><th>Null?</th><th>Input</th><th>Notes</th></tr>
+  <tr><td class="fk pk">utn</td><td>VARCHAR(255)</td><td>NOT NULL</td><td>—</td><td>FK → transactions.utn, PK</td></tr>
+  <tr><td>purpose_category_1</td><td>VARCHAR(100)</td><td>NOT NULL</td><td>Manual</td><td>OPEX / CAPEX / INTEREST / SALARY / REIMBURSEMENT / REVENUE / REFUNDS / COGS</td></tr>
+  <tr><td>purpose_category_2</td><td>VARCHAR(100)</td><td>NOT NULL</td><td>Manual</td><td>DEPOSIT / TRANSPORT / FIXTURES / OFFICE / EMPLOYEE / etc.</td></tr>
+</table>
+
+<h3><span class="ext-tag">EXT</span> transaction_parties</h3>
+<table>
+  <tr><th>Column</th><th>Type</th><th>Null?</th><th>Input</th><th>Notes</th></tr>
+  <tr><td class="fk pk">utn</td><td>VARCHAR(255)</td><td>NOT NULL</td><td>—</td><td>FK → transactions.utn, PK</td></tr>
+  <tr><td>from_party</td><td>VARCHAR(255)</td><td>NOT NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>from_party_type</td><td>VARCHAR(100)</td><td>NOT NULL</td><td>Manual</td><td>Tenant / Landlord / Vendor / Platform / Third Party / Government</td></tr>
+  <tr><td class="derived">from_party_info</td><td>TEXT</td><td>NULL</td><td>Derived</td><td>GST, PAN, Address</td></tr>
+  <tr><td>to_party</td><td>VARCHAR(255)</td><td>NOT NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>to_party_type</td><td>VARCHAR(100)</td><td>NOT NULL</td><td>Manual</td><td></td></tr>
+</table>
+
+<h3><span class="ext-tag">EXT</span> transaction_payment</h3>
+<table>
+  <tr><th>Column</th><th>Type</th><th>Null?</th><th>Input</th><th>Notes</th></tr>
+  <tr><td class="fk pk">utn</td><td>VARCHAR(255)</td><td>NOT NULL</td><td>—</td><td>FK → transactions.utn, PK</td></tr>
+  <tr><td>payment_channel</td><td>VARCHAR(100)</td><td>NULL</td><td>Manual/Webhook</td><td>UPI / NEFT / RTGS / IMPS / NACH / VA / Payment Link / Cheque / Cash</td></tr>
+  <tr><td>payment_provider</td><td>VARCHAR(100)</td><td>NULL</td><td>Manual/Webhook</td><td>Kotak / IDFC / Razorpayx / Volopay</td></tr>
+  <tr><td>gateway_reference_id</td><td>VARCHAR(255)</td><td>NULL</td><td>Webhook/System</td><td>e.g. pay_xxxxxxxx</td></tr>
+</table>
+
+<h3><span class="ext-tag">EXT</span> transaction_line_items</h3>
+<table>
+  <tr><th>Column</th><th>Type</th><th>Null?</th><th>Input</th><th>Notes</th></tr>
+  <tr><td class="fk pk">utn</td><td>VARCHAR(255)</td><td>NOT NULL</td><td>—</td><td>FK → transactions.utn, PK</td></tr>
+  <tr><td>line_item_date</td><td>DATE</td><td>NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>cost_revenue_center</td><td>VARCHAR(255)</td><td>NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>line_item_description</td><td>TEXT</td><td>NULL</td><td>Manual</td><td></td></tr>
+</table>
+
+<h3><span class="ext-tag">EXT</span> transaction_links</h3>
+<table>
+  <tr><th>Column</th><th>Type</th><th>Null?</th><th>Input</th><th>Notes</th></tr>
+  <tr><td class="fk pk">utn</td><td>VARCHAR(255)</td><td>NOT NULL</td><td>—</td><td>FK → transactions.utn, PK</td></tr>
+  <tr><td class="fk">contract_uid</td><td>UUID</td><td>NULL</td><td>Manual/Workflow</td><td>FK → contracts.contract_uid</td></tr>
+  <tr><td class="fk">contact_id</td><td>UUID</td><td>NULL</td><td>Manual/Workflow</td><td>FK → tenants/merchants/vendors (polymorphic)</td></tr>
+  <tr><td class="fk">pid</td><td>VARCHAR(255)</td><td>NULL</td><td>Manual/Workflow</td><td>FK → properties.pid</td></tr>
+  <tr><td class="fk">rid</td><td>VARCHAR(255)</td><td>NULL</td><td>Manual/Workflow</td><td>FK → rooms.rid</td></tr>
+</table>
+
+<h3><span class="ext-tag">EXT</span> transaction_purchase_order</h3>
+<p class="section-desc">PO-specific extension. A PO is a transaction that spawns advance + remaining payment transactions and creates Items on completion.</p>
+<table>
+  <tr><th>Column</th><th>Type</th><th>Null?</th><th>Input</th><th>Notes</th></tr>
+  <tr><td class="fk pk">utn</td><td>VARCHAR(255)</td><td>NOT NULL</td><td>—</td><td>FK → transactions.utn, PK</td></tr>
+  <tr><td>po_number</td><td>VARCHAR(255)</td><td>NOT NULL</td><td>System</td><td>UNIQUE. Human-readable PO ID.</td></tr>
+  <tr><td class="fk">vendor_code</td><td>VARCHAR(255)</td><td>NOT NULL</td><td>Manual</td><td>FK → vendors.vendor_code</td></tr>
+  <tr><td class="derived">vendor_name</td><td>VARCHAR(255)</td><td>NOT NULL</td><td>Derived</td><td>Denormalized from vendor</td></tr>
+  <tr><td>total_items</td><td>INTEGER</td><td>NULL</td><td>Auto-calculated</td><td>Sum of po_lines.qty</td></tr>
+  <tr><td>gst_percent</td><td>DECIMAL(5,2)</td><td>NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>advance_amount</td><td>DECIMAL(12,2)</td><td>NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>remaining_amount</td><td>DECIMAL(12,2)</td><td>NULL</td><td>Auto-calculated</td><td>amount - advance_amount</td></tr>
+  <tr><td class="fk">txn_id_advance</td><td>VARCHAR(255)</td><td>NULL</td><td>Workflow</td><td>FK → transactions.utn (advance payment)</td></tr>
+  <tr><td class="fk">txn_id_remaining</td><td>VARCHAR(255)</td><td>NULL</td><td>Workflow</td><td>FK → transactions.utn (final payment)</td></tr>
+  <tr><td>advance_date</td><td>DATE</td><td>NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>fnf_date</td><td>DATE</td><td>NULL</td><td>Manual</td><td>Final settlement date</td></tr>
+  <tr><td>invoice</td><td>VARCHAR(500)</td><td>NULL</td><td>Manual</td><td>File URL</td></tr>
+  <tr><td>status</td><td>VARCHAR(100)</td><td>NOT NULL</td><td>Workflow</td><td>Draft / Approved / Completed / Cancelled</td></tr>
+  <tr><td>round_off</td><td>DECIMAL(12,2)</td><td>NULL</td><td>Manual</td><td></td></tr>
+</table>
+
+<h3><span class="child-tag">CHILD</span> po_lines</h3>
+<p class="section-desc">Line items within a Purchase Order. Trigger creates Item records when PO status → Completed.</p>
+<table>
+  <tr><th>Column</th><th>Type</th><th>Null?</th><th>Input</th><th>Notes</th></tr>
+  <tr><td class="pk">id</td><td>UUID</td><td>NOT NULL</td><td>System</td><td>Primary key</td></tr>
+  <tr><td class="fk">transaction_id</td><td>VARCHAR(255)</td><td>NOT NULL</td><td>—</td><td>FK → transactions.utn (the PO transaction)</td></tr>
+  <tr><td class="fk">fsin_code</td><td>VARCHAR(255)</td><td>NULL</td><td>Manual</td><td>FK → fsins.fsin_code. Can create new FSIN.</td></tr>
+  <tr><td>item_name</td><td>VARCHAR(255)</td><td>NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>qty</td><td>INTEGER</td><td>NOT NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>unit_price</td><td>DECIMAL(12,2)</td><td>NOT NULL</td><td>Manual</td><td></td></tr>
+  <tr><td class="derived">line_amount</td><td>DECIMAL(12,2)</td><td>NULL</td><td>Auto-calculated</td><td>qty × unit_price</td></tr>
+  <tr><td>created_by</td><td>VARCHAR(255)</td><td>NULL</td><td>System</td><td></td></tr>
+  <tr><td>created_at</td><td>TIMESTAMP</td><td>NULL</td><td>System</td><td></td></tr>
+  <tr><td>updated_at</td><td>TIMESTAMP</td><td>NULL</td><td>System</td><td></td></tr>
+</table>
+
+<!-- ═══════════════════════════════════════════════ -->
+<div class="page-break"></div>
+<h2 id="ticket">6. TICKET</h2>
+<p class="section-desc">Service requests, complaints, maintenance tasks. Sub-types: Tenant Ticket and Vendor Ticket.</p>
+
+<h3><span class="base-tag">BASE</span> tickets</h3>
+<table>
+  <tr><th>Column</th><th>Type</th><th>Null?</th><th>Input</th><th>Notes</th></tr>
+  <tr><td class="pk">ticket_id</td><td>INTEGER</td><td>NOT NULL</td><td>System</td><td>Primary key</td></tr>
+  <tr><td>pipeline</td><td>VARCHAR(100)</td><td>NOT NULL</td><td>Manual</td><td>Tenant / Landlord (discriminator)</td></tr>
+  <tr><td>create_date</td><td>TIMESTAMP</td><td>NOT NULL</td><td>System</td><td>SLA baseline</td></tr>
+  <tr><td>created_by</td><td>VARCHAR(255)</td><td>NOT NULL</td><td>System</td><td></td></tr>
+  <tr><td>ticket_description</td><td>TEXT</td><td>NOT NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>ticket_owner</td><td>VARCHAR(100)</td><td>NOT NULL</td><td>Manual</td><td></td></tr>
+  <tr><td class="fk">pid</td><td>VARCHAR(255)</td><td>NOT NULL</td><td>Manual</td><td>FK → properties.pid</td></tr>
+  <tr><td>ticket_category</td><td>VARCHAR(100)</td><td>NOT NULL</td><td>Manual</td><td>Plumbing / Carpentry / Electrical / Utility / Inventory / Appliance / Agreement / Reimbursement / Other</td></tr>
+  <tr><td>ticket_status</td><td>VARCHAR(100)</td><td>NOT NULL</td><td>Workflow</td><td>New Request / Waiting on Customer / Waiting on Vendor / Blocked / Ready for Closure / Closed</td></tr>
+  <tr><td>priority</td><td>VARCHAR(100)</td><td>NOT NULL</td><td>Manual</td><td>Low / Medium / High / Urgent / Critical</td></tr>
+  <tr><td>resolution_notes</td><td>TEXT</td><td>NULL</td><td>Manual</td><td>Required for closure</td></tr>
+  <tr><td>collected_from_tenant</td><td>DECIMAL(12,2)</td><td>NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>collected_from_merchant</td><td>DECIMAL(12,2)</td><td>NULL</td><td>Manual</td><td></td></tr>
+  <tr><td class="fk">transaction_id</td><td>VARCHAR(255)</td><td>NULL</td><td>Workflow</td><td>FK → transactions.utn</td></tr>
+  <tr><td class="fk">assigned_vendor</td><td>VARCHAR(255)</td><td>NULL</td><td>Manual</td><td>FK → vendors.vendor_code</td></tr>
+</table>
+
+<h3><span class="ext-tag">EXT</span> tenant_ticket_details</h3>
+<table>
+  <tr><th>Column</th><th>Type</th><th>Null?</th><th>Input</th><th>Notes</th></tr>
+  <tr><td class="fk pk">ticket_id</td><td>INTEGER</td><td>NOT NULL</td><td>—</td><td>FK → tickets, PK</td></tr>
+  <tr><td>ticket_name</td><td>VARCHAR(255)</td><td>NOT NULL</td><td>Manual</td><td></td></tr>
+  <tr><td class="fk">rid</td><td>VARCHAR(255)</td><td>NULL</td><td>Manual</td><td>FK → rooms.rid</td></tr>
+  <tr><td>conversation_id</td><td>VARCHAR(255)</td><td>NULL</td><td>Workflow</td><td></td></tr>
+  <tr><td>category_phase</td><td>VARCHAR(100)</td><td>NULL</td><td>Manual</td><td>Pre Move-In / Gestation / Active</td></tr>
+  <tr><td>time_slot</td><td>TIMESTAMP</td><td>NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>ticket_flag</td><td>VARCHAR(100)</td><td>NULL</td><td>Manual</td><td>Reasonable / Not Reasonable / Subjective</td></tr>
+  <tr><td>flag_notes</td><td>TEXT</td><td>NULL</td><td>Manual</td><td></td></tr>
+  <tr><td class="derived">total_cost</td><td>DECIMAL(12,2)</td><td>NULL</td><td>Auto-calculated</td><td>cost_paid - collected</td></tr>
+  <tr><td>vendor_group_chat_id</td><td>VARCHAR(255)</td><td>NULL</td><td>Workflow</td><td></td></tr>
+  <tr><td>related_tickets</td><td>VARCHAR(255)</td><td>NULL</td><td>Workflow</td><td></td></tr>
+  <tr><td>time_to_first_rep_assignment</td><td>INTEGER</td><td>NULL</td><td>Workflow</td><td>Minutes</td></tr>
+  <tr><td>time_to_first_response_sla_hours</td><td>INTEGER</td><td>NULL</td><td>Workflow</td><td></td></tr>
+  <tr><td>tenant_rating</td><td>SMALLINT</td><td>NULL</td><td>Manual</td><td>1-5</td></tr>
+  <tr><td>csat_feedback</td><td>TEXT</td><td>NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>csat_response</td><td>TEXT</td><td>NULL</td><td>Manual</td><td></td></tr>
+</table>
+
+<h3><span class="ext-tag">EXT</span> vendor_ticket_details</h3>
+<table>
+  <tr><th>Column</th><th>Type</th><th>Null?</th><th>Input</th><th>Notes</th></tr>
+  <tr><td class="fk pk">ticket_id</td><td>INTEGER</td><td>NOT NULL</td><td>—</td><td>FK → tickets, PK</td></tr>
+  <tr><td>notes</td><td>TEXT</td><td>NULL</td><td>Manual</td><td>Append-only action log</td></tr>
+  <tr><td>first_response_mins</td><td>INTEGER</td><td>NULL</td><td>Workflow</td><td></td></tr>
+  <tr><td>time_to_close_hours</td><td>INTEGER</td><td>NULL</td><td>Workflow</td><td></td></tr>
+</table>
+
+<!-- ═══════════════════════════════════════════════ -->
+<div class="page-break"></div>
+<h2 id="merchant">7. MERCHANT</h2>
+<p class="section-desc">Property owners/landlords. Types: Landlord / POC / Lead / Broker / Management.</p>
+
+<h3><span class="base-tag">BASE</span> merchants</h3>
+<table>
+  <tr><th>Column</th><th>Type</th><th>Null?</th><th>Input</th><th>Notes</th></tr>
+  <tr><td class="pk">record_id</td><td>UUID</td><td>NOT NULL</td><td>System</td><td>Primary key</td></tr>
+  <tr><td>merchant_type</td><td>VARCHAR(100)</td><td>NOT NULL</td><td>Manual</td><td>Landlord / POC / Lead / Broker / Management (discriminator)</td></tr>
+  <tr><td>prefix</td><td>VARCHAR(100)</td><td>NULL</td><td>Manual</td><td>Mr / Mrs / Ms / Dr</td></tr>
+  <tr><td>first_name</td><td>VARCHAR(255)</td><td>NOT NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>last_name</td><td>VARCHAR(255)</td><td>NOT NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>email</td><td>VARCHAR(255)</td><td>NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>country_code</td><td>VARCHAR(100)</td><td>NOT NULL</td><td>Manual</td><td>+91 / +1 / etc.</td></tr>
+  <tr><td>phone</td><td>VARCHAR(20)</td><td>NOT NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>current_city</td><td>VARCHAR(255)</td><td>NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>lead_source</td><td>VARCHAR(100)</td><td>NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>unique_id</td><td>VARCHAR(255)</td><td>NULL</td><td>System</td><td></td></tr>
+  <tr><td>first_added</td><td>TIMESTAMP</td><td>NOT NULL</td><td>System</td><td></td></tr>
+  <tr><td>last_updated</td><td>TIMESTAMP</td><td>NOT NULL</td><td>System</td><td></td></tr>
+</table>
+
+<h3><span class="ext-tag">EXT</span> merchant_landlord</h3>
+<p class="section-desc">Property-owning landlords. KYC, payment, psychographics, address.</p>
+<table>
+  <tr><th>Column</th><th>Type</th><th>Null?</th><th>Input</th><th>Notes</th></tr>
+  <tr><td class="fk pk">merchant_id</td><td>UUID</td><td>NOT NULL</td><td>—</td><td>FK → merchants.record_id, PK</td></tr>
+  <tr><td>disqualification_reason</td><td>VARCHAR(100)</td><td>NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>lost_reason</td><td>VARCHAR(100)</td><td>NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>landlord_personality</td><td>TEXT</td><td>NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>general_ll_comments</td><td>TEXT</td><td>NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>potentially_multihome</td><td>BOOLEAN</td><td>NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>designation</td><td>VARCHAR(255)</td><td>NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>organization</td><td>VARCHAR(255)</td><td>NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>aadhaar_back</td><td>VARCHAR(500)</td><td>NOT NULL</td><td>Manual</td><td>File URL</td></tr>
+  <tr><td>pan_number</td><td>VARCHAR(255)</td><td>NOT NULL</td><td>Manual</td><td>AAAAA9999A</td></tr>
+  <tr><td>pan_card_image</td><td>VARCHAR(500)</td><td>NOT NULL</td><td>Manual</td><td>File URL</td></tr>
+  <tr><td>bank_account_number</td><td>VARCHAR(255)</td><td>NOT NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>beneficiary_name</td><td>VARCHAR(255)</td><td>NOT NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>ifsc_code</td><td>VARCHAR(255)</td><td>NOT NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>current_residential</td><td>TEXT</td><td>NOT NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>permanent_residential</td><td>TEXT</td><td>NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>communications_permission</td><td>BOOLEAN</td><td>NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>signing_authority</td><td>BOOLEAN</td><td>NOT NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>linkedin_url</td><td>VARCHAR(500)</td><td>NULL</td><td>Manual</td><td></td></tr>
+</table>
+
+<h3><span class="ext-tag">EXT</span> merchant_poc / merchant_broker / merchant_management</h3>
+<p class="section-desc">To be defined — shared base captures core contact fields. Extensions will hold type-specific fields as they emerge.</p>
+
+<!-- ═══════════════════════════════════════════════ -->
+<div class="page-break"></div>
+<h2 id="vendor">8. VENDOR</h2>
+<p class="section-desc">External suppliers, contractors, service providers.</p>
+
+<h3><span class="base-tag">BASE</span> vendors</h3>
+<table>
+  <tr><th>Column</th><th>Type</th><th>Null?</th><th>Input</th><th>Notes</th></tr>
+  <tr><td class="pk">vendor_code</td><td>VARCHAR(255)</td><td>NOT NULL</td><td>System</td><td>Primary key</td></tr>
+  <tr><td>vendor_name</td><td>VARCHAR(255)</td><td>NOT NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>vendor_type</td><td>VARCHAR(100)</td><td>NOT NULL</td><td>Manual</td><td>Manufacturer / Wholesaler / Distributor / Freelancer / Aggregator / Retailer / Landlord</td></tr>
+  <tr><td>created_at</td><td>TIMESTAMP</td><td>NOT NULL</td><td>System</td><td></td></tr>
+  <tr><td>updated_at</td><td>TIMESTAMP</td><td>NOT NULL</td><td>System</td><td></td></tr>
+</table>
+
+<h3><span class="ext-tag">EXT</span> vendor_contact</h3>
+<table>
+  <tr><th>Column</th><th>Type</th><th>Null?</th><th>Input</th><th>Notes</th></tr>
+  <tr><td class="fk pk">vendor_code</td><td>VARCHAR(255)</td><td>NOT NULL</td><td>—</td><td>FK → vendors, PK</td></tr>
+  <tr><td>contact_name</td><td>VARCHAR(255)</td><td>NOT NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>phone</td><td>VARCHAR(20)</td><td>NOT NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>alternate_phone</td><td>VARCHAR(20)</td><td>NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>email</td><td>VARCHAR(255)</td><td>NOT NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>city</td><td>VARCHAR(255)</td><td>NOT NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>address</td><td>TEXT</td><td>NOT NULL</td><td>Manual</td><td></td></tr>
+</table>
+
+<h3><span class="ext-tag">EXT</span> vendor_billing</h3>
+<table>
+  <tr><th>Column</th><th>Type</th><th>Null?</th><th>Input</th><th>Notes</th></tr>
+  <tr><td class="fk pk">vendor_code</td><td>VARCHAR(255)</td><td>NOT NULL</td><td>—</td><td>FK → vendors, PK</td></tr>
+  <tr><td>gst_number</td><td>VARCHAR(255)</td><td>NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>pan</td><td>VARCHAR(255)</td><td>NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>billing_name</td><td>VARCHAR(255)</td><td>NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>bank_name</td><td>VARCHAR(255)</td><td>NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>bank_account_number</td><td>VARCHAR(255)</td><td>NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>ifsc_code</td><td>VARCHAR(255)</td><td>NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>msme_vendor</td><td>VARCHAR(100)</td><td>NULL</td><td>Manual</td><td>Yes / No</td></tr>
+  <tr><td>udyam_aadhaar</td><td>VARCHAR(255)</td><td>NULL</td><td>Manual</td><td></td></tr>
+</table>
+
+<h3><span class="ext-tag">EXT</span> vendor_capability</h3>
+<table>
+  <tr><th>Column</th><th>Type</th><th>Null?</th><th>Input</th><th>Notes</th></tr>
+  <tr><td class="fk pk">vendor_code</td><td>VARCHAR(255)</td><td>NOT NULL</td><td>—</td><td>FK → vendors, PK</td></tr>
+  <tr><td>specialization</td><td>TEXT</td><td>NOT NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>tat_in_days</td><td>INTEGER</td><td>NOT NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>customization_capability</td><td>VARCHAR(100)</td><td>NOT NULL</td><td>Manual</td><td>Low / Medium / High</td></tr>
+  <tr><td>standardisation_fit</td><td>VARCHAR(100)</td><td>NOT NULL</td><td>Manual</td><td>C1 / C2 / C3</td></tr>
+</table>
+
+<h3><span class="ext-tag">EXT</span> vendor_commercials</h3>
+<table>
+  <tr><th>Column</th><th>Type</th><th>Null?</th><th>Input</th><th>Notes</th></tr>
+  <tr><td class="fk pk">vendor_code</td><td>VARCHAR(255)</td><td>NOT NULL</td><td>—</td><td>FK → vendors, PK</td></tr>
+  <tr><td>quality_tier</td><td>VARCHAR(100)</td><td>NOT NULL</td><td>Manual</td><td>T1 / T2 / T3</td></tr>
+  <tr><td>payment_terms</td><td>VARCHAR(255)</td><td>NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>min_order_value</td><td>DECIMAL(12,2)</td><td>NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>negotiation_remarks</td><td>TEXT</td><td>NULL</td><td>Manual</td><td></td></tr>
+</table>
+
+<!-- ═══════════════════════════════════════════════ -->
+<div class="page-break"></div>
+<h2 id="overheads">9. OVERHEADS</h2>
+<p class="section-desc">Recurring and one-time property-level costs. 8 category-specific extensions.</p>
+
+<h3><span class="base-tag">BASE</span> overheads</h3>
+<table>
+  <tr><th>Column</th><th>Type</th><th>Null?</th><th>Input</th><th>Notes</th></tr>
+  <tr><td class="pk">id</td><td>UUID</td><td>NOT NULL</td><td>System</td><td>Primary key</td></tr>
+  <tr><td class="fk">pid</td><td>VARCHAR(255)</td><td>NOT NULL</td><td>Derived</td><td>FK → properties.pid</td></tr>
+  <tr><td>category_type</td><td>VARCHAR(100)</td><td>NOT NULL</td><td>Manual</td><td>Maintenance / WiFi / DG / Water / Water Purifier / Gas / Electricity / Helper (discriminator)</td></tr>
+  <tr><td>object_type</td><td>VARCHAR(100)</td><td>NOT NULL</td><td>Manual</td><td>Recurring / One-Time</td></tr>
+  <tr><td>frequency</td><td>VARCHAR(100)</td><td>NULL</td><td>Manual</td><td>Monthly / Quarterly / Bi-Annually / Annually</td></tr>
+  <tr><td>start_date</td><td>DATE</td><td>NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>end_date</td><td>DATE</td><td>NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>document</td><td>VARCHAR(500)</td><td>NULL</td><td>Manual</td><td>File URL</td></tr>
+</table>
+
+<h4><span class="ext-tag">EXT</span> overhead_maintenance</h4>
+<table>
+  <tr><th>Column</th><th>Type</th><th>Null?</th><th>Notes</th></tr>
+  <tr><td class="fk pk">overhead_id</td><td>UUID</td><td>NOT NULL</td><td>FK → overheads.id, PK</td></tr>
+  <tr><td>maintenance_amount</td><td>DECIMAL(12,2)</td><td>NOT NULL</td><td></td></tr>
+  <tr><td>maintenance_cutoff_date</td><td>VARCHAR(255)</td><td>NOT NULL</td><td></td></tr>
+  <tr><td>maintenance_cycle</td><td>VARCHAR(100)</td><td>NOT NULL</td><td>Prepaid / Postpaid</td></tr>
+  <tr><td>maintenance_pay_to_ll</td><td>BOOLEAN</td><td>NOT NULL</td><td></td></tr>
+  <tr><td>maintenance_collect_tenant</td><td>BOOLEAN</td><td>NOT NULL</td><td></td></tr>
+</table>
+
+<h4><span class="ext-tag">EXT</span> overhead_wifi</h4>
+<table>
+  <tr><th>Column</th><th>Type</th><th>Null?</th><th>Notes</th></tr>
+  <tr><td class="fk pk">overhead_id</td><td>UUID</td><td>NOT NULL</td><td>FK → overheads.id, PK</td></tr>
+  <tr><td>wifi_provider</td><td>VARCHAR(100)</td><td>NOT NULL</td><td>ACT / Airtel / Tata</td></tr>
+  <tr><td>wifi_account_id</td><td>VARCHAR(255)</td><td>NULL</td><td></td></tr>
+  <tr><td class="new">wifi_start_date</td><td>DATE</td><td>NULL</td><td><span class="new">NEW</span></td></tr>
+  <tr><td class="new">wifi_plan_duration</td><td>VARCHAR(255)</td><td>NULL</td><td><span class="new">NEW</span></td></tr>
+  <tr><td class="new">wifi_end_date</td><td>DATE</td><td>NULL</td><td><span class="new">NEW</span></td></tr>
+  <tr><td class="new">wifi_plan_cost</td><td>DECIMAL(12,2)</td><td>NULL</td><td><span class="new">NEW</span></td></tr>
+  <tr><td>wifi_ssid</td><td>VARCHAR(255)</td><td>NOT NULL</td><td></td></tr>
+  <tr><td>wifi_password</td><td>VARCHAR(255)</td><td>NOT NULL</td><td>Encrypted storage</td></tr>
+  <tr><td>wifi_ownership</td><td>VARCHAR(255)</td><td>NOT NULL</td><td>Product / CX</td></tr>
+  <tr><td>wifi_amount</td><td>DECIMAL(12,2)</td><td>NULL</td><td></td></tr>
+  <tr><td>wifi_collect_tenant</td><td>BOOLEAN</td><td>NOT NULL</td><td></td></tr>
+</table>
+
+<h4><span class="ext-tag">EXT</span> overhead_electricity</h4>
+<table>
+  <tr><th>Column</th><th>Type</th><th>Null?</th><th>Notes</th></tr>
+  <tr><td class="fk pk">overhead_id</td><td>UUID</td><td>NOT NULL</td><td>FK → overheads.id, PK</td></tr>
+  <tr><td>electricity_provider</td><td>VARCHAR(255)</td><td>NOT NULL</td><td></td></tr>
+  <tr><td>electricity_connection_type</td><td>VARCHAR(255)</td><td>NOT NULL</td><td></td></tr>
+  <tr><td>electricity_account_no</td><td>VARCHAR(255)</td><td>NULL</td><td></td></tr>
+  <tr><td>electricity_password</td><td>VARCHAR(255)</td><td>NULL</td><td>Encrypted</td></tr>
+  <tr><td>electricity_ownership</td><td>VARCHAR(100)</td><td>NOT NULL</td><td></td></tr>
+  <tr><td>electricity_pay_to_ll</td><td>BOOLEAN</td><td>NOT NULL</td><td></td></tr>
+  <tr><td>electricity_collect_tenant</td><td>BOOLEAN</td><td>NOT NULL</td><td></td></tr>
+</table>
+
+<h4><span class="ext-tag">EXT</span> overhead_dg</h4>
+<table>
+  <tr><th>Column</th><th>Type</th><th>Null?</th><th>Notes</th></tr>
+  <tr><td class="fk pk">overhead_id</td><td>UUID</td><td>NOT NULL</td><td>FK → overheads.id, PK</td></tr>
+  <tr><td>dg_brand_details</td><td>VARCHAR(255)</td><td>NOT NULL</td><td></td></tr>
+  <tr><td>dg_capacity_kva</td><td>INTEGER</td><td>NOT NULL</td><td></td></tr>
+  <tr><td>dg_maintenance_schedule</td><td>VARCHAR(100)</td><td>NULL</td><td></td></tr>
+  <tr><td>dg_fuel_tank_capacity</td><td>INTEGER</td><td>NOT NULL</td><td>Litres</td></tr>
+  <tr><td>dg_refill_unit_litres</td><td>INTEGER</td><td>NOT NULL</td><td></td></tr>
+  <tr><td>dg_amount</td><td>DECIMAL(12,2)</td><td>NULL</td><td></td></tr>
+  <tr><td>dg_pay_to_ll</td><td>BOOLEAN</td><td>NOT NULL</td><td></td></tr>
+  <tr><td>dg_collect_tenant</td><td>BOOLEAN</td><td>NOT NULL</td><td></td></tr>
+</table>
+
+<h4><span class="ext-tag">EXT</span> overhead_water / overhead_water_purifier / overhead_gas / overhead_helper</h4>
+<p class="section-desc">Same pattern. Water (6 fields), Water Purifier (5 fields), Gas (6 fields), Helper (8 fields). All follow the category-specific fields + pay_to_ll + collect_tenant pattern. See full spec document for details.</p>
+
+<!-- ═══════════════════════════════════════════════ -->
+<div class="page-break"></div>
+<h2 id="fsin">10. FSIN (Product Template)</h2>
+<p class="section-desc">Product template/SKU in Flent's inventory catalog.</p>
+
+<h3><span class="base-tag">BASE</span> fsins</h3>
+<table>
+  <tr><th>Column</th><th>Type</th><th>Null?</th><th>Input</th><th>Notes</th></tr>
+  <tr><td class="pk">fsin_code</td><td>VARCHAR(255)</td><td>NOT NULL</td><td>System</td><td>Primary key</td></tr>
+  <tr><td class="fk">vendor_code</td><td>VARCHAR(255)</td><td>NOT NULL</td><td>Derived</td><td>FK → vendors.vendor_code</td></tr>
+  <tr><td>item_name</td><td>VARCHAR(255)</td><td>NOT NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>category</td><td>VARCHAR(100)</td><td>NOT NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>uom</td><td>VARCHAR(100)</td><td>NOT NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>image</td><td>VARCHAR(500)</td><td>NOT NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>reorder_point</td><td>INTEGER</td><td>NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>annual_depreciation</td><td>DECIMAL(12,2)</td><td>NOT NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>perceived_value</td><td>DECIMAL(12,2)</td><td>NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>packaging</td><td>VARCHAR(100)</td><td>NOT NULL</td><td>Manual</td><td>Flatpack / Assembled</td></tr>
+  <tr><td>lego</td><td>INTEGER</td><td>NOT NULL</td><td>Manual</td><td>Tag count</td></tr>
+</table>
+
+<h3><span class="ext-tag">EXT</span> fsin_specification</h3>
+<table>
+  <tr><th>Column</th><th>Type</th><th>Null?</th><th>Input</th><th>Notes</th></tr>
+  <tr><td class="fk pk">fsin_code</td><td>VARCHAR(255)</td><td>NOT NULL</td><td>—</td><td>FK → fsins, PK</td></tr>
+  <tr><td>dimensions</td><td>VARCHAR(255)</td><td>NULL</td><td>Manual</td><td>L × W × H</td></tr>
+  <tr><td>material</td><td>VARCHAR(255)</td><td>NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>finish</td><td>VARCHAR(255)</td><td>NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>color</td><td>VARCHAR(255)</td><td>NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>style</td><td>VARCHAR(255)</td><td>NULL</td><td>Manual</td><td></td></tr>
+  <tr><td>attribute</td><td>VARCHAR(255)</td><td>NULL</td><td>Manual</td><td>Combined search key</td></tr>
+</table>
+
+<!-- ═══════════════════════════════════════════════ -->
+<h2 id="item">11. ITEM (Physical Inventory Unit)</h2>
+<p class="section-desc">Single physical unit of inventory. Tracks location, state, lifecycle, quality.</p>
+
+<h3><span class="base-tag">BASE</span> items</h3>
+<table>
+  <tr><th>Column</th><th>Type</th><th>Null?</th><th>Input</th><th>Notes</th></tr>
+  <tr><td class="pk">item_code</td><td>VARCHAR(255)</td><td>NOT NULL</td><td>System</td><td>Primary key</td></tr>
+  <tr><td class="fk">fsin_code</td><td>VARCHAR(255)</td><td>NOT NULL</td><td>Derived</td><td>FK → fsins.fsin_code</td></tr>
+  <tr><td class="fk">po_line_id</td><td>UUID</td><td>NOT NULL</td><td>System</td><td>FK → po_lines.id</td></tr>
+  <tr><td>created_at</td><td>TIMESTAMP</td><td>NOT NULL</td><td>System</td><td></td></tr>
+  <tr><td>serial_no</td><td>INTEGER</td><td>NOT NULL</td><td>System</td><td></td></tr>
+  <tr><td class="derived">unit_price</td><td>DECIMAL(12,2)</td><td>NOT NULL</td><td>Derived</td><td>From PO line. Immutable.</td></tr>
+</table>
+
+<h3><span class="ext-tag">EXT</span> item_state</h3>
+<table>
+  <tr><th>Column</th><th>Type</th><th>Null?</th><th>Input</th><th>Notes</th></tr>
+  <tr><td class="fk pk">item_code</td><td>VARCHAR(255)</td><td>NOT NULL</td><td>—</td><td>FK → items, PK</td></tr>
+  <tr><td>lock</td><td>BOOLEAN</td><td>NOT NULL</td><td>System</td><td>Prevents double-picking</td></tr>
+  <tr><td>lock_by_pfs</td><td>UUID</td><td>NULL</td><td>System</td><td></td></tr>
+  <tr><td>locked_at</td><td>TIMESTAMP</td><td>NULL</td><td>System</td><td></td></tr>
+  <tr><td>location</td><td>VARCHAR(255)</td><td>NULL</td><td>System</td><td>PID-RID or WH-rack</td></tr>
+  <tr><td>state</td><td>VARCHAR(100)</td><td>NOT NULL</td><td>System</td><td>BUY / WIB / WOB / PIB / POB / WORK / DEAD</td></tr>
+  <tr><td>state_time</td><td>TIMESTAMP</td><td>NULL</td><td>System</td><td></td></tr>
+  <tr><td>latest_snapshot_date</td><td>TIMESTAMP</td><td>NULL</td><td>System</td><td></td></tr>
+  <tr><td>snapshot</td><td>VARCHAR(500)</td><td>NULL</td><td>System</td><td>Image URL</td></tr>
+  <tr><td>utilised_at</td><td>TIMESTAMP</td><td>NULL</td><td>System</td><td>First utilization — shelf life calc</td></tr>
+  <tr><td>qa_flag</td><td>VARCHAR(100)</td><td>NULL</td><td>System</td><td>Yes / No</td></tr>
+</table>
+
+<h3><span class="ext-tag">EXT</span> item_transaction_links</h3>
+<table>
+  <tr><th>Column</th><th>Type</th><th>Null?</th><th>Input</th><th>Notes</th></tr>
+  <tr><td class="fk pk">item_code</td><td>VARCHAR(255)</td><td>NOT NULL</td><td>—</td><td>FK → items, PK</td></tr>
+  <tr><td class="fk">bill_document_id</td><td>VARCHAR(255)</td><td>NULL</td><td>Derived</td><td>From Transactions.document_id</td></tr>
+</table>
+
+<!-- ═══════════════════════════════════════════════ -->
+<div class="page-break"></div>
+<h2 id="po-flow">PO → Item Creation Flow</h2>
+
+<div class="rel-diagram">
+  ┌──────────────────────────────────────────────────────────────────┐
+  │                    PURCHASE ORDER LIFECYCLE                      │
+  └──────────────────────────────────────────────────────────────────┘
+
+  1. CREATE PO
+  ┌─────────────────┐         ┌─────────────────┐
+  │  transactions    │────────►│ transaction_     │
+  │  (base)          │         │ purchase_order   │
+  │                  │         │ (extension)      │
+  │  utn: TXN-...   │         │                  │
+  │  type: PO        │         │  po_number       │
+  │  amount: 100000  │         │  vendor_code ──────────► vendors
+  │  credit_debit:   │         │  status: Draft   │
+  │    Debit          │         │  gst_percent     │
+  └─────────────────┘         │  advance_amount  │
+                              │  remaining_amt   │
+                              └────────┬─────────┘
+                                       │
+  2. ADD LINE ITEMS                    │ 1:N
+                              ┌────────▼─────────┐
+                              │    po_lines       │
+                              │                   │
+                              │  fsin_code ────────────► fsins
+                              │  qty: 10          │       │
+                              │  unit_price: 5000 │       │
+                              │  line_amount:     │       │ vendor_code
+                              │    50000          │       ▼
+                              └────────┬──────────┘    vendors
+                                       │
+  3. ADVANCE PAYMENT                   │
+  ┌─────────────────┐                  │
+  │  transactions    │◄────────────────┤ txn_id_advance
+  │  (advance pmt)   │                  │
+  │  utn: TXN-ADV   │                  │
+  │  amount: 50000   │                  │
+  └─────────────────┘                  │
+                                       │
+  4. STATUS → COMPLETED                │
+           ┌───────────────────────────┘
+           │
+           │  TRIGGER: trg_create_items_on_po_completed
+           │
+           │  FOR EACH po_line:
+           │    CREATE (qty) item records
+           ▼
+  ┌─────────────────┐
+  │     items        │
+  │  (created)       │
+  │                  │
+  │  item_code: auto │
+  │  fsin_code ──────────► fsins
+  │  po_line_id ─────────► po_lines
+  │  unit_price: 5000│
+  │  state: BUY      │
+  └─────────────────┘
+
+  5. REMAINING PAYMENT
+  ┌─────────────────┐
+  │  transactions    │◄──── txn_id_remaining
+  │  (final pmt)     │
+  │  utn: TXN-FNF   │
+  │  amount: 50000   │
+  └─────────────────┘
+</div>
+
+<h3>Key Relationships in PO Flow</h3>
+<table>
+  <tr><th>From</th><th>To</th><th>Via</th><th>Cardinality</th><th>Purpose</th></tr>
+  <tr><td>transaction_purchase_order</td><td>vendors</td><td>vendor_code</td><td>N:1</td><td>PO is placed with a vendor</td></tr>
+  <tr><td>transaction_purchase_order</td><td>transactions (advance)</td><td>txn_id_advance</td><td>1:1</td><td>Advance payment record</td></tr>
+  <tr><td>transaction_purchase_order</td><td>transactions (remaining)</td><td>txn_id_remaining</td><td>1:1</td><td>Final settlement record</td></tr>
+  <tr><td>po_lines</td><td>transaction_purchase_order</td><td>transaction_id</td><td>N:1</td><td>Lines belong to PO</td></tr>
+  <tr><td>po_lines</td><td>fsins</td><td>fsin_code</td><td>N:1</td><td>Line orders a product template</td></tr>
+  <tr><td>items</td><td>po_lines</td><td>po_line_id</td><td>N:1</td><td>Items created from PO lines</td></tr>
+  <tr><td>items</td><td>fsins</td><td>fsin_code</td><td>N:1</td><td>Item is instance of FSIN</td></tr>
+  <tr><td>fsins</td><td>vendors</td><td>vendor_code</td><td>N:1</td><td>Product supplied by vendor</td></tr>
+</table>
+
+<!-- ═══════════════════════════════════════════════ -->
+<div class="page-break"></div>
+<h2 id="summary">Summary Statistics</h2>
+
+<h3>Table Count by Object</h3>
+<table>
+  <tr><th>Object</th><th>Base</th><th>Extensions</th><th>Children</th><th>Total Tables</th><th>Total Columns</th></tr>
+  <tr><td>Tenant</td><td>1</td><td>5</td><td>0</td><td>6</td><td>64</td></tr>
+  <tr><td>PID (Property)</td><td>1</td><td>3</td><td>0</td><td>4</td><td>52</td></tr>
+  <tr><td>RID (Room)</td><td>1</td><td>4</td><td>0</td><td>5</td><td>20</td></tr>
+  <tr><td>Contract</td><td>1</td><td>2</td><td>0</td><td>3</td><td>50</td></tr>
+  <tr><td>Transaction</td><td>1</td><td>6</td><td>1</td><td>8</td><td>50</td></tr>
+  <tr><td>Ticket</td><td>1</td><td>2</td><td>0</td><td>3</td><td>35</td></tr>
+  <tr><td>Merchant</td><td>1</td><td>4</td><td>0</td><td>5</td><td>32</td></tr>
+  <tr><td>Vendor</td><td>1</td><td>4</td><td>0</td><td>5</td><td>28</td></tr>
+  <tr><td>Overheads</td><td>1</td><td>8</td><td>0</td><td>9</td><td>65</td></tr>
+  <tr><td>FSIN</td><td>1</td><td>1</td><td>0</td><td>2</td><td>18</td></tr>
+  <tr><td>Item</td><td>1</td><td>2</td><td>0</td><td>3</td><td>18</td></tr>
+  <tr style="font-weight:700; background:#f0f0f8"><td>TOTAL</td><td>11</td><td>41</td><td>1</td><td>53</td><td>432</td></tr>
+</table>
+
+<h3>Cross-Object FK Count</h3>
+<table>
+  <tr><th>Object</th><th>Outbound FKs</th><th>Inbound FKs</th><th>Most Connected To</th></tr>
+  <tr><td>properties (PID)</td><td>2</td><td>7</td><td>rooms, contracts, transactions, tickets, overheads, tenants</td></tr>
+  <tr><td>contracts</td><td>3</td><td>3</td><td>properties, rooms, transactions</td></tr>
+  <tr><td>transactions</td><td>4</td><td>4</td><td>contracts, properties, rooms, tickets</td></tr>
+  <tr><td>vendors</td><td>0</td><td>4</td><td>fsins, tickets, transactions, PO</td></tr>
+  <tr><td>tenants</td><td>2</td><td>2</td><td>properties, rooms, contracts</td></tr>
+  <tr><td>fsins</td><td>1</td><td>2</td><td>vendors, items, po_lines</td></tr>
+</table>
+
+<h3>Derived/Denormalized Fields</h3>
+<table>
+  <tr><th>Field</th><th>On Table</th><th>Source</th><th>Updated By</th></tr>
+  <tr><td>current_pid</td><td>tenants</td><td>contracts.pid</td><td>Workflow on move-in</td></tr>
+  <tr><td>current_rid</td><td>tenants</td><td>contracts.rid</td><td>Workflow on move-in/transfer</td></tr>
+  <tr><td>current_contract_id</td><td>room_availability</td><td>contracts.contract_uid</td><td>Workflow on contract activation</td></tr>
+  <tr><td>current_tenant_name</td><td>room_availability</td><td>contracts → tenant name</td><td>Workflow</td></tr>
+  <tr><td>party_name_tenant</td><td>tenant_contract_details</td><td>tenants.full_name</td><td>On link</td></tr>
+  <tr><td>party_name_merchant</td><td>merchant_contract_details</td><td>merchants.full_name</td><td>On link</td></tr>
+  <tr><td>lock_in_end_date</td><td>contracts</td><td>start + lock_in months</td><td>Auto-calculated</td></tr>
+  <tr><td>effective_retail_rent</td><td>tenant_contract_details</td><td>total - discount</td><td>Auto-calculated</td></tr>
+  <tr><td>nps_category</td><td>tenant_satisfaction</td><td>last_nps_score</td><td>Auto-calculated</td></tr>
+  <tr><td>total_cogs</td><td>merchant_contract_details</td><td>base_rent + overheads</td><td>Derived</td></tr>
+  <tr><td>vendor_name</td><td>transaction_purchase_order</td><td>vendors.vendor_name</td><td>On link</td></tr>
+  <tr><td>unit_price</td><td>items</td><td>po_lines.unit_price</td><td>On creation (immutable)</td></tr>
+</table>
+
+<div class="meta-box" style="margin-top: 20px">
+  <strong>Document generated:</strong> 2026-04-11 | <strong>Source:</strong> Big Data Fix — Taxonomy v2 (Structured) Google Sheet + PO SQL schema<br>
+  <strong>Next step:</strong> User review → Implementation plan via writing-plans skill
+</div>
+
+</body>
+</html>

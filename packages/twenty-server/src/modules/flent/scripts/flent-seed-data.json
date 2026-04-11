@@ -1,0 +1,6529 @@
+{
+  "generatedAt": "2026-04-11T02:50:43.151Z",
+  "totalObjects": 53,
+  "totalFields": 393,
+  "entities": [
+    {
+      "labelPlural": "Contracts",
+      "labelSingular": "Contract",
+      "namePlural": "contracts",
+      "nameSingular": "contract",
+      "icon": "IconFileText",
+      "description": "Base contract linking tenants or merchants to properties with dates, terms, lock-in, and agreement PDF",
+      "fields": [
+        {
+          "type": "SELECT",
+          "name": "contractType",
+          "label": "Contract Type",
+          "description": "Type of contract: L&L (Leave & License), Authorisation, or C&S (Caretaker & Service)",
+          "icon": "IconCategory",
+          "isNullable": false,
+          "options": [
+            {
+              "label": "L&L",
+              "value": "L_AND_L",
+              "position": 0,
+              "color": "blue"
+            },
+            {
+              "label": "Authorisation",
+              "value": "AUTHORISATION",
+              "position": 1,
+              "color": "green"
+            },
+            {
+              "label": "C&S",
+              "value": "C_AND_S",
+              "position": 2,
+              "color": "purple"
+            }
+          ]
+        },
+        {
+          "type": "DATE",
+          "name": "contractStartDate",
+          "label": "Contract Start Date",
+          "description": "Start date of the contract",
+          "icon": "IconCalendar",
+          "isNullable": false
+        },
+        {
+          "type": "DATE",
+          "name": "contractEndDate",
+          "label": "Contract End Date",
+          "description": "End date of the contract",
+          "icon": "IconCalendarOff",
+          "isNullable": false
+        },
+        {
+          "type": "NUMBER",
+          "name": "serviceTerm",
+          "label": "Service Term",
+          "description": "Duration of the contract in months",
+          "icon": "IconClock",
+          "isNullable": false
+        },
+        {
+          "type": "NUMBER",
+          "name": "lockInDuration",
+          "label": "Lock-in Duration",
+          "description": "Lock-in period in months",
+          "icon": "IconLock",
+          "isNullable": true
+        },
+        {
+          "type": "DATE",
+          "name": "lockInEndDate",
+          "label": "Lock-in End Date",
+          "description": "Auto-calculated: contract start date + lock-in duration months",
+          "icon": "IconLockOpen",
+          "isNullable": true
+        },
+        {
+          "type": "NUMBER",
+          "name": "noticePeriod",
+          "label": "Notice Period",
+          "description": "Notice period in days",
+          "icon": "IconBell",
+          "isNullable": true
+        },
+        {
+          "type": "LINKS",
+          "name": "agreementPdf",
+          "label": "Agreement PDF",
+          "description": "URL to the signed agreement document",
+          "icon": "IconFileTypePdf",
+          "isNullable": true
+        }
+      ]
+    },
+    {
+      "labelPlural": "Merchant Contract Details",
+      "labelSingular": "Merchant Contract Details",
+      "namePlural": "merchantContractDetails",
+      "nameSingular": "merchantContractDetail",
+      "icon": "IconFileInvoice",
+      "description": "Merchant-specific contract extension with base rent JSONB schedule, increment terms, COGS, and payment cycle",
+      "skipNameField": true,
+      "fields": [
+        {
+          "type": "TEXT",
+          "name": "partyNameMerchant",
+          "label": "Party Name (Merchant)",
+          "description": "Derived: merchant first name + last name (landlord only)",
+          "icon": "IconBuildingSkyscraper",
+          "isNullable": false,
+          "defaultValue": "''"
+        },
+        {
+          "type": "DATE",
+          "name": "keyHandoverDate",
+          "label": "Key Handover Date",
+          "description": "Date when property keys are handed over",
+          "icon": "IconKey",
+          "isNullable": true
+        },
+        {
+          "type": "NUMBER",
+          "name": "incrementPercentage",
+          "label": "Increment Percentage",
+          "description": "Rent increment percentage",
+          "icon": "IconTrendingUp",
+          "isNullable": true
+        },
+        {
+          "type": "SELECT",
+          "name": "incrementFrequency",
+          "label": "Increment Frequency",
+          "description": "How often rent is incremented",
+          "icon": "IconRepeat",
+          "options": [
+            {
+              "label": "Annual",
+              "value": "ANNUAL",
+              "position": 0,
+              "color": "blue"
+            },
+            {
+              "label": "Biennial",
+              "value": "BIENNIAL",
+              "position": 1,
+              "color": "green"
+            },
+            {
+              "label": "None",
+              "value": "NONE",
+              "position": 2,
+              "color": "sky"
+            }
+          ]
+        },
+        {
+          "type": "SELECT",
+          "name": "agreementStatus",
+          "label": "Agreement Status",
+          "description": "Current status of the merchant agreement",
+          "icon": "IconFileCheck",
+          "options": [
+            {
+              "label": "Negotiation",
+              "value": "NEGOTIATION",
+              "position": 0,
+              "color": "yellow"
+            },
+            {
+              "label": "Triggered",
+              "value": "TRIGGERED",
+              "position": 1,
+              "color": "orange"
+            },
+            {
+              "label": "Active",
+              "value": "ACTIVE",
+              "position": 2,
+              "color": "green"
+            }
+          ]
+        },
+        {
+          "type": "RAW_JSON",
+          "name": "baseRent",
+          "label": "Base Rent",
+          "description": "Rent hike schedule as JSONB. Format: [{\"month\":0,\"amount\":60000},{\"month\":12,\"amount\":66000}]",
+          "icon": "IconCurrencyRupee",
+          "isNullable": false
+        },
+        {
+          "type": "CURRENCY",
+          "name": "merchantSecurityDeposit",
+          "label": "Merchant Security Deposit",
+          "description": "Security deposit paid to the merchant/landlord",
+          "icon": "IconShield",
+          "isNullable": true
+        },
+        {
+          "type": "CURRENCY",
+          "name": "managementFeePerMonth",
+          "label": "Management Fee per Month",
+          "description": "Monthly management fee",
+          "icon": "IconReceipt",
+          "isNullable": true
+        },
+        {
+          "type": "CURRENCY",
+          "name": "totalCogs",
+          "label": "Total COGS",
+          "description": "Derived: base_rent (this contract) + overheads",
+          "icon": "IconCalculator",
+          "isNullable": true
+        },
+        {
+          "type": "CURRENCY",
+          "name": "contractAcquisitionCost",
+          "label": "Contract Acquisition Cost",
+          "description": "Cost to acquire this contract",
+          "icon": "IconCurrencyRupee",
+          "isNullable": true
+        },
+        {
+          "type": "TEXT",
+          "name": "contractAcquisitionCostPaidTo",
+          "label": "Acquisition Cost Paid To",
+          "description": "Party name the acquisition cost was paid to (not an amount)",
+          "icon": "IconUser",
+          "isNullable": true,
+          "defaultValue": "''"
+        },
+        {
+          "type": "SELECT",
+          "name": "paymentCycle",
+          "label": "Payment Cycle",
+          "description": "Payment cycle: Prepaid or Postpaid",
+          "icon": "IconRepeat",
+          "isNullable": false,
+          "options": [
+            {
+              "label": "Prepaid",
+              "value": "PREPAID",
+              "position": 0,
+              "color": "blue"
+            },
+            {
+              "label": "Postpaid",
+              "value": "POSTPAID",
+              "position": 1,
+              "color": "green"
+            }
+          ]
+        },
+        {
+          "type": "DATE",
+          "name": "paymentDeadline",
+          "label": "Payment Deadline",
+          "description": "Deadline date for rent payment",
+          "icon": "IconCalendarDue",
+          "isNullable": false
+        },
+        {
+          "type": "LINKS",
+          "name": "inventoryList",
+          "label": "Inventory List",
+          "description": "URL to property inventory list document",
+          "icon": "IconList",
+          "isNullable": true
+        }
+      ]
+    },
+    {
+      "labelPlural": "Tenant Contract Details",
+      "labelSingular": "Tenant Contract Details",
+      "namePlural": "tenantContractDetails",
+      "nameSingular": "tenantContractDetail",
+      "icon": "IconFileDescription",
+      "description": "Tenant-specific contract extension with rent breakdown, deposits, deductions, and lifecycle tracking",
+      "skipNameField": true,
+      "fields": [
+        {
+          "type": "TEXT",
+          "name": "partyNameTenant",
+          "label": "Party Name (Tenant)",
+          "description": "Derived: tenant first name + last name",
+          "icon": "IconUser",
+          "isNullable": false,
+          "defaultValue": "''"
+        },
+        {
+          "type": "DATE",
+          "name": "preferredMoveOutDate",
+          "label": "Preferred Move-out Date",
+          "description": "Tenant preferred move-out date",
+          "icon": "IconCalendarEvent",
+          "isNullable": true
+        },
+        {
+          "type": "SELECT",
+          "name": "paymentLifecycle",
+          "label": "Payment Lifecycle",
+          "description": "Current payment lifecycle stage",
+          "icon": "IconCash",
+          "options": [
+            {
+              "label": "Token Paid",
+              "value": "TOKEN_PAID",
+              "position": 0,
+              "color": "sky"
+            },
+            {
+              "label": "FMR Paid",
+              "value": "FMR_PAID",
+              "position": 1,
+              "color": "blue"
+            },
+            {
+              "label": "SD Paid",
+              "value": "SD_PAID",
+              "position": 2,
+              "color": "turquoise"
+            },
+            {
+              "label": "FMR and SD Cleared",
+              "value": "FMR_AND_SD_CLEARED",
+              "position": 3,
+              "color": "green"
+            },
+            {
+              "label": "Payments Done",
+              "value": "PAYMENTS_DONE",
+              "position": 4,
+              "color": "green"
+            }
+          ]
+        },
+        {
+          "type": "SELECT",
+          "name": "agreementLifecycle",
+          "label": "Agreement Lifecycle",
+          "description": "Current agreement lifecycle stage",
+          "icon": "IconFileCheck",
+          "options": [
+            {
+              "label": "L&L and C&S Released",
+              "value": "LL_AND_CS_RELEASED",
+              "position": 0,
+              "color": "sky"
+            },
+            {
+              "label": "L&L Signed",
+              "value": "LL_SIGNED",
+              "position": 1,
+              "color": "blue"
+            },
+            {
+              "label": "C&S Signed",
+              "value": "CS_SIGNED",
+              "position": 2,
+              "color": "turquoise"
+            },
+            {
+              "label": "All Agreements Signed",
+              "value": "ALL_AGREEMENTS_SIGNED",
+              "position": 3,
+              "color": "green"
+            }
+          ]
+        },
+        {
+          "type": "CURRENCY",
+          "name": "totalRetailRent",
+          "label": "Total Retail Rent",
+          "description": "Derived sum of all rent components",
+          "icon": "IconCurrencyRupee",
+          "isNullable": true
+        },
+        {
+          "type": "CURRENCY",
+          "name": "monthlyLicenseFee",
+          "label": "Monthly License Fee",
+          "description": "Monthly license/rent fee",
+          "icon": "IconCurrencyRupee",
+          "isNullable": true
+        },
+        {
+          "type": "CURRENCY",
+          "name": "maintenanceFee",
+          "label": "Maintenance Fee",
+          "description": "Monthly maintenance fee",
+          "icon": "IconTool",
+          "isNullable": true
+        },
+        {
+          "type": "CURRENCY",
+          "name": "furnishingFee",
+          "label": "Furnishing Fee",
+          "description": "Monthly furnishing fee",
+          "icon": "IconArmchair",
+          "isNullable": true
+        },
+        {
+          "type": "CURRENCY",
+          "name": "convenienceFee",
+          "label": "Convenience Fee",
+          "description": "Monthly convenience/service fee",
+          "icon": "IconReceipt",
+          "isNullable": true
+        },
+        {
+          "type": "CURRENCY",
+          "name": "gst",
+          "label": "GST",
+          "description": "Goods and Services Tax amount",
+          "icon": "IconReceipt2",
+          "isNullable": true
+        },
+        {
+          "type": "CURRENCY",
+          "name": "discountAmount",
+          "label": "Discount Amount",
+          "description": "Discount applied to total retail rent",
+          "icon": "IconDiscount2",
+          "isNullable": true
+        },
+        {
+          "type": "CURRENCY",
+          "name": "effectiveRetailRent",
+          "label": "Effective Retail Rent",
+          "description": "Auto-calculated: total_retail_rent - discount_amount",
+          "icon": "IconCalculator",
+          "isNullable": true
+        },
+        {
+          "type": "CURRENCY",
+          "name": "securityDeposit",
+          "label": "Security Deposit",
+          "description": "Refundable security deposit amount",
+          "icon": "IconShield",
+          "isNullable": true
+        },
+        {
+          "type": "CURRENCY",
+          "name": "cautionDeposit",
+          "label": "Caution Deposit",
+          "description": "Caution deposit amount",
+          "icon": "IconAlertTriangle",
+          "isNullable": true
+        },
+        {
+          "type": "CURRENCY",
+          "name": "lockInFee",
+          "label": "Lock-in Fee",
+          "description": "Fee for breaking lock-in period",
+          "icon": "IconLock",
+          "isNullable": true
+        },
+        {
+          "type": "CURRENCY",
+          "name": "exitFee",
+          "label": "Exit Fee",
+          "description": "Fee charged upon early exit",
+          "icon": "IconDoorExit",
+          "isNullable": true
+        },
+        {
+          "type": "CURRENCY",
+          "name": "damagesDeductions",
+          "label": "Damages Deductions",
+          "description": "Deductions for property damages",
+          "icon": "IconAlertCircle",
+          "isNullable": true
+        },
+        {
+          "type": "CURRENCY",
+          "name": "societyFees",
+          "label": "Society Fees",
+          "description": "Housing society fees",
+          "icon": "IconBuildingCommunity",
+          "isNullable": true
+        },
+        {
+          "type": "CURRENCY",
+          "name": "penalty",
+          "label": "Penalty",
+          "description": "Penalty charges",
+          "icon": "IconGavel",
+          "isNullable": true
+        },
+        {
+          "type": "CURRENCY",
+          "name": "totalDeductions",
+          "label": "Total Deductions",
+          "description": "Auto-calculated: damages_deductions + society_fees + penalty",
+          "icon": "IconCalculator",
+          "isNullable": true
+        },
+        {
+          "type": "TEXT",
+          "name": "fmrStatus",
+          "label": "FMR Status",
+          "description": "First month rent payment status",
+          "icon": "IconStatusChange",
+          "isNullable": true,
+          "defaultValue": "''"
+        },
+        {
+          "type": "TEXT",
+          "name": "depositPaidStatus",
+          "label": "Deposit Paid Status",
+          "description": "Deposit payment status",
+          "icon": "IconStatusChange",
+          "isNullable": true,
+          "defaultValue": "''"
+        }
+      ]
+    },
+    {
+      "labelPlural": "FSINs",
+      "labelSingular": "FSIN",
+      "namePlural": "fsins",
+      "nameSingular": "fsin",
+      "icon": "IconBarcode",
+      "description": "Furniture Standard Identification Number - canonical product catalog entry",
+      "fields": [
+        {
+          "type": "TEXT",
+          "label": "FSIN Code",
+          "name": "fsinCode",
+          "icon": "IconBarcode",
+          "description": "Unique Furniture Standard Identification Number",
+          "isNullable": false,
+          "isUnique": true
+        },
+        {
+          "type": "TEXT",
+          "label": "Item Name",
+          "name": "itemName",
+          "icon": "IconTag",
+          "description": "Human-readable product name",
+          "isNullable": false
+        },
+        {
+          "type": "SELECT",
+          "label": "Category",
+          "name": "category",
+          "icon": "IconCategory",
+          "description": "Furniture category classification",
+          "isNullable": false,
+          "options": [
+            {
+              "label": "Bed",
+              "value": "BED",
+              "position": 0,
+              "color": "blue"
+            },
+            {
+              "label": "Mattress",
+              "value": "MATTRESS",
+              "position": 1,
+              "color": "purple"
+            },
+            {
+              "label": "Wardrobe",
+              "value": "WARDROBE",
+              "position": 2,
+              "color": "green"
+            },
+            {
+              "label": "Study Table",
+              "value": "STUDY_TABLE",
+              "position": 3,
+              "color": "orange"
+            },
+            {
+              "label": "Study Chair",
+              "value": "STUDY_CHAIR",
+              "position": 4,
+              "color": "yellow"
+            },
+            {
+              "label": "Dining Table",
+              "value": "DINING_TABLE",
+              "position": 5,
+              "color": "turquoise"
+            },
+            {
+              "label": "Dining Chair",
+              "value": "DINING_CHAIR",
+              "position": 6,
+              "color": "sky"
+            },
+            {
+              "label": "Sofa",
+              "value": "SOFA",
+              "position": 7,
+              "color": "pink"
+            },
+            {
+              "label": "Center Table",
+              "value": "CENTER_TABLE",
+              "position": 8,
+              "color": "red"
+            },
+            {
+              "label": "TV Unit",
+              "value": "TV_UNIT",
+              "position": 9,
+              "color": "gray"
+            },
+            {
+              "label": "Shoe Rack",
+              "value": "SHOE_RACK",
+              "position": 10,
+              "color": "blue"
+            },
+            {
+              "label": "Bookshelf",
+              "value": "BOOKSHELF",
+              "position": 11,
+              "color": "purple"
+            },
+            {
+              "label": "Curtain",
+              "value": "CURTAIN",
+              "position": 12,
+              "color": "green"
+            },
+            {
+              "label": "Mirror",
+              "value": "MIRROR",
+              "position": 13,
+              "color": "orange"
+            },
+            {
+              "label": "Appliance",
+              "value": "APPLIANCE",
+              "position": 14,
+              "color": "yellow"
+            },
+            {
+              "label": "Kitchenware",
+              "value": "KITCHENWARE",
+              "position": 15,
+              "color": "turquoise"
+            },
+            {
+              "label": "Bedding",
+              "value": "BEDDING",
+              "position": 16,
+              "color": "sky"
+            },
+            {
+              "label": "Decor",
+              "value": "DECOR",
+              "position": 17,
+              "color": "pink"
+            },
+            {
+              "label": "Storage",
+              "value": "STORAGE",
+              "position": 18,
+              "color": "red"
+            },
+            {
+              "label": "Other",
+              "value": "OTHER",
+              "position": 19,
+              "color": "gray"
+            }
+          ]
+        },
+        {
+          "type": "SELECT",
+          "label": "Unit of Measurement",
+          "name": "uom",
+          "icon": "IconRuler",
+          "description": "Unit of measurement for inventory counting",
+          "isNullable": false,
+          "options": [
+            {
+              "label": "Piece",
+              "value": "PIECE",
+              "position": 0,
+              "color": "blue"
+            },
+            {
+              "label": "Set",
+              "value": "SET",
+              "position": 1,
+              "color": "green"
+            },
+            {
+              "label": "Pair",
+              "value": "PAIR",
+              "position": 2,
+              "color": "purple"
+            },
+            {
+              "label": "Meter",
+              "value": "METER",
+              "position": 3,
+              "color": "orange"
+            },
+            {
+              "label": "Kg",
+              "value": "KG",
+              "position": 4,
+              "color": "yellow"
+            },
+            {
+              "label": "Box",
+              "value": "BOX",
+              "position": 5,
+              "color": "turquoise"
+            },
+            {
+              "label": "Roll",
+              "value": "ROLL",
+              "position": 6,
+              "color": "sky"
+            },
+            {
+              "label": "Bundle",
+              "value": "BUNDLE",
+              "position": 7,
+              "color": "pink"
+            }
+          ]
+        },
+        {
+          "type": "LINKS",
+          "label": "Image",
+          "name": "image",
+          "icon": "IconPhoto",
+          "description": "Product reference image URL",
+          "isNullable": true
+        },
+        {
+          "type": "NUMBER",
+          "label": "Reorder Point",
+          "name": "reorderPoint",
+          "icon": "IconAlertTriangle",
+          "description": "Minimum stock level that triggers reorder",
+          "isNullable": true
+        },
+        {
+          "type": "CURRENCY",
+          "label": "Annual Depreciation",
+          "name": "annualDepreciation",
+          "icon": "IconTrendingDown",
+          "description": "Yearly depreciation amount for accounting",
+          "isNullable": true
+        },
+        {
+          "type": "CURRENCY",
+          "label": "Perceived Value",
+          "name": "perceivedValue",
+          "icon": "IconCurrencyRupee",
+          "description": "Current market/perceived value of the item type",
+          "isNullable": true
+        },
+        {
+          "type": "SELECT",
+          "label": "Packaging",
+          "name": "packaging",
+          "icon": "IconPackage",
+          "description": "How the item is delivered",
+          "isNullable": true,
+          "options": [
+            {
+              "label": "Flatpack",
+              "value": "FLATPACK",
+              "position": 0,
+              "color": "blue"
+            },
+            {
+              "label": "Assembled",
+              "value": "ASSEMBLED",
+              "position": 1,
+              "color": "green"
+            }
+          ]
+        },
+        {
+          "type": "NUMBER",
+          "label": "Lego",
+          "name": "lego",
+          "icon": "IconPuzzle",
+          "description": "Number of Lego (assembly complexity) units",
+          "isNullable": true
+        },
+        {
+          "type": "SELECT",
+          "label": "Status",
+          "name": "status",
+          "icon": "IconStatusChange",
+          "isNullable": false,
+          "defaultValue": "'ACTIVE'",
+          "options": [
+            {
+              "label": "Active",
+              "value": "ACTIVE",
+              "position": 0,
+              "color": "green"
+            },
+            {
+              "label": "Discontinued",
+              "value": "DISCONTINUED",
+              "position": 1,
+              "color": "red"
+            },
+            {
+              "label": "Draft",
+              "value": "DRAFT",
+              "position": 2,
+              "color": "gray"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "labelPlural": "FSIN Specifications",
+      "labelSingular": "FSIN Specification",
+      "namePlural": "fsinSpecifications",
+      "nameSingular": "fsinSpecification",
+      "icon": "IconListDetails",
+      "description": "Physical specifications and attributes for a FSIN product",
+      "skipNameField": true,
+      "fields": [
+        {
+          "type": "TEXT",
+          "label": "Dimensions",
+          "name": "dimensions",
+          "icon": "IconRuler",
+          "description": "Physical dimensions (e.g., 180x90x75 cm)",
+          "isNullable": true
+        },
+        {
+          "type": "TEXT",
+          "label": "Material",
+          "name": "material",
+          "icon": "IconWood",
+          "description": "Primary material (e.g., Engineered Wood, Metal, Fabric)",
+          "isNullable": true
+        },
+        {
+          "type": "TEXT",
+          "label": "Finish",
+          "name": "finish",
+          "icon": "IconPaint",
+          "description": "Surface finish (e.g., Matte, Glossy, Walnut Laminate)",
+          "isNullable": true
+        },
+        {
+          "type": "TEXT",
+          "label": "Color",
+          "name": "color",
+          "icon": "IconPalette",
+          "description": "Primary color of the item",
+          "isNullable": true
+        },
+        {
+          "type": "TEXT",
+          "label": "Style",
+          "name": "style",
+          "icon": "IconBrush",
+          "description": "Design style (e.g., Modern, Scandinavian, Industrial)",
+          "isNullable": true
+        },
+        {
+          "type": "TEXT",
+          "label": "Attribute",
+          "name": "attribute",
+          "icon": "IconAdjustments",
+          "description": "Additional custom attribute or specification",
+          "isNullable": true
+        }
+      ]
+    },
+    {
+      "labelPlural": "Items",
+      "labelSingular": "Item",
+      "namePlural": "items",
+      "nameSingular": "item",
+      "icon": "IconBox",
+      "description": "Individual physical inventory unit tracked through its lifecycle",
+      "fields": [
+        {
+          "type": "TEXT",
+          "label": "Item Code",
+          "name": "itemCode",
+          "icon": "IconQrcode",
+          "description": "Unique identifier for this individual inventory unit",
+          "isNullable": false,
+          "isUnique": true
+        },
+        {
+          "type": "NUMBER",
+          "label": "Serial No",
+          "name": "serialNo",
+          "icon": "IconHash",
+          "description": "Sequential serial number within the FSIN group",
+          "isNullable": true
+        },
+        {
+          "type": "CURRENCY",
+          "label": "Unit Price",
+          "name": "unitPrice",
+          "icon": "IconCurrencyRupee",
+          "description": "Purchase price per unit (immutable, copied from PO line at creation)",
+          "isNullable": true,
+          "isUIReadOnly": true
+        },
+        {
+          "type": "NUMBER",
+          "label": "GST Percent",
+          "name": "gstPercent",
+          "icon": "IconPercentage",
+          "description": "GST percentage (immutable, copied from PO at creation)",
+          "isNullable": true,
+          "isUIReadOnly": true
+        }
+      ]
+    },
+    {
+      "labelPlural": "Item States",
+      "labelSingular": "Item State",
+      "namePlural": "itemStates",
+      "nameSingular": "itemState",
+      "icon": "IconMapPin",
+      "description": "Current location, lifecycle state, and condition tracking for an inventory item",
+      "skipNameField": true,
+      "fields": [
+        {
+          "type": "BOOLEAN",
+          "label": "Lock",
+          "name": "lock",
+          "icon": "IconLock",
+          "description": "Whether the item is locked (reserved for a specific property/operation)",
+          "isNullable": false,
+          "defaultValue": false
+        },
+        {
+          "type": "TEXT",
+          "label": "Locked By PFS",
+          "name": "lockByPfs",
+          "icon": "IconUserCheck",
+          "description": "PFS (Property Furnishing Specialist) who locked the item",
+          "isNullable": true
+        },
+        {
+          "type": "DATE_TIME",
+          "label": "Locked At",
+          "name": "lockedAt",
+          "icon": "IconClockLock",
+          "description": "Timestamp when the item was locked",
+          "isNullable": true
+        },
+        {
+          "type": "TEXT",
+          "label": "Location",
+          "name": "location",
+          "icon": "IconMapPin",
+          "description": "Current location: PID-RID for deployed items or WH-rack for warehouse items",
+          "isNullable": true
+        },
+        {
+          "type": "SELECT",
+          "label": "State",
+          "name": "state",
+          "icon": "IconStatusChange",
+          "description": "Current lifecycle state of the inventory item",
+          "isNullable": false,
+          "defaultValue": "'BUY'",
+          "options": [
+            {
+              "label": "BUY",
+              "value": "BUY",
+              "position": 0,
+              "color": "blue"
+            },
+            {
+              "label": "WIB",
+              "value": "WIB",
+              "position": 1,
+              "color": "sky"
+            },
+            {
+              "label": "WOB",
+              "value": "WOB",
+              "position": 2,
+              "color": "turquoise"
+            },
+            {
+              "label": "PIB",
+              "value": "PIB",
+              "position": 3,
+              "color": "green"
+            },
+            {
+              "label": "POB",
+              "value": "POB",
+              "position": 4,
+              "color": "orange"
+            },
+            {
+              "label": "WORK",
+              "value": "WORK",
+              "position": 5,
+              "color": "purple"
+            },
+            {
+              "label": "DEAD",
+              "value": "DEAD",
+              "position": 6,
+              "color": "red"
+            }
+          ]
+        },
+        {
+          "type": "DATE_TIME",
+          "label": "State Time",
+          "name": "stateTime",
+          "icon": "IconClock",
+          "description": "Timestamp when the item entered the current state",
+          "isNullable": true
+        },
+        {
+          "type": "DATE_TIME",
+          "label": "Latest Snapshot Date",
+          "name": "latestSnapshotDate",
+          "icon": "IconCalendarEvent",
+          "description": "Date of the most recent condition snapshot/photo",
+          "isNullable": true
+        },
+        {
+          "type": "LINKS",
+          "label": "Snapshot",
+          "name": "snapshot",
+          "icon": "IconCamera",
+          "description": "URL to the latest condition snapshot image",
+          "isNullable": true
+        },
+        {
+          "type": "DATE_TIME",
+          "label": "Utilised At",
+          "name": "utilisedAt",
+          "icon": "IconClockCheck",
+          "description": "Timestamp when the item was first placed in a property",
+          "isNullable": true
+        },
+        {
+          "type": "SELECT",
+          "label": "QA Flag",
+          "name": "qaFlag",
+          "icon": "IconShieldCheck",
+          "description": "Quality assurance inspection result",
+          "isNullable": true,
+          "options": [
+            {
+              "label": "Yes",
+              "value": "YES",
+              "position": 0,
+              "color": "green"
+            },
+            {
+              "label": "No",
+              "value": "NO",
+              "position": 1,
+              "color": "red"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "labelPlural": "Item Transaction Links",
+      "labelSingular": "Item Transaction Link",
+      "namePlural": "itemTransactionLinks",
+      "nameSingular": "itemTransactionLink",
+      "icon": "IconLink",
+      "description": "Join entity linking individual inventory items to financial transactions",
+      "skipNameField": true,
+      "fields": [
+        {
+          "type": "TEXT",
+          "label": "Bill Document ID",
+          "name": "billDocumentId",
+          "icon": "IconFileInvoice",
+          "description": "Reference to the external billing document",
+          "isNullable": true
+        }
+      ]
+    },
+    {
+      "labelPlural": "Merchant Brokers",
+      "labelSingular": "Merchant Broker",
+      "namePlural": "merchantBrokers",
+      "nameSingular": "merchantBroker",
+      "icon": "IconBriefcase",
+      "description": "Broker-specific details for merchant relationships (fields TBD)",
+      "skipNameField": true,
+      "fields": []
+    },
+    {
+      "labelPlural": "Merchant Landlords",
+      "labelSingular": "Merchant Landlord",
+      "namePlural": "merchantLandlords",
+      "nameSingular": "merchantLandlord",
+      "icon": "IconHome",
+      "description": "Landlord-specific details for merchants including KYC, banking, and personality notes",
+      "skipNameField": true,
+      "fields": [
+        {
+          "type": "RICH_TEXT",
+          "name": "landlordPersonality",
+          "label": "Landlord Personality",
+          "description": "Notes about landlord personality and communication style",
+          "icon": "IconMoodSmile",
+          "isNullable": true
+        },
+        {
+          "type": "RICH_TEXT",
+          "name": "generalLlComments",
+          "label": "General LL Comments",
+          "description": "General comments and notes about the landlord",
+          "icon": "IconNote",
+          "isNullable": true
+        },
+        {
+          "type": "BOOLEAN",
+          "name": "potentiallyMultihome",
+          "label": "Potentially Multi-home",
+          "description": "Whether the landlord may have multiple properties",
+          "icon": "IconBuildingCommunity",
+          "isNullable": true,
+          "defaultValue": false
+        },
+        {
+          "type": "TEXT",
+          "name": "designation",
+          "label": "Designation",
+          "description": "Landlord's professional designation",
+          "icon": "IconBriefcase",
+          "isNullable": true,
+          "defaultValue": "''"
+        },
+        {
+          "type": "TEXT",
+          "name": "organization",
+          "label": "Organization",
+          "description": "Landlord's organization or company",
+          "icon": "IconBuilding",
+          "isNullable": true,
+          "defaultValue": "''"
+        },
+        {
+          "type": "LINKS",
+          "name": "aadhaarBack",
+          "label": "Aadhaar Back",
+          "description": "URL to Aadhaar card back image",
+          "icon": "IconPhoto",
+          "isNullable": true
+        },
+        {
+          "type": "TEXT",
+          "name": "panNumber",
+          "label": "PAN Number",
+          "description": "Landlord's PAN number",
+          "icon": "IconId",
+          "isNullable": true,
+          "defaultValue": "''"
+        },
+        {
+          "type": "LINKS",
+          "name": "panCardImage",
+          "label": "PAN Card Image",
+          "description": "URL to PAN card image",
+          "icon": "IconPhoto",
+          "isNullable": true
+        },
+        {
+          "type": "TEXT",
+          "name": "bankAccountNumber",
+          "label": "Bank Account Number",
+          "description": "Landlord's bank account number",
+          "icon": "IconCreditCard",
+          "isNullable": true,
+          "defaultValue": "''"
+        },
+        {
+          "type": "TEXT",
+          "name": "beneficiaryName",
+          "label": "Beneficiary Name",
+          "description": "Bank account beneficiary name",
+          "icon": "IconUser",
+          "isNullable": true,
+          "defaultValue": "''"
+        },
+        {
+          "type": "TEXT",
+          "name": "ifscCode",
+          "label": "IFSC Code",
+          "description": "Bank IFSC code",
+          "icon": "IconBuildingBank",
+          "isNullable": true,
+          "defaultValue": "''"
+        },
+        {
+          "type": "RICH_TEXT",
+          "name": "currentResidential",
+          "label": "Current Residential Address",
+          "description": "Landlord's current residential address",
+          "icon": "IconMapPin",
+          "isNullable": true
+        },
+        {
+          "type": "RICH_TEXT",
+          "name": "permanentResidential",
+          "label": "Permanent Residential Address",
+          "description": "Landlord's permanent residential address",
+          "icon": "IconMapPin",
+          "isNullable": true
+        },
+        {
+          "type": "BOOLEAN",
+          "name": "communicationsPermission",
+          "label": "Communications Permission",
+          "description": "Whether the landlord has given communications consent",
+          "icon": "IconBell",
+          "isNullable": true,
+          "defaultValue": false
+        },
+        {
+          "type": "BOOLEAN",
+          "name": "signingAuthority",
+          "label": "Signing Authority",
+          "description": "Whether the landlord has signing authority",
+          "icon": "IconPencil",
+          "isNullable": true,
+          "defaultValue": false
+        },
+        {
+          "type": "LINKS",
+          "name": "linkedinUrl",
+          "label": "LinkedIn",
+          "description": "Landlord's LinkedIn profile URL",
+          "icon": "IconBrandLinkedin",
+          "isNullable": true
+        }
+      ]
+    },
+    {
+      "labelPlural": "Merchant Managements",
+      "labelSingular": "Merchant Management",
+      "namePlural": "merchantManagements",
+      "nameSingular": "merchantManagement",
+      "icon": "IconSettings",
+      "description": "Management company details for merchant relationships (fields TBD)",
+      "skipNameField": true,
+      "fields": []
+    },
+    {
+      "labelPlural": "Merchants",
+      "labelSingular": "Merchant",
+      "namePlural": "merchants",
+      "nameSingular": "merchant",
+      "icon": "IconBuildingSkyscraper",
+      "description": "Property owners, POCs, brokers, and management contacts",
+      "fields": [
+        {
+          "type": "SELECT",
+          "name": "merchantType",
+          "label": "Merchant Type",
+          "description": "Type of merchant relationship",
+          "icon": "IconCategory",
+          "options": [
+            {
+              "label": "Landlord",
+              "value": "LANDLORD",
+              "position": 0,
+              "color": "blue"
+            },
+            {
+              "label": "POC",
+              "value": "POC",
+              "position": 1,
+              "color": "green"
+            },
+            {
+              "label": "Lead",
+              "value": "LEAD",
+              "position": 2,
+              "color": "yellow"
+            },
+            {
+              "label": "Broker",
+              "value": "BROKER",
+              "position": 3,
+              "color": "purple"
+            },
+            {
+              "label": "Management",
+              "value": "MANAGEMENT",
+              "position": 4,
+              "color": "orange"
+            }
+          ]
+        },
+        {
+          "type": "SELECT",
+          "name": "prefix",
+          "label": "Prefix",
+          "description": "Name prefix / salutation",
+          "icon": "IconUser",
+          "options": [
+            {
+              "label": "Mr",
+              "value": "MR",
+              "position": 0,
+              "color": "blue"
+            },
+            {
+              "label": "Mrs",
+              "value": "MRS",
+              "position": 1,
+              "color": "pink"
+            },
+            {
+              "label": "Ms",
+              "value": "MS",
+              "position": 2,
+              "color": "purple"
+            },
+            {
+              "label": "Dr",
+              "value": "DR",
+              "position": 3,
+              "color": "green"
+            }
+          ]
+        },
+        {
+          "type": "FULL_NAME",
+          "name": "name",
+          "label": "Name",
+          "description": "Merchant's full name",
+          "icon": "IconUser",
+          "isNullable": false
+        },
+        {
+          "type": "EMAILS",
+          "name": "emails",
+          "label": "Email",
+          "description": "Merchant's email address",
+          "icon": "IconMail",
+          "isNullable": true
+        },
+        {
+          "type": "PHONES",
+          "name": "phones",
+          "label": "Phone",
+          "description": "Merchant's phone numbers with country code",
+          "icon": "IconPhone",
+          "isNullable": false
+        },
+        {
+          "type": "TEXT",
+          "name": "currentCity",
+          "label": "Current City",
+          "description": "Merchant's current city of residence",
+          "icon": "IconMapPin",
+          "isNullable": true,
+          "defaultValue": "''"
+        },
+        {
+          "type": "SELECT",
+          "name": "leadSource",
+          "label": "Lead Source",
+          "description": "How this merchant was sourced",
+          "icon": "IconTarget",
+          "options": [
+            {
+              "label": "Referral",
+              "value": "REFERRAL",
+              "position": 0,
+              "color": "green"
+            },
+            {
+              "label": "Direct",
+              "value": "DIRECT",
+              "position": 1,
+              "color": "blue"
+            },
+            {
+              "label": "Broker",
+              "value": "BROKER",
+              "position": 2,
+              "color": "purple"
+            },
+            {
+              "label": "Online",
+              "value": "ONLINE",
+              "position": 3,
+              "color": "sky"
+            },
+            {
+              "label": "Cold Outreach",
+              "value": "COLD_OUTREACH",
+              "position": 4,
+              "color": "yellow"
+            },
+            {
+              "label": "Platform",
+              "value": "PLATFORM",
+              "position": 5,
+              "color": "orange"
+            }
+          ]
+        },
+        {
+          "type": "TEXT",
+          "name": "uniqueId",
+          "label": "Unique ID",
+          "description": "External unique identifier for the merchant",
+          "icon": "IconId",
+          "isNullable": true,
+          "isUnique": true,
+          "defaultValue": "''"
+        },
+        {
+          "type": "SELECT",
+          "name": "disqualificationReason",
+          "label": "Disqualification Reason",
+          "description": "Reason the merchant was disqualified",
+          "icon": "IconAlertCircle",
+          "options": [
+            {
+              "label": "Price Mismatch",
+              "value": "PRICE_MISMATCH",
+              "position": 0,
+              "color": "yellow"
+            },
+            {
+              "label": "Property Condition",
+              "value": "PROPERTY_CONDITION",
+              "position": 1,
+              "color": "orange"
+            },
+            {
+              "label": "Location",
+              "value": "LOCATION",
+              "position": 2,
+              "color": "blue"
+            },
+            {
+              "label": "Unresponsive",
+              "value": "UNRESPONSIVE",
+              "position": 3,
+              "color": "red"
+            },
+            {
+              "label": "Regulatory",
+              "value": "REGULATORY",
+              "position": 4,
+              "color": "purple"
+            },
+            {
+              "label": "Other",
+              "value": "OTHER",
+              "position": 5,
+              "color": "sky"
+            }
+          ]
+        },
+        {
+          "type": "SELECT",
+          "name": "lostReason",
+          "label": "Lost Reason",
+          "description": "Reason the merchant deal was lost",
+          "icon": "IconThumbDown",
+          "options": [
+            {
+              "label": "Chose Competitor",
+              "value": "CHOSE_COMPETITOR",
+              "position": 0,
+              "color": "red"
+            },
+            {
+              "label": "Price",
+              "value": "PRICE",
+              "position": 1,
+              "color": "yellow"
+            },
+            {
+              "label": "Timing",
+              "value": "TIMING",
+              "position": 2,
+              "color": "orange"
+            },
+            {
+              "label": "Not Interested",
+              "value": "NOT_INTERESTED",
+              "position": 3,
+              "color": "red"
+            },
+            {
+              "label": "Other",
+              "value": "OTHER",
+              "position": 4,
+              "color": "sky"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "labelPlural": "Merchant POCs",
+      "labelSingular": "Merchant POC",
+      "namePlural": "merchantPocs",
+      "nameSingular": "merchantPoc",
+      "icon": "IconUserCircle",
+      "description": "Point of contact details for merchant interactions (fields TBD)",
+      "skipNameField": true,
+      "fields": []
+    },
+    {
+      "labelPlural": "Overhead DGs",
+      "labelSingular": "Overhead DG",
+      "namePlural": "overheadDgs",
+      "nameSingular": "overheadDg",
+      "icon": "IconEngine",
+      "description": "Diesel generator overhead details including capacity and fuel",
+      "skipNameField": true,
+      "fields": [
+        {
+          "type": "TEXT",
+          "name": "dgBrandDetails",
+          "label": "DG Brand Details",
+          "icon": "IconTag",
+          "isNullable": true,
+          "defaultValue": "''"
+        },
+        {
+          "type": "NUMBER",
+          "name": "dgCapacityKva",
+          "label": "DG Capacity (KVA)",
+          "icon": "IconBolt",
+          "isNullable": true,
+          "settings": {
+            "dataType": "INT",
+            "type": "number"
+          }
+        },
+        {
+          "type": "TEXT",
+          "name": "dgMaintenanceSchedule",
+          "label": "Maintenance Schedule",
+          "icon": "IconCalendar",
+          "isNullable": true,
+          "defaultValue": "''"
+        },
+        {
+          "type": "NUMBER",
+          "name": "dgFuelTankCapacity",
+          "label": "Fuel Tank Capacity (L)",
+          "icon": "IconDroplet",
+          "isNullable": true,
+          "settings": {
+            "dataType": "INT",
+            "type": "number"
+          }
+        },
+        {
+          "type": "NUMBER",
+          "name": "dgRefillUnitLitres",
+          "label": "Refill Unit (Litres)",
+          "icon": "IconDroplet",
+          "isNullable": true,
+          "settings": {
+            "dataType": "INT",
+            "type": "number"
+          }
+        },
+        {
+          "type": "CURRENCY",
+          "name": "dgAmount",
+          "label": "DG Amount",
+          "icon": "IconCurrencyRupee",
+          "isNullable": true
+        },
+        {
+          "type": "BOOLEAN",
+          "name": "dgPayToLl",
+          "label": "Pay to LL",
+          "icon": "IconCash",
+          "isNullable": true,
+          "defaultValue": false
+        },
+        {
+          "type": "BOOLEAN",
+          "name": "dgCollectTenant",
+          "label": "Collect from Tenant",
+          "icon": "IconCash",
+          "isNullable": true,
+          "defaultValue": false
+        }
+      ]
+    },
+    {
+      "labelPlural": "Overhead Electricities",
+      "labelSingular": "Overhead Electricity",
+      "namePlural": "overheadElectricities",
+      "nameSingular": "overheadElectricity",
+      "icon": "IconBolt",
+      "description": "Electricity overhead details including provider, connection, and account",
+      "skipNameField": true,
+      "fields": [
+        {
+          "type": "TEXT",
+          "name": "electricityProvider",
+          "label": "Electricity Provider",
+          "icon": "IconBolt",
+          "isNullable": true,
+          "defaultValue": "''"
+        },
+        {
+          "type": "SELECT",
+          "name": "electricityConnectionType",
+          "label": "Connection Type",
+          "icon": "IconPlug",
+          "options": [
+            {
+              "label": "Prepaid",
+              "value": "PREPAID",
+              "position": 0,
+              "color": "blue"
+            },
+            {
+              "label": "Postpaid",
+              "value": "POSTPAID",
+              "position": 1,
+              "color": "green"
+            }
+          ]
+        },
+        {
+          "type": "TEXT",
+          "name": "electricityAccountNo",
+          "label": "Account Number",
+          "icon": "IconHash",
+          "isNullable": true,
+          "defaultValue": "''"
+        },
+        {
+          "type": "TEXT",
+          "name": "electricityPassword",
+          "label": "Account Password",
+          "icon": "IconLock",
+          "isNullable": true,
+          "defaultValue": "''"
+        },
+        {
+          "type": "SELECT",
+          "name": "electricityOwnership",
+          "label": "Ownership",
+          "icon": "IconUser",
+          "options": [
+            {
+              "label": "Flent",
+              "value": "FLENT",
+              "position": 0,
+              "color": "blue"
+            },
+            {
+              "label": "Landlord",
+              "value": "LANDLORD",
+              "position": 1,
+              "color": "green"
+            },
+            {
+              "label": "Tenant",
+              "value": "TENANT",
+              "position": 2,
+              "color": "yellow"
+            }
+          ]
+        },
+        {
+          "type": "BOOLEAN",
+          "name": "electricityPayToLl",
+          "label": "Pay to LL",
+          "icon": "IconCash",
+          "isNullable": true,
+          "defaultValue": false
+        },
+        {
+          "type": "BOOLEAN",
+          "name": "electricityCollectTenant",
+          "label": "Collect from Tenant",
+          "icon": "IconCash",
+          "isNullable": true,
+          "defaultValue": false
+        }
+      ]
+    },
+    {
+      "labelPlural": "Overhead Gases",
+      "labelSingular": "Overhead Gas",
+      "namePlural": "overheadGases",
+      "nameSingular": "overheadGas",
+      "icon": "IconFlame",
+      "description": "Gas supply overhead details including connection type and account",
+      "skipNameField": true,
+      "fields": [
+        {
+          "type": "SELECT",
+          "name": "gasConnectionType",
+          "label": "Gas Connection Type",
+          "icon": "IconFlame",
+          "options": [
+            {
+              "label": "Piped",
+              "value": "PIPED",
+              "position": 0,
+              "color": "blue"
+            },
+            {
+              "label": "Cylinder",
+              "value": "CYLINDER",
+              "position": 1,
+              "color": "green"
+            },
+            {
+              "label": "None",
+              "value": "NONE",
+              "position": 2,
+              "color": "red"
+            }
+          ]
+        },
+        {
+          "type": "TEXT",
+          "name": "gasAccountNo",
+          "label": "Gas Account No",
+          "icon": "IconHash",
+          "isNullable": true,
+          "defaultValue": "''"
+        },
+        {
+          "type": "TEXT",
+          "name": "gasPassword",
+          "label": "Gas Account Password",
+          "icon": "IconLock",
+          "isNullable": true,
+          "defaultValue": "''"
+        },
+        {
+          "type": "SELECT",
+          "name": "gasOwnership",
+          "label": "Gas Ownership",
+          "icon": "IconUser",
+          "options": [
+            {
+              "label": "Flent",
+              "value": "FLENT",
+              "position": 0,
+              "color": "blue"
+            },
+            {
+              "label": "Landlord",
+              "value": "LANDLORD",
+              "position": 1,
+              "color": "green"
+            },
+            {
+              "label": "Tenant",
+              "value": "TENANT",
+              "position": 2,
+              "color": "yellow"
+            }
+          ]
+        },
+        {
+          "type": "BOOLEAN",
+          "name": "gasPayToLl",
+          "label": "Pay to LL",
+          "icon": "IconCash",
+          "isNullable": true,
+          "defaultValue": false
+        },
+        {
+          "type": "BOOLEAN",
+          "name": "gasCollectTenant",
+          "label": "Collect from Tenant",
+          "icon": "IconCash",
+          "isNullable": true,
+          "defaultValue": false
+        }
+      ]
+    },
+    {
+      "labelPlural": "Overhead Helpers",
+      "labelSingular": "Overhead Helper",
+      "namePlural": "overheadHelpers",
+      "nameSingular": "overheadHelper",
+      "icon": "IconUsers",
+      "description": "Helper/staff overhead details including role, salary, and schedule",
+      "skipNameField": true,
+      "fields": [
+        {
+          "type": "TEXT",
+          "name": "helperName",
+          "label": "Helper Name",
+          "icon": "IconUser",
+          "isNullable": true,
+          "defaultValue": "''"
+        },
+        {
+          "type": "PHONES",
+          "name": "helperPhone",
+          "label": "Helper Phone",
+          "icon": "IconPhone",
+          "isNullable": true
+        },
+        {
+          "type": "SELECT",
+          "name": "helperRole",
+          "label": "Helper Role",
+          "icon": "IconBriefcase",
+          "options": [
+            {
+              "label": "Cook",
+              "value": "COOK",
+              "position": 0,
+              "color": "blue"
+            },
+            {
+              "label": "Cleaner",
+              "value": "CLEANER",
+              "position": 1,
+              "color": "green"
+            },
+            {
+              "label": "Gardener",
+              "value": "GARDENER",
+              "position": 2,
+              "color": "turquoise"
+            },
+            {
+              "label": "Security",
+              "value": "SECURITY",
+              "position": 3,
+              "color": "orange"
+            },
+            {
+              "label": "Driver",
+              "value": "DRIVER",
+              "position": 4,
+              "color": "purple"
+            },
+            {
+              "label": "Other",
+              "value": "OTHER",
+              "position": 5,
+              "color": "sky"
+            }
+          ]
+        },
+        {
+          "type": "CURRENCY",
+          "name": "helperSalary",
+          "label": "Helper Salary",
+          "icon": "IconCurrencyRupee",
+          "isNullable": true
+        },
+        {
+          "type": "TEXT",
+          "name": "helperHours",
+          "label": "Helper Hours",
+          "icon": "IconClock",
+          "isNullable": true,
+          "defaultValue": "''"
+        },
+        {
+          "type": "TEXT",
+          "name": "helperResponsibilities",
+          "label": "Responsibilities",
+          "icon": "IconChecklist",
+          "isNullable": true,
+          "defaultValue": "''"
+        },
+        {
+          "type": "BOOLEAN",
+          "name": "helperPayToLl",
+          "label": "Pay to LL",
+          "icon": "IconCash",
+          "isNullable": true,
+          "defaultValue": false
+        },
+        {
+          "type": "BOOLEAN",
+          "name": "helperCollectTenant",
+          "label": "Collect from Tenant",
+          "icon": "IconCash",
+          "isNullable": true,
+          "defaultValue": false
+        }
+      ]
+    },
+    {
+      "labelPlural": "Overhead Maintenances",
+      "labelSingular": "Overhead Maintenance",
+      "namePlural": "overheadMaintenances",
+      "nameSingular": "overheadMaintenance",
+      "icon": "IconTool",
+      "description": "Maintenance-specific overhead details for properties",
+      "skipNameField": true,
+      "fields": [
+        {
+          "type": "CURRENCY",
+          "name": "maintenanceAmount",
+          "label": "Maintenance Amount",
+          "icon": "IconCurrencyRupee",
+          "isNullable": true
+        },
+        {
+          "type": "TEXT",
+          "name": "maintenanceCutoffDate",
+          "label": "Maintenance Cutoff Date",
+          "icon": "IconCalendar",
+          "isNullable": true,
+          "defaultValue": "''"
+        },
+        {
+          "type": "SELECT",
+          "name": "maintenanceCycle",
+          "label": "Maintenance Cycle",
+          "icon": "IconRepeat",
+          "options": [
+            {
+              "label": "Monthly",
+              "value": "MONTHLY",
+              "position": 0,
+              "color": "blue"
+            },
+            {
+              "label": "Quarterly",
+              "value": "QUARTERLY",
+              "position": 1,
+              "color": "green"
+            },
+            {
+              "label": "Bi-Annually",
+              "value": "BI_ANNUALLY",
+              "position": 2,
+              "color": "yellow"
+            },
+            {
+              "label": "Annually",
+              "value": "ANNUALLY",
+              "position": 3,
+              "color": "orange"
+            }
+          ]
+        },
+        {
+          "type": "BOOLEAN",
+          "name": "maintenancePayToLl",
+          "label": "Pay to LL",
+          "description": "Whether maintenance is paid to the landlord",
+          "icon": "IconCash",
+          "isNullable": true,
+          "defaultValue": false
+        },
+        {
+          "type": "BOOLEAN",
+          "name": "maintenanceCollectTenant",
+          "label": "Collect from Tenant",
+          "description": "Whether maintenance is collected from tenant",
+          "icon": "IconCash",
+          "isNullable": true,
+          "defaultValue": false
+        }
+      ]
+    },
+    {
+      "labelPlural": "Overheads",
+      "labelSingular": "Overhead",
+      "namePlural": "overheads",
+      "nameSingular": "overhead",
+      "icon": "IconReceipt",
+      "description": "Recurring and one-time overhead costs for properties",
+      "skipNameField": true,
+      "fields": [
+        {
+          "type": "SELECT",
+          "name": "categoryType",
+          "label": "Category Type",
+          "icon": "IconCategory",
+          "options": [
+            {
+              "label": "Maintenance",
+              "value": "MAINTENANCE",
+              "position": 0,
+              "color": "blue"
+            },
+            {
+              "label": "WiFi",
+              "value": "WIFI",
+              "position": 1,
+              "color": "green"
+            },
+            {
+              "label": "DG",
+              "value": "DG",
+              "position": 2,
+              "color": "orange"
+            },
+            {
+              "label": "Water",
+              "value": "WATER",
+              "position": 3,
+              "color": "sky"
+            },
+            {
+              "label": "Water Purifier",
+              "value": "WATER_PURIFIER",
+              "position": 4,
+              "color": "turquoise"
+            },
+            {
+              "label": "Gas",
+              "value": "GAS",
+              "position": 5,
+              "color": "red"
+            },
+            {
+              "label": "Electricity",
+              "value": "ELECTRICITY",
+              "position": 6,
+              "color": "yellow"
+            },
+            {
+              "label": "Helper",
+              "value": "HELPER",
+              "position": 7,
+              "color": "purple"
+            }
+          ]
+        },
+        {
+          "type": "SELECT",
+          "name": "objectType",
+          "label": "Object Type",
+          "icon": "IconRepeat",
+          "options": [
+            {
+              "label": "Recurring",
+              "value": "RECURRING",
+              "position": 0,
+              "color": "blue"
+            },
+            {
+              "label": "One-Time",
+              "value": "ONE_TIME",
+              "position": 1,
+              "color": "green"
+            }
+          ]
+        },
+        {
+          "type": "SELECT",
+          "name": "frequency",
+          "label": "Frequency",
+          "icon": "IconCalendarRepeat",
+          "options": [
+            {
+              "label": "Monthly",
+              "value": "MONTHLY",
+              "position": 0,
+              "color": "blue"
+            },
+            {
+              "label": "Quarterly",
+              "value": "QUARTERLY",
+              "position": 1,
+              "color": "green"
+            },
+            {
+              "label": "Bi-Annually",
+              "value": "BI_ANNUALLY",
+              "position": 2,
+              "color": "yellow"
+            },
+            {
+              "label": "Annually",
+              "value": "ANNUALLY",
+              "position": 3,
+              "color": "orange"
+            }
+          ]
+        },
+        {
+          "type": "DATE",
+          "name": "startDate",
+          "label": "Start Date",
+          "icon": "IconCalendar",
+          "isNullable": true
+        },
+        {
+          "type": "DATE",
+          "name": "endDate",
+          "label": "End Date",
+          "icon": "IconCalendar",
+          "isNullable": true
+        },
+        {
+          "type": "LINKS",
+          "name": "document",
+          "label": "Document",
+          "icon": "IconFile",
+          "isNullable": true
+        }
+      ]
+    },
+    {
+      "labelPlural": "Overhead Waters",
+      "labelSingular": "Overhead Water",
+      "namePlural": "overheadWaters",
+      "nameSingular": "overheadWater",
+      "icon": "IconDroplet",
+      "description": "Water supply overhead details including account and ownership",
+      "skipNameField": true,
+      "fields": [
+        {
+          "type": "TEXT",
+          "name": "waterAccountNo",
+          "label": "Water Account No",
+          "icon": "IconHash",
+          "isNullable": true,
+          "defaultValue": "''"
+        },
+        {
+          "type": "TEXT",
+          "name": "waterPassword",
+          "label": "Water Account Password",
+          "icon": "IconLock",
+          "isNullable": true,
+          "defaultValue": "''"
+        },
+        {
+          "type": "SELECT",
+          "name": "waterOwnership",
+          "label": "Water Ownership",
+          "icon": "IconUser",
+          "options": [
+            {
+              "label": "Flent",
+              "value": "FLENT",
+              "position": 0,
+              "color": "blue"
+            },
+            {
+              "label": "Landlord",
+              "value": "LANDLORD",
+              "position": 1,
+              "color": "green"
+            },
+            {
+              "label": "Tenant",
+              "value": "TENANT",
+              "position": 2,
+              "color": "yellow"
+            }
+          ]
+        },
+        {
+          "type": "TEXT",
+          "name": "waterPaymentsDues",
+          "label": "Water Payments/Dues",
+          "icon": "IconCash",
+          "isNullable": true,
+          "defaultValue": "''"
+        },
+        {
+          "type": "BOOLEAN",
+          "name": "waterPayToLl",
+          "label": "Pay to LL",
+          "icon": "IconCash",
+          "isNullable": true,
+          "defaultValue": false
+        },
+        {
+          "type": "BOOLEAN",
+          "name": "waterCollectTenant",
+          "label": "Collect from Tenant",
+          "icon": "IconCash",
+          "isNullable": true,
+          "defaultValue": false
+        }
+      ]
+    },
+    {
+      "labelPlural": "Overhead Water Purifiers",
+      "labelSingular": "Overhead Water Purifier",
+      "namePlural": "overheadWaterPurifiers",
+      "nameSingular": "overheadWaterPurifier",
+      "icon": "IconFilter",
+      "description": "Water purifier overhead details including serial number and subscription",
+      "skipNameField": true,
+      "fields": [
+        {
+          "type": "TEXT",
+          "name": "purifierSerialNo",
+          "label": "Purifier Serial No",
+          "icon": "IconHash",
+          "isNullable": true,
+          "defaultValue": "''"
+        },
+        {
+          "type": "TEXT",
+          "name": "purifierSubscription",
+          "label": "Purifier Subscription",
+          "icon": "IconCalendar",
+          "isNullable": true,
+          "defaultValue": "''"
+        },
+        {
+          "type": "SELECT",
+          "name": "purifierOwnership",
+          "label": "Purifier Ownership",
+          "icon": "IconUser",
+          "options": [
+            {
+              "label": "Flent",
+              "value": "FLENT",
+              "position": 0,
+              "color": "blue"
+            },
+            {
+              "label": "Landlord",
+              "value": "LANDLORD",
+              "position": 1,
+              "color": "green"
+            },
+            {
+              "label": "Tenant",
+              "value": "TENANT",
+              "position": 2,
+              "color": "yellow"
+            }
+          ]
+        },
+        {
+          "type": "BOOLEAN",
+          "name": "purifierPayToLl",
+          "label": "Pay to LL",
+          "icon": "IconCash",
+          "isNullable": true,
+          "defaultValue": false
+        },
+        {
+          "type": "BOOLEAN",
+          "name": "purifierCollectTenant",
+          "label": "Collect from Tenant",
+          "icon": "IconCash",
+          "isNullable": true,
+          "defaultValue": false
+        }
+      ]
+    },
+    {
+      "labelPlural": "Overhead WiFis",
+      "labelSingular": "Overhead WiFi",
+      "namePlural": "overheadWifis",
+      "nameSingular": "overheadWifi",
+      "icon": "IconWifi",
+      "description": "WiFi service overhead details including provider, plan, and credentials",
+      "skipNameField": true,
+      "fields": [
+        {
+          "type": "TEXT",
+          "name": "wifiProvider",
+          "label": "WiFi Provider",
+          "icon": "IconWifi",
+          "isNullable": true,
+          "defaultValue": "''"
+        },
+        {
+          "type": "TEXT",
+          "name": "wifiAccountId",
+          "label": "WiFi Account ID",
+          "icon": "IconHash",
+          "isNullable": true,
+          "defaultValue": "''"
+        },
+        {
+          "type": "DATE",
+          "name": "wifiStartDate",
+          "label": "WiFi Start Date",
+          "icon": "IconCalendar",
+          "isNullable": true
+        },
+        {
+          "type": "NUMBER",
+          "name": "wifiPlanDuration",
+          "label": "WiFi Plan Duration (months)",
+          "icon": "IconCalendar",
+          "isNullable": true,
+          "settings": {
+            "dataType": "INT",
+            "type": "number"
+          }
+        },
+        {
+          "type": "DATE",
+          "name": "wifiEndDate",
+          "label": "WiFi End Date",
+          "icon": "IconCalendar",
+          "isNullable": true
+        },
+        {
+          "type": "CURRENCY",
+          "name": "wifiPlanCost",
+          "label": "WiFi Plan Cost",
+          "icon": "IconCurrencyRupee",
+          "isNullable": true
+        },
+        {
+          "type": "TEXT",
+          "name": "wifiSsid",
+          "label": "WiFi SSID",
+          "icon": "IconWifi",
+          "isNullable": true,
+          "defaultValue": "''"
+        },
+        {
+          "type": "TEXT",
+          "name": "wifiPassword",
+          "label": "WiFi Password",
+          "icon": "IconLock",
+          "isNullable": true,
+          "defaultValue": "''"
+        },
+        {
+          "type": "SELECT",
+          "name": "wifiOwnership",
+          "label": "WiFi Ownership",
+          "icon": "IconUser",
+          "options": [
+            {
+              "label": "Flent",
+              "value": "FLENT",
+              "position": 0,
+              "color": "blue"
+            },
+            {
+              "label": "Landlord",
+              "value": "LANDLORD",
+              "position": 1,
+              "color": "green"
+            },
+            {
+              "label": "Tenant",
+              "value": "TENANT",
+              "position": 2,
+              "color": "yellow"
+            }
+          ]
+        },
+        {
+          "type": "CURRENCY",
+          "name": "wifiAmount",
+          "label": "WiFi Amount",
+          "icon": "IconCurrencyRupee",
+          "isNullable": true
+        },
+        {
+          "type": "PHONES",
+          "name": "wifiRegisteredNumber",
+          "label": "WiFi Registered Number",
+          "icon": "IconPhone",
+          "isNullable": true
+        },
+        {
+          "type": "BOOLEAN",
+          "name": "wifiCollectTenant",
+          "label": "Collect from Tenant",
+          "icon": "IconCash",
+          "isNullable": true,
+          "defaultValue": false
+        },
+        {
+          "type": "BOOLEAN",
+          "name": "wifiPayToLl",
+          "label": "Pay to LL",
+          "icon": "IconCash",
+          "isNullable": true,
+          "defaultValue": false
+        }
+      ]
+    },
+    {
+      "labelPlural": "Property Actives",
+      "labelSingular": "Property Active",
+      "namePlural": "propertyActives",
+      "nameSingular": "propertyActive",
+      "icon": "IconCircleCheck",
+      "description": "Active property details including address, amenities, furnishing, and commercial terms",
+      "skipNameField": true,
+      "fields": [
+        {
+          "type": "TEXT",
+          "name": "houseNo",
+          "label": "House No",
+          "description": "House or flat number",
+          "icon": "IconHash",
+          "isNullable": true,
+          "defaultValue": "''"
+        },
+        {
+          "type": "NUMBER",
+          "name": "activeUnitsCount",
+          "label": "Active Units Count",
+          "description": "Number of active units in this property",
+          "icon": "IconHash",
+          "isNullable": true,
+          "settings": {
+            "dataType": "INT",
+            "type": "number"
+          }
+        },
+        {
+          "type": "TEXT",
+          "name": "tier",
+          "label": "Tier",
+          "description": "Property tier classification",
+          "icon": "IconStar",
+          "isNullable": true,
+          "defaultValue": "''"
+        },
+        {
+          "type": "TEXT",
+          "name": "floor",
+          "label": "Floor",
+          "description": "Floor number or description",
+          "icon": "IconStairs",
+          "isNullable": true,
+          "defaultValue": "''"
+        },
+        {
+          "type": "LINKS",
+          "name": "googleMapLocation",
+          "label": "Google Map Location",
+          "description": "Google Maps URL for the active property",
+          "icon": "IconMapPin",
+          "isNullable": true
+        },
+        {
+          "type": "ADDRESS",
+          "name": "address",
+          "label": "Address",
+          "description": "Full address of the property",
+          "icon": "IconMapPin",
+          "isNullable": true
+        },
+        {
+          "type": "TEXT",
+          "name": "buildingSociety",
+          "label": "Building / Society",
+          "description": "Name of the building or housing society",
+          "icon": "IconBuildingCommunity",
+          "isNullable": true,
+          "defaultValue": "''"
+        },
+        {
+          "type": "SELECT",
+          "name": "activeCluster",
+          "label": "Active Cluster",
+          "description": "Cluster assignment for the active property",
+          "icon": "IconMapPin",
+          "options": [
+            {
+              "label": "HSR",
+              "value": "HSR",
+              "position": 0,
+              "color": "blue"
+            },
+            {
+              "label": "KRM",
+              "value": "KRM",
+              "position": 1,
+              "color": "green"
+            },
+            {
+              "label": "IDR",
+              "value": "IDR",
+              "position": 2,
+              "color": "purple"
+            },
+            {
+              "label": "MHD",
+              "value": "MHD",
+              "position": 3,
+              "color": "orange"
+            },
+            {
+              "label": "BLD",
+              "value": "BLD",
+              "position": 4,
+              "color": "sky"
+            },
+            {
+              "label": "MGR",
+              "value": "MGR",
+              "position": 5,
+              "color": "turquoise"
+            },
+            {
+              "label": "HBL",
+              "value": "HBL",
+              "position": 6,
+              "color": "yellow"
+            },
+            {
+              "label": "WHF",
+              "value": "WHF",
+              "position": 7,
+              "color": "red"
+            }
+          ]
+        },
+        {
+          "type": "MULTI_SELECT",
+          "name": "parkingType",
+          "label": "Parking Type",
+          "description": "Types of parking available",
+          "icon": "IconCar",
+          "options": [
+            {
+              "label": "Covered",
+              "value": "COVERED",
+              "position": 0,
+              "color": "green"
+            },
+            {
+              "label": "Open",
+              "value": "OPEN",
+              "position": 1,
+              "color": "blue"
+            },
+            {
+              "label": "Basement",
+              "value": "BASEMENT",
+              "position": 2,
+              "color": "purple"
+            },
+            {
+              "label": "None",
+              "value": "NONE",
+              "position": 3,
+              "color": "red"
+            }
+          ]
+        },
+        {
+          "type": "TEXT",
+          "name": "parkingNumber",
+          "label": "Parking Number",
+          "description": "Assigned parking spot number",
+          "icon": "IconHash",
+          "isNullable": true,
+          "defaultValue": "''"
+        },
+        {
+          "type": "SELECT",
+          "name": "powerBackup",
+          "label": "Power Backup",
+          "description": "Power backup availability",
+          "icon": "IconBolt",
+          "options": [
+            {
+              "label": "Full",
+              "value": "FULL",
+              "position": 0,
+              "color": "green"
+            },
+            {
+              "label": "Partial",
+              "value": "PARTIAL",
+              "position": 1,
+              "color": "yellow"
+            },
+            {
+              "label": "None",
+              "value": "NONE",
+              "position": 2,
+              "color": "red"
+            }
+          ]
+        },
+        {
+          "type": "MULTI_SELECT",
+          "name": "waterSource",
+          "label": "Water Source",
+          "description": "Available water sources",
+          "icon": "IconDroplet",
+          "options": [
+            {
+              "label": "Corporation",
+              "value": "CORPORATION",
+              "position": 0,
+              "color": "blue"
+            },
+            {
+              "label": "Borewell",
+              "value": "BOREWELL",
+              "position": 1,
+              "color": "green"
+            },
+            {
+              "label": "Tanker",
+              "value": "TANKER",
+              "position": 2,
+              "color": "yellow"
+            }
+          ]
+        },
+        {
+          "type": "SELECT",
+          "name": "restrictions",
+          "label": "Restrictions",
+          "description": "Any restrictions on the property",
+          "icon": "IconAlertCircle",
+          "options": [
+            {
+              "label": "None",
+              "value": "NONE",
+              "position": 0,
+              "color": "green"
+            },
+            {
+              "label": "No Pets",
+              "value": "NO_PETS",
+              "position": 1,
+              "color": "yellow"
+            },
+            {
+              "label": "No Smoking",
+              "value": "NO_SMOKING",
+              "position": 2,
+              "color": "orange"
+            },
+            {
+              "label": "Veg Only",
+              "value": "VEG_ONLY",
+              "position": 3,
+              "color": "red"
+            },
+            {
+              "label": "Male Only",
+              "value": "MALE_ONLY",
+              "position": 4,
+              "color": "blue"
+            },
+            {
+              "label": "Female Only",
+              "value": "FEMALE_ONLY",
+              "position": 5,
+              "color": "pink"
+            }
+          ]
+        },
+        {
+          "type": "RICH_TEXT",
+          "name": "otherNotes",
+          "label": "Other Notes",
+          "description": "Additional notes about the property",
+          "icon": "IconNote",
+          "isNullable": true
+        },
+        {
+          "type": "SELECT",
+          "name": "furnitureMovement",
+          "label": "Furniture Movement",
+          "description": "Whether furniture can be moved in/out",
+          "icon": "IconArmchair",
+          "options": [
+            {
+              "label": "Allowed",
+              "value": "ALLOWED",
+              "position": 0,
+              "color": "green"
+            },
+            {
+              "label": "Not Allowed",
+              "value": "NOT_ALLOWED",
+              "position": 1,
+              "color": "red"
+            },
+            {
+              "label": "With Permission",
+              "value": "WITH_PERMISSION",
+              "position": 2,
+              "color": "yellow"
+            }
+          ]
+        },
+        {
+          "type": "SELECT",
+          "name": "furnishingStatus",
+          "label": "Furnishing Status",
+          "description": "Current furnishing level of the property",
+          "icon": "IconArmchair",
+          "options": [
+            {
+              "label": "Unfurnished",
+              "value": "UNFURNISHED",
+              "position": 0,
+              "color": "red"
+            },
+            {
+              "label": "Semi-Furnished",
+              "value": "SEMI_FURNISHED",
+              "position": 1,
+              "color": "yellow"
+            },
+            {
+              "label": "Partially Furnished",
+              "value": "PARTIALLY_FURNISHED",
+              "position": 2,
+              "color": "orange"
+            },
+            {
+              "label": "Fully Furnished",
+              "value": "FULLY_FURNISHED",
+              "position": 3,
+              "color": "green"
+            }
+          ]
+        },
+        {
+          "type": "CURRENCY",
+          "name": "finalApprovedAmt",
+          "label": "Final Approved Amount",
+          "description": "Final approved furnishing/setup amount",
+          "icon": "IconCurrencyRupee",
+          "isNullable": true
+        },
+        {
+          "type": "LINKS",
+          "name": "finalInvoice",
+          "label": "Final Invoice",
+          "description": "Link to the final invoice document",
+          "icon": "IconFile",
+          "isNullable": true
+        },
+        {
+          "type": "RICH_TEXT",
+          "name": "llExtraClauses",
+          "label": "LL Extra Clauses",
+          "description": "Extra clauses from the landlord agreement",
+          "icon": "IconFileText",
+          "isNullable": true
+        },
+        {
+          "type": "SELECT",
+          "name": "paymentCollection",
+          "label": "Payment Collection",
+          "description": "How rent payments are collected",
+          "icon": "IconCash",
+          "options": [
+            {
+              "label": "Upfront",
+              "value": "UPFRONT",
+              "position": 0,
+              "color": "green"
+            },
+            {
+              "label": "Straight Deduction",
+              "value": "STRAIGHT_DEDUCTION",
+              "position": 1,
+              "color": "blue"
+            },
+            {
+              "label": "EMI",
+              "value": "EMI",
+              "position": 2,
+              "color": "yellow"
+            }
+          ]
+        },
+        {
+          "type": "NUMBER",
+          "name": "emiPeriod",
+          "label": "EMI Period",
+          "description": "EMI period in months (if applicable)",
+          "icon": "IconCalendar",
+          "isNullable": true,
+          "settings": {
+            "dataType": "INT",
+            "type": "number"
+          }
+        },
+        {
+          "type": "CURRENCY",
+          "name": "opexCollections",
+          "label": "OPEX Collections",
+          "description": "Monthly operating expense collections amount",
+          "icon": "IconCurrencyRupee",
+          "isNullable": true
+        },
+        {
+          "type": "SELECT",
+          "name": "propMgmtApp",
+          "label": "Property Mgmt App",
+          "description": "Property management app used",
+          "icon": "IconDeviceMobile",
+          "options": [
+            {
+              "label": "MyGate",
+              "value": "MYGATE",
+              "position": 0,
+              "color": "blue"
+            },
+            {
+              "label": "NoBroker",
+              "value": "NOBROKER",
+              "position": 1,
+              "color": "green"
+            },
+            {
+              "label": "Apartments.com",
+              "value": "APARTMENTS_COM",
+              "position": 2,
+              "color": "purple"
+            },
+            {
+              "label": "None",
+              "value": "NONE",
+              "position": 3,
+              "color": "red"
+            }
+          ]
+        },
+        {
+          "type": "LINKS",
+          "name": "rulesRegulations",
+          "label": "Rules & Regulations",
+          "description": "Link to property rules and regulations document",
+          "icon": "IconFile",
+          "isNullable": true
+        },
+        {
+          "type": "TEXT",
+          "name": "garbageDisposal",
+          "label": "Garbage Disposal",
+          "description": "Garbage disposal instructions",
+          "icon": "IconTrash",
+          "isNullable": true,
+          "defaultValue": "''"
+        },
+        {
+          "type": "TEXT",
+          "name": "timingRestrictions",
+          "label": "Timing Restrictions",
+          "description": "Timing-based restrictions (noise, entry, etc.)",
+          "icon": "IconClock",
+          "isNullable": true,
+          "defaultValue": "''"
+        },
+        {
+          "type": "RICH_TEXT",
+          "name": "moveInOutFormalities",
+          "label": "Move In/Out Formalities",
+          "description": "Procedures for tenant move-in and move-out",
+          "icon": "IconChecklist",
+          "isNullable": true
+        },
+        {
+          "type": "TEXT",
+          "name": "rentDeadline",
+          "label": "Rent Deadline",
+          "description": "Monthly rent payment deadline (e.g., \"5th of every month\")",
+          "icon": "IconCalendar",
+          "isNullable": true,
+          "defaultValue": "''"
+        },
+        {
+          "type": "TEXT",
+          "name": "overheadsDeadline",
+          "label": "Overheads Deadline",
+          "description": "Monthly overheads payment deadline",
+          "icon": "IconCalendar",
+          "isNullable": true,
+          "defaultValue": "''"
+        },
+        {
+          "type": "TEXT",
+          "name": "activeDealOwner",
+          "label": "Active Deal Owner",
+          "description": "Name of the deal owner during active phase",
+          "icon": "IconUser",
+          "isNullable": true,
+          "defaultValue": "''"
+        },
+        {
+          "type": "DATE",
+          "name": "activationDate",
+          "label": "Activation Date",
+          "description": "Date when the property was activated",
+          "icon": "IconCalendarCheck",
+          "isNullable": true
+        }
+      ]
+    },
+    {
+      "labelPlural": "Property Churneds",
+      "labelSingular": "Property Churned",
+      "namePlural": "propertyChurneds",
+      "nameSingular": "propertyChurned",
+      "icon": "IconArrowBack",
+      "description": "Tracking data for properties that have been churned/exited",
+      "skipNameField": true,
+      "fields": [
+        {
+          "type": "BOOLEAN",
+          "name": "depositRefunded",
+          "label": "Deposit Refunded",
+          "description": "Whether the security deposit has been refunded",
+          "icon": "IconCash",
+          "isNullable": true,
+          "defaultValue": false
+        },
+        {
+          "type": "CURRENCY",
+          "name": "exitCostOpx",
+          "label": "Exit Cost OPX",
+          "description": "Operating expense costs incurred at exit",
+          "icon": "IconCurrencyRupee",
+          "isNullable": true
+        },
+        {
+          "type": "DATE",
+          "name": "churnDate",
+          "label": "Churn Date",
+          "description": "Date the property was churned",
+          "icon": "IconCalendar",
+          "isNullable": true
+        }
+      ]
+    },
+    {
+      "labelPlural": "Property Lead Stages",
+      "labelSingular": "Property Lead Stage",
+      "namePlural": "propertyLeadStages",
+      "nameSingular": "propertyLeadStage",
+      "icon": "IconFilter",
+      "description": "Lead stage tracking for properties in the acquisition pipeline",
+      "skipNameField": true,
+      "fields": [
+        {
+          "type": "TEXT",
+          "name": "ppid",
+          "label": "PPID",
+          "description": "Prospective property identifier (unique)",
+          "icon": "IconHash",
+          "isNullable": true,
+          "isUnique": true,
+          "defaultValue": "''"
+        },
+        {
+          "type": "DATE_TIME",
+          "name": "dateAdded",
+          "label": "Date Added",
+          "description": "Date the property lead was added to the pipeline",
+          "icon": "IconCalendar",
+          "isNullable": true
+        },
+        {
+          "type": "NUMBER",
+          "name": "unitsCount",
+          "label": "Units Count",
+          "description": "Number of units in the property",
+          "icon": "IconHash",
+          "isNullable": true,
+          "settings": {
+            "dataType": "INT",
+            "type": "number"
+          }
+        },
+        {
+          "type": "SELECT",
+          "name": "dealType",
+          "label": "Deal Type",
+          "description": "Type of deal (residence vs enterprise)",
+          "icon": "IconCategory",
+          "options": [
+            {
+              "label": "Residence Lead",
+              "value": "RESIDENCE_LEAD",
+              "position": 0,
+              "color": "blue"
+            },
+            {
+              "label": "Enterprise Lead",
+              "value": "ENTERPRISE_LEAD",
+              "position": 1,
+              "color": "purple"
+            }
+          ]
+        },
+        {
+          "type": "NUMBER",
+          "name": "apartmentCount",
+          "label": "Apartment Count",
+          "description": "Number of apartments in the property",
+          "icon": "IconHash",
+          "isNullable": true,
+          "settings": {
+            "dataType": "INT",
+            "type": "number"
+          }
+        },
+        {
+          "type": "SELECT",
+          "name": "propertyTypeLead",
+          "label": "Property Type (Lead)",
+          "description": "Property type as captured during lead stage",
+          "icon": "IconHome",
+          "options": [
+            {
+              "label": "Apartment",
+              "value": "APARTMENT",
+              "position": 0,
+              "color": "blue"
+            },
+            {
+              "label": "Villa",
+              "value": "VILLA",
+              "position": 1,
+              "color": "green"
+            },
+            {
+              "label": "Independent House",
+              "value": "INDEPENDENT_HOUSE",
+              "position": 2,
+              "color": "purple"
+            },
+            {
+              "label": "Row House",
+              "value": "ROW_HOUSE",
+              "position": 3,
+              "color": "turquoise"
+            },
+            {
+              "label": "Penthouse",
+              "value": "PENTHOUSE",
+              "position": 4,
+              "color": "orange"
+            },
+            {
+              "label": "Studio",
+              "value": "STUDIO",
+              "position": 5,
+              "color": "sky"
+            }
+          ]
+        },
+        {
+          "type": "SELECT",
+          "name": "furnishingLead",
+          "label": "Furnishing (Lead)",
+          "description": "Furnishing status as captured during lead stage",
+          "icon": "IconArmchair",
+          "options": [
+            {
+              "label": "Unfurnished",
+              "value": "UNFURNISHED",
+              "position": 0,
+              "color": "red"
+            },
+            {
+              "label": "Semi-Furnished",
+              "value": "SEMI_FURNISHED",
+              "position": 1,
+              "color": "yellow"
+            },
+            {
+              "label": "Partially Furnished",
+              "value": "PARTIALLY_FURNISHED",
+              "position": 2,
+              "color": "orange"
+            },
+            {
+              "label": "Fully Furnished",
+              "value": "FULLY_FURNISHED",
+              "position": 3,
+              "color": "green"
+            }
+          ]
+        },
+        {
+          "type": "CURRENCY",
+          "name": "expectedRent",
+          "label": "Expected Rent",
+          "description": "Expected monthly rent for the property",
+          "icon": "IconCurrencyRupee",
+          "isNullable": true
+        },
+        {
+          "type": "LINKS",
+          "name": "googleMapLocationLead",
+          "label": "Google Map Location",
+          "description": "Google Maps URL for the property location",
+          "icon": "IconMapPin",
+          "isNullable": true
+        },
+        {
+          "type": "SELECT",
+          "name": "dealStage",
+          "label": "Deal Stage",
+          "description": "Current stage in the deal pipeline",
+          "icon": "IconTimeline",
+          "options": [
+            {
+              "label": "To be contacted",
+              "value": "TO_BE_CONTACTED",
+              "position": 0,
+              "color": "sky"
+            },
+            {
+              "label": "In touch",
+              "value": "IN_TOUCH",
+              "position": 1,
+              "color": "blue"
+            },
+            {
+              "label": "LL Interested",
+              "value": "LL_INTERESTED",
+              "position": 2,
+              "color": "turquoise"
+            },
+            {
+              "label": "Qualified",
+              "value": "QUALIFIED",
+              "position": 3,
+              "color": "green"
+            },
+            {
+              "label": "Evaluation",
+              "value": "EVALUATION",
+              "position": 4,
+              "color": "yellow"
+            },
+            {
+              "label": "Negotiations",
+              "value": "NEGOTIATIONS",
+              "position": 5,
+              "color": "orange"
+            },
+            {
+              "label": "Offer Extended",
+              "value": "OFFER_EXTENDED",
+              "position": 6,
+              "color": "purple"
+            },
+            {
+              "label": "Under Contract",
+              "value": "UNDER_CONTRACT",
+              "position": 7,
+              "color": "green"
+            },
+            {
+              "label": "To nurture",
+              "value": "TO_NURTURE",
+              "position": 8,
+              "color": "red"
+            }
+          ]
+        },
+        {
+          "type": "SELECT",
+          "name": "disqualificationReason",
+          "label": "Disqualification Reason",
+          "description": "Reason the property lead was disqualified",
+          "icon": "IconAlertCircle",
+          "options": [
+            {
+              "label": "Price Mismatch",
+              "value": "PRICE_MISMATCH",
+              "position": 0,
+              "color": "yellow"
+            },
+            {
+              "label": "Location",
+              "value": "LOCATION",
+              "position": 1,
+              "color": "blue"
+            },
+            {
+              "label": "Property Condition",
+              "value": "PROPERTY_CONDITION",
+              "position": 2,
+              "color": "orange"
+            },
+            {
+              "label": "Regulatory",
+              "value": "REGULATORY",
+              "position": 3,
+              "color": "purple"
+            },
+            {
+              "label": "Landlord Unresponsive",
+              "value": "LANDLORD_UNRESPONSIVE",
+              "position": 4,
+              "color": "red"
+            },
+            {
+              "label": "Other",
+              "value": "OTHER",
+              "position": 5,
+              "color": "sky"
+            }
+          ]
+        },
+        {
+          "type": "SELECT",
+          "name": "lostReason",
+          "label": "Lost Reason",
+          "description": "Reason the property deal was lost",
+          "icon": "IconThumbDown",
+          "options": [
+            {
+              "label": "Chose Competitor",
+              "value": "CHOSE_COMPETITOR",
+              "position": 0,
+              "color": "red"
+            },
+            {
+              "label": "Price",
+              "value": "PRICE",
+              "position": 1,
+              "color": "yellow"
+            },
+            {
+              "label": "Timing",
+              "value": "TIMING",
+              "position": 2,
+              "color": "orange"
+            },
+            {
+              "label": "Not Interested",
+              "value": "NOT_INTERESTED",
+              "position": 3,
+              "color": "red"
+            },
+            {
+              "label": "Other",
+              "value": "OTHER",
+              "position": 4,
+              "color": "sky"
+            }
+          ]
+        },
+        {
+          "type": "NUMBER",
+          "name": "exploratoryVisitScore",
+          "label": "Exploratory Visit Score",
+          "description": "Score from the exploratory property visit",
+          "icon": "IconStar",
+          "isNullable": true,
+          "settings": {
+            "dataType": "INT",
+            "type": "number"
+          }
+        },
+        {
+          "type": "LINKS",
+          "name": "potentialReport",
+          "label": "Potential Report",
+          "description": "Link to the property potential assessment report",
+          "icon": "IconFile",
+          "isNullable": true
+        }
+      ]
+    },
+    {
+      "labelPlural": "Properties",
+      "labelSingular": "Property",
+      "namePlural": "properties",
+      "nameSingular": "property",
+      "icon": "IconBuilding",
+      "description": "A physical property identified by PID with lifecycle tracking",
+      "fields": [
+        {
+          "type": "TEXT",
+          "name": "pid",
+          "label": "PID",
+          "description": "Unique property identifier",
+          "icon": "IconHash",
+          "isNullable": false,
+          "isUnique": true,
+          "defaultValue": "''"
+        },
+        {
+          "type": "SELECT",
+          "name": "lifecycleStatus",
+          "label": "Lifecycle Status",
+          "description": "Current lifecycle stage of the property",
+          "icon": "IconTimeline",
+          "options": [
+            {
+              "label": "Lead",
+              "value": "LEAD",
+              "position": 0,
+              "color": "yellow"
+            },
+            {
+              "label": "Active",
+              "value": "ACTIVE",
+              "position": 1,
+              "color": "green"
+            },
+            {
+              "label": "Churned",
+              "value": "CHURNED",
+              "position": 2,
+              "color": "red"
+            }
+          ]
+        },
+        {
+          "type": "SELECT",
+          "name": "propertyType",
+          "label": "Property Type",
+          "description": "Type of the property (apartment, villa, etc.)",
+          "icon": "IconHome",
+          "options": [
+            {
+              "label": "Apartment",
+              "value": "APARTMENT",
+              "position": 0,
+              "color": "blue"
+            },
+            {
+              "label": "Villa",
+              "value": "VILLA",
+              "position": 1,
+              "color": "green"
+            },
+            {
+              "label": "Independent House",
+              "value": "INDEPENDENT_HOUSE",
+              "position": 2,
+              "color": "purple"
+            },
+            {
+              "label": "Row House",
+              "value": "ROW_HOUSE",
+              "position": 3,
+              "color": "turquoise"
+            },
+            {
+              "label": "Penthouse",
+              "value": "PENTHOUSE",
+              "position": 4,
+              "color": "orange"
+            },
+            {
+              "label": "Studio",
+              "value": "STUDIO",
+              "position": 5,
+              "color": "sky"
+            }
+          ]
+        },
+        {
+          "type": "SELECT",
+          "name": "cluster",
+          "label": "Cluster",
+          "description": "Geographic cluster/micromarket for the property",
+          "icon": "IconMapPin",
+          "options": [
+            {
+              "label": "HSR",
+              "value": "HSR",
+              "position": 0,
+              "color": "blue"
+            },
+            {
+              "label": "KRM",
+              "value": "KRM",
+              "position": 1,
+              "color": "green"
+            },
+            {
+              "label": "IDR",
+              "value": "IDR",
+              "position": 2,
+              "color": "purple"
+            },
+            {
+              "label": "MHD",
+              "value": "MHD",
+              "position": 3,
+              "color": "orange"
+            },
+            {
+              "label": "BLD",
+              "value": "BLD",
+              "position": 4,
+              "color": "sky"
+            },
+            {
+              "label": "MGR",
+              "value": "MGR",
+              "position": 5,
+              "color": "turquoise"
+            },
+            {
+              "label": "HBL",
+              "value": "HBL",
+              "position": 6,
+              "color": "yellow"
+            },
+            {
+              "label": "WHF",
+              "value": "WHF",
+              "position": 7,
+              "color": "red"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "labelPlural": "Room Availabilities",
+      "labelSingular": "Room Availability",
+      "namePlural": "roomAvailabilities",
+      "nameSingular": "roomAvailability",
+      "icon": "IconCalendarCheck",
+      "description": "Availability status and current occupant for rooms",
+      "skipNameField": true,
+      "fields": [
+        {
+          "type": "SELECT",
+          "name": "roomStatus",
+          "label": "Room Status",
+          "icon": "IconCircleCheck",
+          "options": [
+            {
+              "label": "Available",
+              "value": "AVAILABLE",
+              "position": 0,
+              "color": "green"
+            },
+            {
+              "label": "Occupied",
+              "value": "OCCUPIED",
+              "position": 1,
+              "color": "blue"
+            },
+            {
+              "label": "Under Maintenance",
+              "value": "UNDER_MAINTENANCE",
+              "position": 2,
+              "color": "yellow"
+            },
+            {
+              "label": "Blocked",
+              "value": "BLOCKED",
+              "position": 3,
+              "color": "red"
+            }
+          ]
+        },
+        {
+          "type": "TEXT",
+          "name": "currentTenantName",
+          "label": "Current Tenant Name",
+          "icon": "IconUser",
+          "isNullable": true,
+          "defaultValue": "''"
+        },
+        {
+          "type": "DATE",
+          "name": "availableFrom",
+          "label": "Available From",
+          "icon": "IconCalendar",
+          "isNullable": true
+        }
+      ]
+    },
+    {
+      "labelPlural": "Room Commercials",
+      "labelSingular": "Room Commercial",
+      "namePlural": "roomCommercials",
+      "nameSingular": "roomCommercial",
+      "icon": "IconCash",
+      "description": "Commercial terms for rooms including rent and maintenance fees",
+      "skipNameField": true,
+      "fields": [
+        {
+          "type": "CURRENCY",
+          "name": "baseRent",
+          "label": "Base Rent",
+          "icon": "IconCurrencyRupee",
+          "isNullable": true
+        },
+        {
+          "type": "CURRENCY",
+          "name": "maintenanceFee",
+          "label": "Maintenance Fee",
+          "icon": "IconCurrencyRupee",
+          "isNullable": true
+        }
+      ]
+    },
+    {
+      "labelPlural": "Room Furnishings",
+      "labelSingular": "Room Furnishing",
+      "namePlural": "roomFurnishings",
+      "nameSingular": "roomFurnishing",
+      "icon": "IconArmchair",
+      "description": "Furnishing details for rooms including bed, AC, and furniture",
+      "skipNameField": true,
+      "fields": [
+        {
+          "type": "SELECT",
+          "name": "bedType",
+          "label": "Bed Type",
+          "icon": "IconBed",
+          "options": [
+            {
+              "label": "Single",
+              "value": "SINGLE",
+              "position": 0,
+              "color": "blue"
+            },
+            {
+              "label": "Double",
+              "value": "DOUBLE",
+              "position": 1,
+              "color": "green"
+            },
+            {
+              "label": "Queen",
+              "value": "QUEEN",
+              "position": 2,
+              "color": "purple"
+            },
+            {
+              "label": "King",
+              "value": "KING",
+              "position": 3,
+              "color": "orange"
+            }
+          ]
+        },
+        {
+          "type": "BOOLEAN",
+          "name": "ac",
+          "label": "AC",
+          "icon": "IconAirConditioning",
+          "isNullable": true,
+          "defaultValue": false
+        },
+        {
+          "type": "SELECT",
+          "name": "acType",
+          "label": "AC Type",
+          "icon": "IconAirConditioning",
+          "options": [
+            {
+              "label": "Split",
+              "value": "SPLIT",
+              "position": 0,
+              "color": "blue"
+            },
+            {
+              "label": "Window",
+              "value": "WINDOW",
+              "position": 1,
+              "color": "green"
+            },
+            {
+              "label": "Portable",
+              "value": "PORTABLE",
+              "position": 2,
+              "color": "yellow"
+            },
+            {
+              "label": "Not Possible",
+              "value": "NOT_POSSIBLE",
+              "position": 3,
+              "color": "red"
+            }
+          ]
+        },
+        {
+          "type": "SELECT",
+          "name": "acFeasibility",
+          "label": "AC Feasibility",
+          "icon": "IconAirConditioning",
+          "options": [
+            {
+              "label": "Feasible",
+              "value": "FEASIBLE",
+              "position": 0,
+              "color": "green"
+            },
+            {
+              "label": "Not Feasible",
+              "value": "NOT_FEASIBLE",
+              "position": 1,
+              "color": "red"
+            },
+            {
+              "label": "Requires Modification",
+              "value": "REQUIRES_MODIFICATION",
+              "position": 2,
+              "color": "yellow"
+            }
+          ]
+        },
+        {
+          "type": "BOOLEAN",
+          "name": "studyTable",
+          "label": "Study Table",
+          "icon": "IconDesk",
+          "isNullable": true,
+          "defaultValue": false
+        },
+        {
+          "type": "LINKS",
+          "name": "annexure",
+          "label": "Annexure",
+          "icon": "IconFile",
+          "isNullable": true
+        },
+        {
+          "type": "DATE",
+          "name": "annexureLastUpdateDate",
+          "label": "Annexure Last Update Date",
+          "icon": "IconCalendar",
+          "isNullable": true
+        }
+      ]
+    },
+    {
+      "labelPlural": "Rooms",
+      "labelSingular": "Room",
+      "namePlural": "rooms",
+      "nameSingular": "room",
+      "icon": "IconDoor",
+      "description": "An individual room within a property, identified by RID",
+      "fields": [
+        {
+          "type": "TEXT",
+          "name": "rid",
+          "label": "RID",
+          "description": "Unique room identifier",
+          "icon": "IconHash",
+          "isNullable": false,
+          "isUnique": true,
+          "defaultValue": "''"
+        }
+      ]
+    },
+    {
+      "labelPlural": "Room Specifications",
+      "labelSingular": "Room Specification",
+      "namePlural": "roomSpecifications",
+      "nameSingular": "roomSpecification",
+      "icon": "IconRuler",
+      "description": "Physical specifications for rooms (bathroom, balcony)",
+      "skipNameField": true,
+      "fields": [
+        {
+          "type": "BOOLEAN",
+          "name": "attachedBathroom",
+          "label": "Attached Bathroom",
+          "icon": "IconBath",
+          "isNullable": true,
+          "defaultValue": false
+        },
+        {
+          "type": "BOOLEAN",
+          "name": "balcony",
+          "label": "Balcony",
+          "icon": "IconSunHigh",
+          "isNullable": true,
+          "defaultValue": false
+        }
+      ]
+    },
+    {
+      "labelPlural": "Tenant Attributions",
+      "labelSingular": "Tenant Attribution",
+      "namePlural": "tenantAttributions",
+      "nameSingular": "tenantAttribution",
+      "icon": "IconTarget",
+      "description": "Marketing attribution and source tracking for tenant leads",
+      "skipNameField": true,
+      "fields": [
+        {
+          "type": "DATE_TIME",
+          "name": "createDate",
+          "label": "Create Date",
+          "description": "Date the tenant record was first created",
+          "icon": "IconCalendar",
+          "isNullable": true
+        },
+        {
+          "type": "SELECT",
+          "name": "firstInquiryChannel",
+          "label": "First Inquiry Channel",
+          "description": "Channel through which the tenant first made contact",
+          "icon": "IconBrandWhatsapp",
+          "options": [
+            {
+              "label": "WhatsApp",
+              "value": "WHATSAPP",
+              "position": 0,
+              "color": "green"
+            },
+            {
+              "label": "Website",
+              "value": "WEBSITE",
+              "position": 1,
+              "color": "blue"
+            },
+            {
+              "label": "Instagram",
+              "value": "INSTAGRAM",
+              "position": 2,
+              "color": "purple"
+            },
+            {
+              "label": "Facebook",
+              "value": "FACEBOOK",
+              "position": 3,
+              "color": "blue"
+            },
+            {
+              "label": "Direct Call",
+              "value": "DIRECT_CALL",
+              "position": 4,
+              "color": "sky"
+            },
+            {
+              "label": "Walk-in",
+              "value": "WALK_IN",
+              "position": 5,
+              "color": "turquoise"
+            },
+            {
+              "label": "Platform",
+              "value": "PLATFORM",
+              "position": 6,
+              "color": "yellow"
+            },
+            {
+              "label": "Referral",
+              "value": "REFERRAL",
+              "position": 7,
+              "color": "orange"
+            },
+            {
+              "label": "Offline Activation",
+              "value": "OFFLINE_ACTIVATION",
+              "position": 8,
+              "color": "red"
+            },
+            {
+              "label": "LinkedIn",
+              "value": "LINKEDIN",
+              "position": 9,
+              "color": "blue"
+            }
+          ]
+        },
+        {
+          "type": "SELECT",
+          "name": "sourceDrilldown1",
+          "label": "Source Drilldown 1",
+          "description": "Primary source drilldown for attribution",
+          "icon": "IconSearch",
+          "options": [
+            {
+              "label": "Google Ads",
+              "value": "GOOGLE_ADS",
+              "position": 0,
+              "color": "blue"
+            },
+            {
+              "label": "Meta Ads",
+              "value": "META_ADS",
+              "position": 1,
+              "color": "blue"
+            },
+            {
+              "label": "Instagram Ads",
+              "value": "INSTAGRAM_ADS",
+              "position": 2,
+              "color": "purple"
+            },
+            {
+              "label": "YouTube Ads",
+              "value": "YOUTUBE_ADS",
+              "position": 3,
+              "color": "red"
+            },
+            {
+              "label": "Housing.com",
+              "value": "HOUSING_COM",
+              "position": 4,
+              "color": "orange"
+            },
+            {
+              "label": "MagicBricks",
+              "value": "MAGICBRICKS",
+              "position": 5,
+              "color": "red"
+            },
+            {
+              "label": "NoBroker",
+              "value": "NOBROKER",
+              "position": 6,
+              "color": "green"
+            },
+            {
+              "label": "99acres",
+              "value": "NINETY_NINE_ACRES",
+              "position": 7,
+              "color": "yellow"
+            },
+            {
+              "label": "WhatsApp Organic",
+              "value": "WHATSAPP_ORGANIC",
+              "position": 8,
+              "color": "green"
+            },
+            {
+              "label": "Walk-in",
+              "value": "WALK_IN",
+              "position": 9,
+              "color": "turquoise"
+            },
+            {
+              "label": "Referral",
+              "value": "REFERRAL",
+              "position": 10,
+              "color": "orange"
+            },
+            {
+              "label": "Direct Call",
+              "value": "DIRECT_CALL",
+              "position": 11,
+              "color": "sky"
+            },
+            {
+              "label": "Other",
+              "value": "OTHER",
+              "position": 12,
+              "color": "red"
+            }
+          ]
+        },
+        {
+          "type": "TEXT",
+          "name": "sourceDrilldown2",
+          "label": "Source Drilldown 2",
+          "description": "Secondary source drilldown detail",
+          "icon": "IconSearch",
+          "isNullable": true,
+          "defaultValue": "''"
+        },
+        {
+          "type": "TEXT",
+          "name": "waxCode",
+          "label": "WAX Code",
+          "description": "WhatsApp business code for tracking",
+          "icon": "IconCode",
+          "isNullable": true,
+          "defaultValue": "''"
+        },
+        {
+          "type": "TEXT",
+          "name": "googleClickId",
+          "label": "Google Click ID",
+          "description": "GCLID from Google Ads tracking",
+          "icon": "IconBrandGoogle",
+          "isNullable": true,
+          "defaultValue": "''"
+        },
+        {
+          "type": "TEXT",
+          "name": "facebookClickId",
+          "label": "Facebook Click ID",
+          "description": "FBCLID from Facebook Ads tracking",
+          "icon": "IconBrandFacebook",
+          "isNullable": true,
+          "defaultValue": "''"
+        },
+        {
+          "type": "TEXT",
+          "name": "utmSource",
+          "label": "UTM Source",
+          "description": "UTM source parameter",
+          "icon": "IconLink",
+          "isNullable": true,
+          "defaultValue": "''"
+        },
+        {
+          "type": "TEXT",
+          "name": "utmMedium",
+          "label": "UTM Medium",
+          "description": "UTM medium parameter",
+          "icon": "IconLink",
+          "isNullable": true,
+          "defaultValue": "''"
+        },
+        {
+          "type": "TEXT",
+          "name": "utmCampaign",
+          "label": "UTM Campaign",
+          "description": "UTM campaign parameter",
+          "icon": "IconLink",
+          "isNullable": true,
+          "defaultValue": "''"
+        },
+        {
+          "type": "TEXT",
+          "name": "utmContent",
+          "label": "UTM Content",
+          "description": "UTM content parameter",
+          "icon": "IconLink",
+          "isNullable": true,
+          "defaultValue": "''"
+        },
+        {
+          "type": "TEXT",
+          "name": "utmTerm",
+          "label": "UTM Term",
+          "description": "UTM term parameter",
+          "icon": "IconLink",
+          "isNullable": true,
+          "defaultValue": "''"
+        }
+      ]
+    },
+    {
+      "labelPlural": "Tenants",
+      "labelSingular": "Tenant",
+      "namePlural": "tenants",
+      "nameSingular": "tenant",
+      "icon": "IconUser",
+      "description": "A person who rents or inquires about renting a property",
+      "fields": [
+        {
+          "type": "FULL_NAME",
+          "name": "name",
+          "label": "Name",
+          "description": "Tenant's full name",
+          "icon": "IconUser",
+          "isNullable": false
+        },
+        {
+          "type": "EMAILS",
+          "name": "emails",
+          "label": "Email",
+          "description": "Tenant's email address",
+          "icon": "IconMail",
+          "isNullable": false
+        },
+        {
+          "type": "PHONES",
+          "name": "phones",
+          "label": "Phone",
+          "description": "Tenant's mobile and WhatsApp numbers",
+          "icon": "IconPhone",
+          "isNullable": false
+        },
+        {
+          "type": "SELECT",
+          "name": "gender",
+          "label": "Gender",
+          "description": "Tenant's gender",
+          "icon": "IconGenderBigender",
+          "options": [
+            {
+              "label": "Male",
+              "value": "MALE",
+              "position": 0,
+              "color": "blue"
+            },
+            {
+              "label": "Female",
+              "value": "FEMALE",
+              "position": 1,
+              "color": "pink"
+            }
+          ]
+        },
+        {
+          "type": "DATE",
+          "name": "dateOfBirth",
+          "label": "Date of Birth",
+          "description": "Tenant's date of birth",
+          "icon": "IconCalendar",
+          "isNullable": true
+        },
+        {
+          "type": "TEXT",
+          "name": "aadhaarNumber",
+          "label": "Aadhaar Number",
+          "description": "Tenant's Aadhaar ID number",
+          "icon": "IconId",
+          "isNullable": false,
+          "defaultValue": "''"
+        },
+        {
+          "type": "LINKS",
+          "name": "aadhaarFrontImage",
+          "label": "Aadhaar Front Image",
+          "description": "URL to tenant's Aadhaar card front image",
+          "icon": "IconPhoto",
+          "isNullable": true
+        },
+        {
+          "type": "LINKS",
+          "name": "aadhaarBackImage",
+          "label": "Aadhaar Back Image",
+          "description": "URL to tenant's Aadhaar card back image",
+          "icon": "IconPhoto",
+          "isNullable": true
+        },
+        {
+          "type": "TEXT",
+          "name": "pan",
+          "label": "PAN",
+          "description": "Tenant's PAN number",
+          "icon": "IconId",
+          "isNullable": false,
+          "defaultValue": "''"
+        },
+        {
+          "type": "LINKS",
+          "name": "panCardImage",
+          "label": "PAN Card Image",
+          "description": "URL to tenant's PAN card image",
+          "icon": "IconPhoto",
+          "isNullable": true
+        },
+        {
+          "type": "LINKS",
+          "name": "linkedinUrl",
+          "label": "LinkedIn",
+          "description": "Tenant's LinkedIn profile URL",
+          "icon": "IconBrandLinkedin",
+          "isNullable": true
+        },
+        {
+          "type": "LINKS",
+          "name": "twitterUrl",
+          "label": "Twitter",
+          "description": "Tenant's Twitter profile URL",
+          "icon": "IconBrandTwitter",
+          "isNullable": true
+        },
+        {
+          "type": "TEXT",
+          "name": "instagramId",
+          "label": "Instagram ID",
+          "description": "Tenant's Instagram handle",
+          "icon": "IconBrandInstagram",
+          "isNullable": true,
+          "defaultValue": "''"
+        },
+        {
+          "type": "TEXT",
+          "name": "occupation",
+          "label": "Occupation",
+          "description": "Tenant's current occupation",
+          "icon": "IconBriefcase",
+          "isNullable": true,
+          "defaultValue": "''"
+        },
+        {
+          "type": "TEXT",
+          "name": "employerName",
+          "label": "Employer Name",
+          "description": "Tenant's employer name",
+          "icon": "IconBuilding",
+          "isNullable": true,
+          "defaultValue": "''"
+        },
+        {
+          "type": "SELECT",
+          "name": "tenantLifecycle",
+          "label": "Lifecycle Stage",
+          "description": "Tenant's current lifecycle stage - SINGLE SOURCE OF TRUTH",
+          "icon": "IconTimeline",
+          "options": [
+            {
+              "label": "New Inquiry",
+              "value": "NEW_INQUIRY",
+              "position": 0,
+              "color": "sky"
+            },
+            {
+              "label": "Visit Scheduled",
+              "value": "VISIT_SCHEDULED",
+              "position": 1,
+              "color": "blue"
+            },
+            {
+              "label": "Visit Done",
+              "value": "VISIT_DONE",
+              "position": 2,
+              "color": "turquoise"
+            },
+            {
+              "label": "Negotiation",
+              "value": "NEGOTIATION",
+              "position": 3,
+              "color": "yellow"
+            },
+            {
+              "label": "Converted",
+              "value": "CONVERTED",
+              "position": 4,
+              "color": "green"
+            },
+            {
+              "label": "Gestation",
+              "value": "GESTATION",
+              "position": 5,
+              "color": "purple"
+            },
+            {
+              "label": "Moved In",
+              "value": "MOVED_IN",
+              "position": 6,
+              "color": "green"
+            },
+            {
+              "label": "Notice Period",
+              "value": "NOTICE_PERIOD",
+              "position": 7,
+              "color": "orange"
+            },
+            {
+              "label": "Moved Out",
+              "value": "MOVED_OUT",
+              "position": 8,
+              "color": "red"
+            },
+            {
+              "label": "Dead Lead",
+              "value": "DEAD_LEAD",
+              "position": 9,
+              "color": "red"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "labelPlural": "Tenant Qualifications",
+      "labelSingular": "Tenant Qualification",
+      "namePlural": "tenantQualifications",
+      "nameSingular": "tenantQualification",
+      "icon": "IconShieldCheck",
+      "description": "Qualification status and background verification for tenants",
+      "skipNameField": true,
+      "fields": [
+        {
+          "type": "SELECT",
+          "name": "qualificationStatus",
+          "label": "Qualification Status",
+          "description": "Current qualification status of the tenant",
+          "icon": "IconShieldCheck",
+          "options": [
+            {
+              "label": "Qualified",
+              "value": "QUALIFIED",
+              "position": 0,
+              "color": "green"
+            },
+            {
+              "label": "Not Qualified",
+              "value": "NOT_QUALIFIED",
+              "position": 1,
+              "color": "red"
+            },
+            {
+              "label": "Dead",
+              "value": "DEAD",
+              "position": 2,
+              "color": "red"
+            },
+            {
+              "label": "Paused",
+              "value": "PAUSED",
+              "position": 3,
+              "color": "yellow"
+            }
+          ]
+        },
+        {
+          "type": "SELECT",
+          "name": "disqualificationReason",
+          "label": "Disqualification Reason",
+          "description": "Reason for disqualification if applicable",
+          "icon": "IconAlertCircle",
+          "options": [
+            {
+              "label": "Budget",
+              "value": "BUDGET",
+              "position": 0,
+              "color": "yellow"
+            },
+            {
+              "label": "Location",
+              "value": "LOCATION",
+              "position": 1,
+              "color": "blue"
+            },
+            {
+              "label": "Availability",
+              "value": "AVAILABILITY",
+              "position": 2,
+              "color": "orange"
+            },
+            {
+              "label": "No Response",
+              "value": "NO_RESPONSE",
+              "position": 3,
+              "color": "red"
+            },
+            {
+              "label": "Chose Competitor",
+              "value": "CHOSE_COMPETITOR",
+              "position": 4,
+              "color": "purple"
+            },
+            {
+              "label": "Life Event",
+              "value": "LIFE_EVENT",
+              "position": 5,
+              "color": "turquoise"
+            },
+            {
+              "label": "Other",
+              "value": "OTHER",
+              "position": 6,
+              "color": "sky"
+            }
+          ]
+        },
+        {
+          "type": "RICH_TEXT",
+          "name": "disqualificationDetail",
+          "label": "Disqualification Detail",
+          "description": "Additional details about disqualification",
+          "icon": "IconNote",
+          "isNullable": true
+        },
+        {
+          "type": "SELECT",
+          "name": "bgvStatus",
+          "label": "BGV Status",
+          "description": "Background verification status",
+          "icon": "IconSearch",
+          "options": [
+            {
+              "label": "Not Started",
+              "value": "NOT_STARTED",
+              "position": 0,
+              "color": "sky"
+            },
+            {
+              "label": "In Progress",
+              "value": "IN_PROGRESS",
+              "position": 1,
+              "color": "yellow"
+            },
+            {
+              "label": "Passed",
+              "value": "PASSED",
+              "position": 2,
+              "color": "green"
+            },
+            {
+              "label": "Failed",
+              "value": "FAILED",
+              "position": 3,
+              "color": "red"
+            }
+          ]
+        },
+        {
+          "type": "LINKS",
+          "name": "bgvReport",
+          "label": "BGV Report",
+          "description": "Link to background verification report",
+          "icon": "IconFile",
+          "isNullable": true
+        },
+        {
+          "type": "DATE",
+          "name": "bgvCompletedDate",
+          "label": "BGV Completed Date",
+          "description": "Date when background verification was completed",
+          "icon": "IconCalendarCheck",
+          "isNullable": true
+        }
+      ]
+    },
+    {
+      "labelPlural": "Tenant Requirements",
+      "labelSingular": "Tenant Requirement",
+      "namePlural": "tenantRequirements",
+      "nameSingular": "tenantRequirement",
+      "icon": "IconChecklist",
+      "description": "Housing preferences and requirements for tenants",
+      "skipNameField": true,
+      "fields": [
+        {
+          "type": "MULTI_SELECT",
+          "name": "preferredMicromarkets",
+          "label": "Preferred Micromarkets",
+          "description": "Micromarket areas the tenant prefers",
+          "icon": "IconMapPin",
+          "options": [
+            {
+              "label": "HSR",
+              "value": "HSR",
+              "position": 0,
+              "color": "blue"
+            },
+            {
+              "label": "Koramangala",
+              "value": "KORAMANGALA",
+              "position": 1,
+              "color": "green"
+            },
+            {
+              "label": "Indiranagar",
+              "value": "INDIRANAGAR",
+              "position": 2,
+              "color": "purple"
+            },
+            {
+              "label": "Marathahalli",
+              "value": "MARATHAHALLI",
+              "position": 3,
+              "color": "orange"
+            },
+            {
+              "label": "Bellandur",
+              "value": "BELLANDUR",
+              "position": 4,
+              "color": "sky"
+            },
+            {
+              "label": "Mahadevapura",
+              "value": "MAHADEVAPURA",
+              "position": 5,
+              "color": "turquoise"
+            },
+            {
+              "label": "Whitefield",
+              "value": "WHITEFIELD",
+              "position": 6,
+              "color": "yellow"
+            },
+            {
+              "label": "Hebbal",
+              "value": "HEBBAL",
+              "position": 7,
+              "color": "red"
+            }
+          ]
+        },
+        {
+          "type": "SELECT",
+          "name": "preferredOccupancyType",
+          "label": "Preferred Occupancy Type",
+          "description": "Full home vs private room preference",
+          "icon": "IconHome",
+          "options": [
+            {
+              "label": "Full Home",
+              "value": "FULL_HOME",
+              "position": 0,
+              "color": "blue"
+            },
+            {
+              "label": "Private Room",
+              "value": "PRIVATE_ROOM",
+              "position": 1,
+              "color": "green"
+            }
+          ]
+        },
+        {
+          "type": "SELECT",
+          "name": "preferredFurnishedType",
+          "label": "Preferred Furnished Type",
+          "description": "Furnishing preference",
+          "icon": "IconArmchair",
+          "options": [
+            {
+              "label": "Furnished",
+              "value": "FURNISHED",
+              "position": 0,
+              "color": "green"
+            },
+            {
+              "label": "Semi-Furnished",
+              "value": "SEMI_FURNISHED",
+              "position": 1,
+              "color": "yellow"
+            },
+            {
+              "label": "Unfurnished",
+              "value": "UNFURNISHED",
+              "position": 2,
+              "color": "red"
+            }
+          ]
+        },
+        {
+          "type": "SELECT",
+          "name": "preferredMoveInTimeline",
+          "label": "Preferred Move-in Timeline",
+          "description": "When the tenant intends to move in",
+          "icon": "IconClock",
+          "options": [
+            {
+              "label": "Immediate",
+              "value": "IMMEDIATE",
+              "position": 0,
+              "color": "green"
+            },
+            {
+              "label": "Within 2 Weeks",
+              "value": "WITHIN_2_WEEKS",
+              "position": 1,
+              "color": "yellow"
+            },
+            {
+              "label": "Flexible",
+              "value": "FLEXIBLE",
+              "position": 2,
+              "color": "sky"
+            }
+          ]
+        },
+        {
+          "type": "SELECT",
+          "name": "genderPreferences",
+          "label": "Gender Preferences",
+          "description": "Preferred gender mix in shared housing",
+          "icon": "IconGenderBigender",
+          "options": [
+            {
+              "label": "Male Only",
+              "value": "MALE_ONLY",
+              "position": 0,
+              "color": "blue"
+            },
+            {
+              "label": "Female Only",
+              "value": "FEMALE_ONLY",
+              "position": 1,
+              "color": "pink"
+            },
+            {
+              "label": "No Preference",
+              "value": "NO_PREFERENCE",
+              "position": 2,
+              "color": "green"
+            }
+          ]
+        },
+        {
+          "type": "SELECT",
+          "name": "foodPreferences",
+          "label": "Food Preferences",
+          "description": "Tenant's dietary preferences",
+          "icon": "IconSalad",
+          "options": [
+            {
+              "label": "Vegetarian",
+              "value": "VEGETARIAN",
+              "position": 0,
+              "color": "green"
+            },
+            {
+              "label": "Non-Vegetarian",
+              "value": "NON_VEGETARIAN",
+              "position": 1,
+              "color": "red"
+            },
+            {
+              "label": "Vegan",
+              "value": "VEGAN",
+              "position": 2,
+              "color": "turquoise"
+            },
+            {
+              "label": "No Preference",
+              "value": "NO_PREFERENCE",
+              "position": 3,
+              "color": "sky"
+            }
+          ]
+        },
+        {
+          "type": "BOOLEAN",
+          "name": "hasPet",
+          "label": "Has Pet",
+          "description": "Whether the tenant has a pet",
+          "icon": "IconPaw",
+          "isNullable": true,
+          "defaultValue": false
+        },
+        {
+          "type": "SELECT",
+          "name": "smokingPreferences",
+          "label": "Smoking Preferences",
+          "description": "Tenant's smoking habits",
+          "icon": "IconSmoking",
+          "options": [
+            {
+              "label": "Smoker",
+              "value": "SMOKER",
+              "position": 0,
+              "color": "red"
+            },
+            {
+              "label": "Non-Smoker",
+              "value": "NON_SMOKER",
+              "position": 1,
+              "color": "green"
+            },
+            {
+              "label": "Occasional",
+              "value": "OCCASIONAL",
+              "position": 2,
+              "color": "yellow"
+            }
+          ]
+        },
+        {
+          "type": "RICH_TEXT",
+          "name": "customPreference",
+          "label": "Custom Preference",
+          "description": "Free-text custom preferences and notes",
+          "icon": "IconNote",
+          "isNullable": true
+        },
+        {
+          "type": "CURRENCY",
+          "name": "budgetMax",
+          "label": "Budget Max",
+          "description": "Tenant's maximum monthly budget",
+          "icon": "IconCurrencyRupee",
+          "isNullable": true
+        }
+      ]
+    },
+    {
+      "labelPlural": "Tenant Satisfactions",
+      "labelSingular": "Tenant Satisfaction",
+      "namePlural": "tenantSatisfactions",
+      "nameSingular": "tenantSatisfaction",
+      "icon": "IconStar",
+      "description": "CSAT and NPS scores for tenant satisfaction tracking",
+      "skipNameField": true,
+      "fields": [
+        {
+          "type": "NUMBER",
+          "name": "onboardingCsatScore",
+          "label": "Onboarding CSAT Score",
+          "description": "Customer satisfaction score from onboarding",
+          "icon": "IconStar",
+          "isNullable": true,
+          "settings": {
+            "dataType": "INT",
+            "type": "number"
+          }
+        },
+        {
+          "type": "NUMBER",
+          "name": "offboardingCsatScore",
+          "label": "Offboarding CSAT Score",
+          "description": "Customer satisfaction score from offboarding",
+          "icon": "IconStar",
+          "isNullable": true,
+          "settings": {
+            "dataType": "INT",
+            "type": "number"
+          }
+        },
+        {
+          "type": "NUMBER",
+          "name": "lastNpsScore",
+          "label": "Last NPS Score",
+          "description": "Most recent Net Promoter Score (0-10)",
+          "icon": "IconChartBar",
+          "isNullable": true,
+          "settings": {
+            "dataType": "INT",
+            "type": "number"
+          }
+        },
+        {
+          "type": "DATE",
+          "name": "lastNpsDate",
+          "label": "Last NPS Date",
+          "description": "Date of the most recent NPS survey",
+          "icon": "IconCalendar",
+          "isNullable": true
+        },
+        {
+          "type": "SELECT",
+          "name": "npsCategory",
+          "label": "NPS Category",
+          "description": "NPS category based on score",
+          "icon": "IconCategory",
+          "options": [
+            {
+              "label": "Promoter",
+              "value": "PROMOTER",
+              "position": 0,
+              "color": "green"
+            },
+            {
+              "label": "Passive",
+              "value": "PASSIVE",
+              "position": 1,
+              "color": "yellow"
+            },
+            {
+              "label": "Detractor",
+              "value": "DETRACTOR",
+              "position": 2,
+              "color": "red"
+            }
+          ]
+        },
+        {
+          "type": "RICH_TEXT",
+          "name": "lastNpsComment",
+          "label": "Last NPS Comment",
+          "description": "Comment from the most recent NPS survey",
+          "icon": "IconMessage",
+          "isNullable": true
+        }
+      ]
+    },
+    {
+      "labelPlural": "Tenant Visit Summaries",
+      "labelSingular": "Tenant Visit Summary",
+      "namePlural": "tenantVisitSummaries",
+      "nameSingular": "tenantVisitSummary",
+      "icon": "IconMapPin",
+      "description": "Aggregated visit statistics and feedback for tenants",
+      "skipNameField": true,
+      "fields": [
+        {
+          "type": "NUMBER",
+          "name": "totalVisitsCount",
+          "label": "Total Visits Count",
+          "description": "Total number of property visits",
+          "icon": "IconHash",
+          "settings": {
+            "dataType": "INT",
+            "type": "number"
+          }
+        },
+        {
+          "type": "NUMBER",
+          "name": "visitsCancelled",
+          "label": "Visits Cancelled",
+          "description": "Number of cancelled visits",
+          "icon": "IconX",
+          "settings": {
+            "dataType": "INT",
+            "type": "number"
+          }
+        },
+        {
+          "type": "NUMBER",
+          "name": "visitsCompleted",
+          "label": "Visits Completed",
+          "description": "Number of completed visits",
+          "icon": "IconCheck",
+          "settings": {
+            "dataType": "INT",
+            "type": "number"
+          }
+        },
+        {
+          "type": "DATE",
+          "name": "firstVisitDate",
+          "label": "First Visit Date",
+          "description": "Date of the first property visit",
+          "icon": "IconCalendar",
+          "isNullable": true
+        },
+        {
+          "type": "TEXT",
+          "name": "ridsVisited",
+          "label": "RIDs Visited",
+          "description": "Comma-separated list of room IDs visited",
+          "icon": "IconDoor",
+          "isNullable": true,
+          "defaultValue": "''"
+        },
+        {
+          "type": "RICH_TEXT",
+          "name": "feedback",
+          "label": "Feedback",
+          "description": "Tenant feedback from property visits",
+          "icon": "IconMessage",
+          "isNullable": true
+        }
+      ]
+    },
+    {
+      "labelPlural": "Tenant Ticket Details",
+      "labelSingular": "Tenant Ticket Detail",
+      "namePlural": "tenantTicketDetails",
+      "nameSingular": "tenantTicketDetail",
+      "icon": "IconUserCircle",
+      "description": "Tenant-facing ticket extension with SLA tracking, CSAT, and cost breakdown",
+      "skipNameField": true,
+      "fields": [
+        {
+          "type": "TEXT",
+          "label": "Ticket Name",
+          "name": "ticketName",
+          "icon": "IconTag",
+          "isNullable": true
+        },
+        {
+          "type": "TEXT",
+          "label": "Conversation ID",
+          "name": "conversationId",
+          "icon": "IconMessage",
+          "description": "External conversation/chat thread identifier",
+          "isNullable": true
+        },
+        {
+          "type": "SELECT",
+          "label": "Category Phase",
+          "name": "categoryPhase",
+          "icon": "IconTimeline",
+          "isNullable": true,
+          "options": [
+            {
+              "label": "Pre Move-In",
+              "value": "PRE_MOVE_IN",
+              "position": 0,
+              "color": "blue"
+            },
+            {
+              "label": "Gestation",
+              "value": "GESTATION",
+              "position": 1,
+              "color": "orange"
+            },
+            {
+              "label": "Active",
+              "value": "ACTIVE",
+              "position": 2,
+              "color": "green"
+            }
+          ]
+        },
+        {
+          "type": "DATE_TIME",
+          "label": "Time Slot",
+          "name": "timeSlot",
+          "icon": "IconClock",
+          "description": "Scheduled time slot for vendor visit or service",
+          "isNullable": true
+        },
+        {
+          "type": "SELECT",
+          "label": "Ticket Flag",
+          "name": "ticketFlag",
+          "icon": "IconFlag",
+          "description": "Reasonableness assessment of the ticket request",
+          "isNullable": true,
+          "options": [
+            {
+              "label": "Reasonable",
+              "value": "REASONABLE",
+              "position": 0,
+              "color": "green"
+            },
+            {
+              "label": "Not Reasonable",
+              "value": "NOT_REASONABLE",
+              "position": 1,
+              "color": "red"
+            },
+            {
+              "label": "Subjective",
+              "value": "SUBJECTIVE",
+              "position": 2,
+              "color": "orange"
+            }
+          ]
+        },
+        {
+          "type": "RICH_TEXT",
+          "label": "Flag Notes",
+          "name": "flagNotes",
+          "icon": "IconNotes",
+          "description": "Explanation for the ticket flag assessment",
+          "isNullable": true
+        },
+        {
+          "type": "CURRENCY",
+          "label": "Cost Paid by Flent",
+          "name": "costPaidByFlent",
+          "icon": "IconCurrencyRupee",
+          "description": "Amount paid by Flent for this ticket resolution",
+          "isNullable": true
+        },
+        {
+          "type": "CURRENCY",
+          "label": "Total Cost",
+          "name": "totalCost",
+          "icon": "IconCurrencyRupee",
+          "description": "Derived: costPaidByFlent minus amounts collected from tenant/merchant",
+          "isNullable": true
+        },
+        {
+          "type": "TEXT",
+          "label": "Vendor Group Chat ID",
+          "name": "vendorGroupChatId",
+          "icon": "IconMessages",
+          "description": "WhatsApp or chat group ID for vendor coordination",
+          "isNullable": true
+        },
+        {
+          "type": "TEXT",
+          "label": "Related Tickets",
+          "name": "relatedTickets",
+          "icon": "IconLink",
+          "description": "Comma-separated list of related ticket IDs",
+          "isNullable": true
+        },
+        {
+          "type": "NUMBER",
+          "label": "Time to First Rep Assignment",
+          "name": "timeToFirstRepAssignment",
+          "icon": "IconClockHour4",
+          "description": "Minutes from ticket creation to first rep assignment",
+          "isNullable": true
+        },
+        {
+          "type": "NUMBER",
+          "label": "Time to First Response SLA (Hours)",
+          "name": "timeToFirstResponseSlaHours",
+          "icon": "IconClockHour8",
+          "description": "Hours from ticket creation to first customer-facing response",
+          "isNullable": true
+        },
+        {
+          "type": "RATING",
+          "label": "Tenant Rating",
+          "name": "tenantRating",
+          "icon": "IconStars",
+          "description": "Tenant satisfaction rating (1-5)",
+          "isNullable": true,
+          "options": [
+            {
+              "label": "1",
+              "value": "RATING_1",
+              "position": 0
+            },
+            {
+              "label": "2",
+              "value": "RATING_2",
+              "position": 1
+            },
+            {
+              "label": "3",
+              "value": "RATING_3",
+              "position": 2
+            },
+            {
+              "label": "4",
+              "value": "RATING_4",
+              "position": 3
+            },
+            {
+              "label": "5",
+              "value": "RATING_5",
+              "position": 4
+            }
+          ]
+        },
+        {
+          "type": "RICH_TEXT",
+          "label": "CSAT Feedback",
+          "name": "csatFeedback",
+          "icon": "IconMessageReport",
+          "description": "Customer satisfaction survey feedback text",
+          "isNullable": true
+        },
+        {
+          "type": "RICH_TEXT",
+          "label": "CSAT Response",
+          "name": "csatResponse",
+          "icon": "IconMessageCheck",
+          "description": "Internal response/notes on CSAT feedback",
+          "isNullable": true
+        }
+      ]
+    },
+    {
+      "labelPlural": "Tickets",
+      "labelSingular": "Ticket",
+      "namePlural": "tickets",
+      "nameSingular": "ticket",
+      "icon": "IconTicket",
+      "description": "Operations ticket for property management requests and issues",
+      "fields": [
+        {
+          "type": "SELECT",
+          "label": "Pipeline",
+          "name": "pipeline",
+          "icon": "IconFilter",
+          "isNullable": false,
+          "options": [
+            {
+              "label": "Tenant",
+              "value": "TENANT",
+              "position": 0,
+              "color": "blue"
+            },
+            {
+              "label": "Landlord",
+              "value": "LANDLORD",
+              "position": 1,
+              "color": "purple"
+            }
+          ]
+        },
+        {
+          "type": "RICH_TEXT",
+          "label": "Ticket Description",
+          "name": "ticketDescription",
+          "icon": "IconFileDescription",
+          "isNullable": true
+        },
+        {
+          "type": "SELECT",
+          "label": "Ticket Owner",
+          "name": "ticketOwner",
+          "icon": "IconUser",
+          "description": "Team member assigned as ticket owner",
+          "isNullable": true,
+          "options": [
+            {
+              "label": "Unassigned",
+              "value": "UNASSIGNED",
+              "position": 0,
+              "color": "gray"
+            }
+          ]
+        },
+        {
+          "type": "SELECT",
+          "label": "Ticket Category",
+          "name": "ticketCategory",
+          "icon": "IconCategory",
+          "isNullable": false,
+          "options": [
+            {
+              "label": "Plumbing",
+              "value": "PLUMBING",
+              "position": 0,
+              "color": "blue"
+            },
+            {
+              "label": "Carpentry",
+              "value": "CARPENTRY",
+              "position": 1,
+              "color": "orange"
+            },
+            {
+              "label": "Electrical",
+              "value": "ELECTRICAL",
+              "position": 2,
+              "color": "yellow"
+            },
+            {
+              "label": "Utility",
+              "value": "UTILITY",
+              "position": 3,
+              "color": "green"
+            },
+            {
+              "label": "Inventory",
+              "value": "INVENTORY",
+              "position": 4,
+              "color": "purple"
+            },
+            {
+              "label": "Appliance",
+              "value": "APPLIANCE",
+              "position": 5,
+              "color": "sky"
+            },
+            {
+              "label": "Agreement",
+              "value": "AGREEMENT",
+              "position": 6,
+              "color": "turquoise"
+            },
+            {
+              "label": "Reimbursement",
+              "value": "REIMBURSEMENT",
+              "position": 7,
+              "color": "pink"
+            },
+            {
+              "label": "Other",
+              "value": "OTHER",
+              "position": 8,
+              "color": "gray"
+            }
+          ]
+        },
+        {
+          "type": "SELECT",
+          "label": "Ticket Status",
+          "name": "ticketStatus",
+          "icon": "IconStatusChange",
+          "isNullable": false,
+          "defaultValue": "'NEW_REQUEST'",
+          "options": [
+            {
+              "label": "New Request",
+              "value": "NEW_REQUEST",
+              "position": 0,
+              "color": "blue"
+            },
+            {
+              "label": "Waiting on Customer",
+              "value": "WAITING_ON_CUSTOMER",
+              "position": 1,
+              "color": "orange"
+            },
+            {
+              "label": "Waiting on Vendor",
+              "value": "WAITING_ON_VENDOR",
+              "position": 2,
+              "color": "yellow"
+            },
+            {
+              "label": "Waiting on Product",
+              "value": "WAITING_ON_PRODUCT",
+              "position": 3,
+              "color": "purple"
+            },
+            {
+              "label": "Blocked",
+              "value": "BLOCKED",
+              "position": 4,
+              "color": "red"
+            },
+            {
+              "label": "Waiting on Landlord",
+              "value": "WAITING_ON_LANDLORD",
+              "position": 5,
+              "color": "turquoise"
+            },
+            {
+              "label": "Waiting for Payment",
+              "value": "WAITING_FOR_PAYMENT",
+              "position": 6,
+              "color": "pink"
+            },
+            {
+              "label": "Ready for Closure",
+              "value": "READY_FOR_CLOSURE",
+              "position": 7,
+              "color": "green"
+            },
+            {
+              "label": "Closed",
+              "value": "CLOSED",
+              "position": 8,
+              "color": "gray"
+            }
+          ]
+        },
+        {
+          "type": "SELECT",
+          "label": "Priority",
+          "name": "priority",
+          "icon": "IconUrgent",
+          "isNullable": false,
+          "defaultValue": "'MEDIUM'",
+          "options": [
+            {
+              "label": "Low",
+              "value": "LOW",
+              "position": 0,
+              "color": "gray"
+            },
+            {
+              "label": "Medium",
+              "value": "MEDIUM",
+              "position": 1,
+              "color": "blue"
+            },
+            {
+              "label": "High",
+              "value": "HIGH",
+              "position": 2,
+              "color": "orange"
+            },
+            {
+              "label": "Urgent",
+              "value": "URGENT",
+              "position": 3,
+              "color": "red"
+            },
+            {
+              "label": "Critical",
+              "value": "CRITICAL",
+              "position": 4,
+              "color": "pink"
+            }
+          ]
+        },
+        {
+          "type": "RICH_TEXT",
+          "label": "Resolution Notes",
+          "name": "resolutionNotes",
+          "icon": "IconNotes",
+          "isNullable": true
+        },
+        {
+          "type": "CURRENCY",
+          "label": "Collected from Tenant",
+          "name": "collectedFromTenant",
+          "icon": "IconCurrencyRupee",
+          "isNullable": true
+        },
+        {
+          "type": "CURRENCY",
+          "label": "Collected from Merchant",
+          "name": "collectedFromMerchant",
+          "icon": "IconCurrencyRupee",
+          "isNullable": true
+        }
+      ]
+    },
+    {
+      "labelPlural": "Vendor Ticket Details",
+      "labelSingular": "Vendor Ticket Detail",
+      "namePlural": "vendorTicketDetails",
+      "nameSingular": "vendorTicketDetail",
+      "icon": "IconTool",
+      "description": "Vendor-facing ticket extension with response and resolution metrics",
+      "skipNameField": true,
+      "fields": [
+        {
+          "type": "RICH_TEXT",
+          "label": "Notes",
+          "name": "notes",
+          "icon": "IconNotes",
+          "description": "Internal vendor notes on ticket work performed",
+          "isNullable": true
+        },
+        {
+          "type": "NUMBER",
+          "label": "First Response (Minutes)",
+          "name": "firstResponseMins",
+          "icon": "IconClockHour4",
+          "description": "Minutes from vendor assignment to first vendor response",
+          "isNullable": true
+        },
+        {
+          "type": "NUMBER",
+          "label": "Time to Close (Hours)",
+          "name": "timeToCloseHours",
+          "icon": "IconClockHour8",
+          "description": "Hours from vendor assignment to ticket resolution by vendor",
+          "isNullable": true
+        }
+      ]
+    },
+    {
+      "labelPlural": "PO Lines",
+      "labelSingular": "PO Line",
+      "namePlural": "poLines",
+      "nameSingular": "poLine",
+      "icon": "IconListNumbers",
+      "description": "Individual line items within a Purchase Order with FSIN references, quantities, pricing, and auto-calculated line amounts",
+      "skipNameField": true,
+      "fields": [
+        {
+          "type": "TEXT",
+          "name": "fsinCode",
+          "label": "FSIN Code",
+          "description": "Flent Standard Identification Number (FK deferred to Phase 6)",
+          "icon": "IconBarcode",
+          "isNullable": true,
+          "defaultValue": "''"
+        },
+        {
+          "type": "TEXT",
+          "name": "itemName",
+          "label": "Item Name",
+          "description": "Name of the item being purchased",
+          "icon": "IconPackage",
+          "isNullable": false,
+          "defaultValue": "''"
+        },
+        {
+          "type": "NUMBER",
+          "name": "qty",
+          "label": "Quantity",
+          "description": "Number of units (CHECK >= 1)",
+          "icon": "IconHash",
+          "isNullable": false
+        },
+        {
+          "type": "NUMBER",
+          "name": "unitPrice",
+          "label": "Unit Price",
+          "description": "Price per unit",
+          "icon": "IconCurrencyRupee",
+          "isNullable": false
+        },
+        {
+          "type": "NUMBER",
+          "name": "lineAmount",
+          "label": "Line Amount",
+          "description": "Auto-calculated: qty * unit_price (maintained by database trigger)",
+          "icon": "IconCalculator",
+          "isNullable": true
+        },
+        {
+          "type": "RICH_TEXT",
+          "name": "notes",
+          "label": "Notes",
+          "description": "Additional notes for this line item",
+          "icon": "IconNote",
+          "isNullable": true
+        }
+      ]
+    },
+    {
+      "labelPlural": "Transaction Classifications",
+      "labelSingular": "Transaction Classification",
+      "namePlural": "transactionClassifications",
+      "nameSingular": "transactionClassification",
+      "icon": "IconTags",
+      "description": "Purpose categories (OPEX/CAPEX) for financial reporting and cost center allocation",
+      "skipNameField": true,
+      "fields": [
+        {
+          "type": "SELECT",
+          "name": "purposeCategory1",
+          "label": "Purpose Category 1",
+          "description": "High-level accounting bucket for financial reporting",
+          "icon": "IconCategory",
+          "options": [
+            {
+              "label": "OPEX",
+              "value": "OPEX",
+              "position": 0,
+              "color": "blue"
+            },
+            {
+              "label": "CAPEX",
+              "value": "CAPEX",
+              "position": 1,
+              "color": "purple"
+            },
+            {
+              "label": "Interest",
+              "value": "INTEREST",
+              "position": 2,
+              "color": "green"
+            },
+            {
+              "label": "Salary",
+              "value": "SALARY",
+              "position": 3,
+              "color": "yellow"
+            },
+            {
+              "label": "Reimbursement",
+              "value": "REIMBURSEMENT",
+              "position": 4,
+              "color": "orange"
+            },
+            {
+              "label": "Revenue",
+              "value": "REVENUE",
+              "position": 5,
+              "color": "green"
+            },
+            {
+              "label": "Refunds",
+              "value": "REFUNDS",
+              "position": 6,
+              "color": "red"
+            },
+            {
+              "label": "COGS",
+              "value": "COGS",
+              "position": 7,
+              "color": "sky"
+            }
+          ]
+        },
+        {
+          "type": "SELECT",
+          "name": "purposeCategory2",
+          "label": "Purpose Category 2",
+          "description": "Granular sub-classification for detailed financial reporting",
+          "icon": "IconCategory2",
+          "options": [
+            {
+              "label": "Deposit",
+              "value": "DEPOSIT",
+              "position": 0,
+              "color": "green"
+            },
+            {
+              "label": "Transport",
+              "value": "TRANSPORT",
+              "position": 1,
+              "color": "blue"
+            },
+            {
+              "label": "Fixtures",
+              "value": "FIXTURES",
+              "position": 2,
+              "color": "purple"
+            },
+            {
+              "label": "Office",
+              "value": "OFFICE",
+              "position": 3,
+              "color": "sky"
+            },
+            {
+              "label": "Employee",
+              "value": "EMPLOYEE",
+              "position": 4,
+              "color": "yellow"
+            },
+            {
+              "label": "Consultant",
+              "value": "CONSULTANT",
+              "position": 5,
+              "color": "orange"
+            },
+            {
+              "label": "Contractor",
+              "value": "CONTRACTOR",
+              "position": 6,
+              "color": "turquoise"
+            },
+            {
+              "label": "Inventory",
+              "value": "INVENTORY",
+              "position": 7,
+              "color": "pink"
+            },
+            {
+              "label": "Tech",
+              "value": "TECH",
+              "position": 8,
+              "color": "blue"
+            },
+            {
+              "label": "Marketing",
+              "value": "MARKETING",
+              "position": 9,
+              "color": "red"
+            },
+            {
+              "label": "Food and Beverages",
+              "value": "FOOD_AND_BEVERAGES",
+              "position": 10,
+              "color": "orange"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "labelPlural": "Transaction Line Items",
+      "labelSingular": "Transaction Line Item",
+      "namePlural": "transactionLineItems",
+      "nameSingular": "transactionLineItem",
+      "icon": "IconListDetails",
+      "description": "Billing period, cost center allocation, and description for transaction entries",
+      "skipNameField": true,
+      "fields": [
+        {
+          "type": "DATE",
+          "name": "lineItemDate",
+          "label": "Line Item Date",
+          "description": "Billing period date",
+          "icon": "IconCalendar",
+          "isNullable": true
+        },
+        {
+          "type": "TEXT",
+          "name": "costRevenueCenter",
+          "label": "Cost/Revenue Center",
+          "description": "Cost center or revenue center name for allocation",
+          "icon": "IconBuildingStore",
+          "isNullable": true,
+          "defaultValue": "''"
+        },
+        {
+          "type": "RICH_TEXT",
+          "name": "lineItemDescription",
+          "label": "Description",
+          "description": "Rich text description of the line item entry",
+          "icon": "IconAlignLeft",
+          "isNullable": true
+        }
+      ]
+    },
+    {
+      "labelPlural": "Transaction Links",
+      "labelSingular": "Transaction Link",
+      "namePlural": "transactionLinks",
+      "nameSingular": "transactionLink",
+      "icon": "IconLink",
+      "description": "Explicit FK dropdowns to tenant, merchant, vendor, overhead, contract, property, room, and ticket (audit fix #21, replacing polymorphic contact_id)",
+      "skipNameField": true,
+      "fields": [
+        {
+          "type": "TEXT",
+          "name": "contractUid",
+          "label": "Contract UID",
+          "description": "FK to contracts table",
+          "icon": "IconFileDescription",
+          "isNullable": true,
+          "defaultValue": "''"
+        },
+        {
+          "type": "TEXT",
+          "name": "tenantId",
+          "label": "Tenant ID",
+          "description": "FK to tenants table (replaces polymorphic contact_id)",
+          "icon": "IconUser",
+          "isNullable": true,
+          "defaultValue": "''"
+        },
+        {
+          "type": "TEXT",
+          "name": "merchantId",
+          "label": "Merchant ID",
+          "description": "FK to merchants table (replaces polymorphic contact_id)",
+          "icon": "IconBuildingStore",
+          "isNullable": true,
+          "defaultValue": "''"
+        },
+        {
+          "type": "TEXT",
+          "name": "vendorCode",
+          "label": "Vendor Code",
+          "description": "FK to vendors table (replaces polymorphic contact_id)",
+          "icon": "IconTruck",
+          "isNullable": true,
+          "defaultValue": "''"
+        },
+        {
+          "type": "TEXT",
+          "name": "overheadId",
+          "label": "Overhead ID",
+          "description": "FK to overheads table",
+          "icon": "IconReceipt2",
+          "isNullable": true,
+          "defaultValue": "''"
+        },
+        {
+          "type": "NUMBER",
+          "name": "ticketId",
+          "label": "Ticket ID",
+          "description": "FK to tickets table (deferred to Phase 5 - column exists without FK constraint)",
+          "icon": "IconTicket",
+          "isNullable": true
+        },
+        {
+          "type": "TEXT",
+          "name": "pid",
+          "label": "Property ID",
+          "description": "FK to properties table (VARCHAR, fix #24)",
+          "icon": "IconBuilding",
+          "isNullable": true,
+          "defaultValue": "''"
+        },
+        {
+          "type": "TEXT",
+          "name": "rid",
+          "label": "Room ID",
+          "description": "FK to rooms table",
+          "icon": "IconDoor",
+          "isNullable": true,
+          "defaultValue": "''"
+        }
+      ]
+    },
+    {
+      "labelPlural": "Transactions",
+      "labelSingular": "Transaction",
+      "namePlural": "transactions",
+      "nameSingular": "transaction",
+      "icon": "IconReceipt",
+      "description": "Financial ledger entry with UTN identifier, type discriminator, credit/debit direction, amount, and audit trail",
+      "fields": [
+        {
+          "type": "TEXT",
+          "name": "utn",
+          "label": "UTN",
+          "description": "Unique Transaction Number (TXN-YYYYMMDD-XXXXX), system-generated primary key",
+          "icon": "IconHash",
+          "isNullable": false,
+          "defaultValue": "''"
+        },
+        {
+          "type": "SELECT",
+          "name": "transactionType",
+          "label": "Transaction Type",
+          "description": "Type discriminator determining which extension tables are populated",
+          "icon": "IconCategory",
+          "options": [
+            {
+              "label": "Payment",
+              "value": "PAYMENT",
+              "position": 0,
+              "color": "green"
+            },
+            {
+              "label": "Payout",
+              "value": "PAYOUT",
+              "position": 1,
+              "color": "blue"
+            },
+            {
+              "label": "Refund",
+              "value": "REFUND",
+              "position": 2,
+              "color": "orange"
+            },
+            {
+              "label": "Purchase Order",
+              "value": "PURCHASE_ORDER",
+              "position": 3,
+              "color": "purple"
+            },
+            {
+              "label": "Adjustment",
+              "value": "ADJUSTMENT",
+              "position": 4,
+              "color": "yellow"
+            }
+          ]
+        },
+        {
+          "type": "SELECT",
+          "name": "creditDebit",
+          "label": "Credit/Debit",
+          "description": "Direction of the transaction",
+          "icon": "IconArrowsExchange",
+          "options": [
+            {
+              "label": "Credit",
+              "value": "CREDIT",
+              "position": 0,
+              "color": "green"
+            },
+            {
+              "label": "Debit",
+              "value": "DEBIT",
+              "position": 1,
+              "color": "red"
+            }
+          ]
+        },
+        {
+          "type": "DATE",
+          "name": "transactionDate",
+          "label": "Transaction Date",
+          "description": "Date of the transaction",
+          "icon": "IconCalendar",
+          "isNullable": false
+        },
+        {
+          "type": "NUMBER",
+          "name": "amount",
+          "label": "Amount",
+          "description": "Transaction amount (always positive, CHECK >= 0)",
+          "icon": "IconCurrencyRupee",
+          "isNullable": false
+        },
+        {
+          "type": "SELECT",
+          "name": "status",
+          "label": "Status",
+          "description": "Transaction lifecycle status",
+          "icon": "IconStatusChange",
+          "options": [
+            {
+              "label": "Pending",
+              "value": "PENDING",
+              "position": 0,
+              "color": "yellow"
+            },
+            {
+              "label": "Approved",
+              "value": "APPROVED",
+              "position": 1,
+              "color": "blue"
+            },
+            {
+              "label": "Settled",
+              "value": "SETTLED",
+              "position": 2,
+              "color": "green"
+            },
+            {
+              "label": "Reversed",
+              "value": "REVERSED",
+              "position": 3,
+              "color": "orange"
+            },
+            {
+              "label": "Voided",
+              "value": "VOIDED",
+              "position": 4,
+              "color": "red"
+            }
+          ]
+        },
+        {
+          "type": "TEXT",
+          "name": "createdBy",
+          "label": "Created By",
+          "description": "System user who created the transaction",
+          "icon": "IconUser",
+          "isNullable": false,
+          "defaultValue": "''"
+        },
+        {
+          "type": "DATE_TIME",
+          "name": "createdDate",
+          "label": "Created Date",
+          "description": "Timestamp when the transaction was created",
+          "icon": "IconClock",
+          "isNullable": false
+        },
+        {
+          "type": "TEXT",
+          "name": "authorisedBy",
+          "label": "Authorised By",
+          "description": "User who authorised/approved the transaction",
+          "icon": "IconUserCheck",
+          "isNullable": true,
+          "defaultValue": "''"
+        },
+        {
+          "type": "DATE_TIME",
+          "name": "authorisedDate",
+          "label": "Authorised Date",
+          "description": "Timestamp when the transaction was authorised",
+          "icon": "IconClock",
+          "isNullable": true
+        }
+      ]
+    },
+    {
+      "labelPlural": "Transaction Parties",
+      "labelSingular": "Transaction Party",
+      "namePlural": "transactionParties",
+      "nameSingular": "transactionParty",
+      "icon": "IconUsers",
+      "description": "From/to party tracking with type classification and derived KYC info",
+      "skipNameField": true,
+      "fields": [
+        {
+          "type": "TEXT",
+          "name": "fromParty",
+          "label": "From Party",
+          "description": "Payer name",
+          "icon": "IconUserMinus",
+          "isNullable": false,
+          "defaultValue": "''"
+        },
+        {
+          "type": "SELECT",
+          "name": "fromPartyType",
+          "label": "From Party Type",
+          "description": "Type classification of the payer",
+          "icon": "IconUserCircle",
+          "options": [
+            {
+              "label": "Tenant",
+              "value": "TENANT",
+              "position": 0,
+              "color": "blue"
+            },
+            {
+              "label": "Landlord",
+              "value": "LANDLORD",
+              "position": 1,
+              "color": "purple"
+            },
+            {
+              "label": "Vendor",
+              "value": "VENDOR",
+              "position": 2,
+              "color": "orange"
+            },
+            {
+              "label": "Platform",
+              "value": "PLATFORM",
+              "position": 3,
+              "color": "green"
+            },
+            {
+              "label": "Third Party",
+              "value": "THIRD_PARTY",
+              "position": 4,
+              "color": "yellow"
+            },
+            {
+              "label": "Government",
+              "value": "GOVERNMENT",
+              "position": 5,
+              "color": "red"
+            }
+          ]
+        },
+        {
+          "type": "RICH_TEXT",
+          "name": "fromPartyInfo",
+          "label": "From Party Info",
+          "description": "Derived KYC data: GST, PAN, address of the payer",
+          "icon": "IconInfoCircle",
+          "isNullable": true
+        },
+        {
+          "type": "TEXT",
+          "name": "toParty",
+          "label": "To Party",
+          "description": "Payee name",
+          "icon": "IconUserPlus",
+          "isNullable": false,
+          "defaultValue": "''"
+        },
+        {
+          "type": "SELECT",
+          "name": "toPartyType",
+          "label": "To Party Type",
+          "description": "Type classification of the payee",
+          "icon": "IconUserCircle",
+          "options": [
+            {
+              "label": "Tenant",
+              "value": "TENANT",
+              "position": 0,
+              "color": "blue"
+            },
+            {
+              "label": "Landlord",
+              "value": "LANDLORD",
+              "position": 1,
+              "color": "purple"
+            },
+            {
+              "label": "Vendor",
+              "value": "VENDOR",
+              "position": 2,
+              "color": "orange"
+            },
+            {
+              "label": "Platform",
+              "value": "PLATFORM",
+              "position": 3,
+              "color": "green"
+            },
+            {
+              "label": "Third Party",
+              "value": "THIRD_PARTY",
+              "position": 4,
+              "color": "yellow"
+            },
+            {
+              "label": "Government",
+              "value": "GOVERNMENT",
+              "position": 5,
+              "color": "red"
+            }
+          ]
+        },
+        {
+          "type": "RICH_TEXT",
+          "name": "toPartyInfo",
+          "label": "To Party Info",
+          "description": "Derived KYC data: GST, PAN, address of the payee",
+          "icon": "IconInfoCircle",
+          "isNullable": true
+        }
+      ]
+    },
+    {
+      "labelPlural": "Transaction Payments",
+      "labelSingular": "Transaction Payment",
+      "namePlural": "transactionPayments",
+      "nameSingular": "transactionPayment",
+      "icon": "IconCreditCard",
+      "description": "Payment channel, provider, and gateway reference for reconciliation",
+      "skipNameField": true,
+      "fields": [
+        {
+          "type": "SELECT",
+          "name": "paymentChannel",
+          "label": "Payment Channel",
+          "description": "Method used for the payment",
+          "icon": "IconWallet",
+          "options": [
+            {
+              "label": "UPI",
+              "value": "UPI",
+              "position": 0,
+              "color": "green"
+            },
+            {
+              "label": "NEFT",
+              "value": "NEFT",
+              "position": 1,
+              "color": "blue"
+            },
+            {
+              "label": "RTGS",
+              "value": "RTGS",
+              "position": 2,
+              "color": "purple"
+            },
+            {
+              "label": "IMPS",
+              "value": "IMPS",
+              "position": 3,
+              "color": "sky"
+            },
+            {
+              "label": "Auto-debit NACH",
+              "value": "AUTO_DEBIT_NACH",
+              "position": 4,
+              "color": "turquoise"
+            },
+            {
+              "label": "Virtual Account",
+              "value": "VIRTUAL_ACCOUNT",
+              "position": 5,
+              "color": "yellow"
+            },
+            {
+              "label": "Payment Link",
+              "value": "PAYMENT_LINK",
+              "position": 6,
+              "color": "orange"
+            },
+            {
+              "label": "Cheque",
+              "value": "CHEQUE",
+              "position": 7,
+              "color": "pink"
+            },
+            {
+              "label": "Cash",
+              "value": "CASH",
+              "position": 8,
+              "color": "red"
+            },
+            {
+              "label": "Other",
+              "value": "OTHER",
+              "position": 9,
+              "color": "red"
+            }
+          ]
+        },
+        {
+          "type": "SELECT",
+          "name": "paymentProvider",
+          "label": "Payment Provider",
+          "description": "Financial institution or payment processor",
+          "icon": "IconBuildingBank",
+          "options": [
+            {
+              "label": "Kotak",
+              "value": "KOTAK",
+              "position": 0,
+              "color": "red"
+            },
+            {
+              "label": "IDFC",
+              "value": "IDFC",
+              "position": 1,
+              "color": "blue"
+            },
+            {
+              "label": "Razorpayx",
+              "value": "RAZORPAYX",
+              "position": 2,
+              "color": "sky"
+            },
+            {
+              "label": "Volopay",
+              "value": "VOLOPAY",
+              "position": 3,
+              "color": "purple"
+            }
+          ]
+        },
+        {
+          "type": "TEXT",
+          "name": "gatewayReferenceId",
+          "label": "Gateway Reference ID",
+          "description": "External reference ID for payment reconciliation",
+          "icon": "IconKey",
+          "isNullable": true,
+          "defaultValue": "''"
+        }
+      ]
+    },
+    {
+      "labelPlural": "Transaction Purchase Orders",
+      "labelSingular": "Transaction Purchase Order",
+      "namePlural": "transactionPurchaseOrders",
+      "nameSingular": "transactionPurchaseOrder",
+      "icon": "IconShoppingCart",
+      "description": "PO-specific fields: PO number, vendor reference, line item totals, GST, advance/remaining split, invoice, and status",
+      "skipNameField": true,
+      "fields": [
+        {
+          "type": "TEXT",
+          "name": "poNumber",
+          "label": "PO Number",
+          "description": "System-generated unique PO identifier",
+          "icon": "IconHash",
+          "isNullable": false,
+          "defaultValue": "''"
+        },
+        {
+          "type": "TEXT",
+          "name": "vendorCode",
+          "label": "Vendor Code",
+          "description": "FK to vendors table",
+          "icon": "IconTruck",
+          "isNullable": false,
+          "defaultValue": "''"
+        },
+        {
+          "type": "TEXT",
+          "name": "vendorName",
+          "label": "Vendor Name",
+          "description": "Denormalized from vendors.vendor_name on link",
+          "icon": "IconTruck",
+          "isNullable": false,
+          "defaultValue": "''"
+        },
+        {
+          "type": "NUMBER",
+          "name": "totalItems",
+          "label": "Total Items",
+          "description": "Total number of line items in the PO",
+          "icon": "IconList",
+          "isNullable": true
+        },
+        {
+          "type": "NUMBER",
+          "name": "gstPercent",
+          "label": "GST %",
+          "description": "GST percentage applied to the PO",
+          "icon": "IconPercentage",
+          "isNullable": true
+        },
+        {
+          "type": "NUMBER",
+          "name": "advanceAmount",
+          "label": "Advance Amount",
+          "description": "Advance payment amount",
+          "icon": "IconCurrencyRupee",
+          "isNullable": true
+        },
+        {
+          "type": "NUMBER",
+          "name": "remainingAmount",
+          "label": "Remaining Amount",
+          "description": "Remaining balance after advance",
+          "icon": "IconCurrencyRupee",
+          "isNullable": true
+        },
+        {
+          "type": "DATE",
+          "name": "advanceDate",
+          "label": "Advance Date",
+          "description": "Date of advance payment",
+          "icon": "IconCalendar",
+          "isNullable": true
+        },
+        {
+          "type": "DATE",
+          "name": "fnfDate",
+          "label": "FnF Date",
+          "description": "Final and full settlement date",
+          "icon": "IconCalendarEvent",
+          "isNullable": true
+        },
+        {
+          "type": "TEXT",
+          "name": "invoice",
+          "label": "Invoice",
+          "description": "File URL for the invoice document",
+          "icon": "IconFileInvoice",
+          "isNullable": true,
+          "defaultValue": "''"
+        },
+        {
+          "type": "SELECT",
+          "name": "poStatus",
+          "label": "PO Status",
+          "description": "Purchase order lifecycle status",
+          "icon": "IconStatusChange",
+          "options": [
+            {
+              "label": "Draft",
+              "value": "DRAFT",
+              "position": 0,
+              "color": "yellow"
+            },
+            {
+              "label": "Approved",
+              "value": "APPROVED",
+              "position": 1,
+              "color": "blue"
+            },
+            {
+              "label": "Completed",
+              "value": "COMPLETED",
+              "position": 2,
+              "color": "green"
+            },
+            {
+              "label": "Cancelled",
+              "value": "CANCELLED",
+              "position": 3,
+              "color": "red"
+            }
+          ]
+        },
+        {
+          "type": "NUMBER",
+          "name": "roundOff",
+          "label": "Round Off",
+          "description": "Sub-rupee adjustment for invoice reconciliation",
+          "icon": "IconMathFunction",
+          "isNullable": true
+        },
+        {
+          "type": "TEXT",
+          "name": "txnIdAdvance",
+          "label": "Advance Transaction UTN",
+          "description": "Self-referencing FK to advance payment transaction",
+          "icon": "IconArrowDownCircle",
+          "isNullable": true,
+          "defaultValue": "''"
+        },
+        {
+          "type": "TEXT",
+          "name": "txnIdRemaining",
+          "label": "Remaining Transaction UTN",
+          "description": "Self-referencing FK to remaining payment transaction",
+          "icon": "IconArrowUpCircle",
+          "isNullable": true,
+          "defaultValue": "''"
+        }
+      ]
+    },
+    {
+      "labelPlural": "Vendor Billings",
+      "labelSingular": "Vendor Billing",
+      "namePlural": "vendorBillings",
+      "nameSingular": "vendorBilling",
+      "icon": "IconFileInvoice",
+      "description": "GST, PAN, banking, and MSME details for vendor billing",
+      "skipNameField": true,
+      "fields": [
+        {
+          "type": "TEXT",
+          "name": "gstNumber",
+          "label": "GST Number",
+          "description": "Vendor GST registration number",
+          "icon": "IconFileInvoice",
+          "isNullable": true,
+          "defaultValue": "''"
+        },
+        {
+          "type": "TEXT",
+          "name": "pan",
+          "label": "PAN",
+          "description": "Vendor PAN number",
+          "icon": "IconId",
+          "isNullable": true,
+          "defaultValue": "''"
+        },
+        {
+          "type": "TEXT",
+          "name": "billingName",
+          "label": "Billing Name",
+          "description": "Name to appear on billing documents",
+          "icon": "IconUser",
+          "isNullable": true,
+          "defaultValue": "''"
+        },
+        {
+          "type": "TEXT",
+          "name": "bankName",
+          "label": "Bank Name",
+          "description": "Name of the bank for vendor payments",
+          "icon": "IconBuildingBank",
+          "isNullable": true,
+          "defaultValue": "''"
+        },
+        {
+          "type": "TEXT",
+          "name": "bankAccountNumber",
+          "label": "Bank Account Number",
+          "description": "Vendor bank account number",
+          "icon": "IconCreditCard",
+          "isNullable": true,
+          "defaultValue": "''"
+        },
+        {
+          "type": "TEXT",
+          "name": "ifscCode",
+          "label": "IFSC Code",
+          "description": "Bank IFSC code for fund transfers",
+          "icon": "IconBuildingBank",
+          "isNullable": true,
+          "defaultValue": "''"
+        },
+        {
+          "type": "SELECT",
+          "name": "msmeVendor",
+          "label": "MSME Vendor",
+          "description": "Whether the vendor is MSME registered",
+          "icon": "IconCertificate",
+          "options": [
+            {
+              "label": "Yes",
+              "value": "YES",
+              "position": 0,
+              "color": "green"
+            },
+            {
+              "label": "No",
+              "value": "NO",
+              "position": 1,
+              "color": "red"
+            }
+          ]
+        },
+        {
+          "type": "TEXT",
+          "name": "udyamAadhaar",
+          "label": "Udyam Aadhaar",
+          "description": "MSME Udyam Aadhaar registration number",
+          "icon": "IconCertificate",
+          "isNullable": true,
+          "defaultValue": "''"
+        }
+      ]
+    },
+    {
+      "labelPlural": "Vendor Capabilities",
+      "labelSingular": "Vendor Capability",
+      "namePlural": "vendorCapabilities",
+      "nameSingular": "vendorCapability",
+      "icon": "IconTools",
+      "description": "Vendor specialization, TAT, and customization capabilities",
+      "skipNameField": true,
+      "fields": [
+        {
+          "type": "RICH_TEXT",
+          "name": "specialization",
+          "label": "Specialization",
+          "description": "Areas of specialization for this vendor",
+          "icon": "IconBulb",
+          "isNullable": true
+        },
+        {
+          "type": "NUMBER",
+          "name": "tatInDays",
+          "label": "TAT (Days)",
+          "description": "Typical turnaround time in days",
+          "icon": "IconClock",
+          "isNullable": true,
+          "settings": {
+            "dataType": "INT",
+            "type": "number"
+          }
+        },
+        {
+          "type": "SELECT",
+          "name": "customizationCapability",
+          "label": "Customization Capability",
+          "description": "Level of customization the vendor can provide",
+          "icon": "IconPalette",
+          "options": [
+            {
+              "label": "Low",
+              "value": "LOW",
+              "position": 0,
+              "color": "red"
+            },
+            {
+              "label": "Medium",
+              "value": "MEDIUM",
+              "position": 1,
+              "color": "yellow"
+            },
+            {
+              "label": "High",
+              "value": "HIGH",
+              "position": 2,
+              "color": "green"
+            }
+          ]
+        },
+        {
+          "type": "SELECT",
+          "name": "standardisationFit",
+          "label": "Standardisation Fit",
+          "description": "How well the vendor fits standardised procurement categories",
+          "icon": "IconAdjustments",
+          "options": [
+            {
+              "label": "C1",
+              "value": "C1",
+              "position": 0,
+              "color": "green"
+            },
+            {
+              "label": "C2",
+              "value": "C2",
+              "position": 1,
+              "color": "yellow"
+            },
+            {
+              "label": "C3",
+              "value": "C3",
+              "position": 2,
+              "color": "red"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "labelPlural": "Vendor Commercials",
+      "labelSingular": "Vendor Commercial",
+      "namePlural": "vendorCommercials",
+      "nameSingular": "vendorCommercial",
+      "icon": "IconCash",
+      "description": "Commercial terms, quality tier, and pricing for vendors",
+      "skipNameField": true,
+      "fields": [
+        {
+          "type": "SELECT",
+          "name": "qualityTier",
+          "label": "Quality Tier",
+          "description": "Vendor quality classification tier",
+          "icon": "IconStar",
+          "options": [
+            {
+              "label": "T1",
+              "value": "T1",
+              "position": 0,
+              "color": "green"
+            },
+            {
+              "label": "T2",
+              "value": "T2",
+              "position": 1,
+              "color": "yellow"
+            },
+            {
+              "label": "T3",
+              "value": "T3",
+              "position": 2,
+              "color": "red"
+            }
+          ]
+        },
+        {
+          "type": "TEXT",
+          "name": "paymentTerms",
+          "label": "Payment Terms",
+          "description": "Payment terms agreed with the vendor",
+          "icon": "IconCreditCard",
+          "isNullable": true,
+          "defaultValue": "''"
+        },
+        {
+          "type": "CURRENCY",
+          "name": "minOrderValue",
+          "label": "Min Order Value",
+          "description": "Minimum order value for this vendor",
+          "icon": "IconCurrencyRupee",
+          "isNullable": true
+        },
+        {
+          "type": "RICH_TEXT",
+          "name": "negotiationRemarks",
+          "label": "Negotiation Remarks",
+          "description": "Notes from price and terms negotiations",
+          "icon": "IconNote",
+          "isNullable": true
+        }
+      ]
+    },
+    {
+      "labelPlural": "Vendor Contacts",
+      "labelSingular": "Vendor Contact",
+      "namePlural": "vendorContacts",
+      "nameSingular": "vendorContact",
+      "icon": "IconAddressBook",
+      "description": "Contact information and address for vendors",
+      "skipNameField": true,
+      "fields": [
+        {
+          "type": "TEXT",
+          "name": "contactName",
+          "label": "Contact Name",
+          "description": "Name of the vendor contact person",
+          "icon": "IconUser",
+          "isNullable": true,
+          "defaultValue": "''"
+        },
+        {
+          "type": "PHONES",
+          "name": "phones",
+          "label": "Phone",
+          "description": "Vendor contact phone numbers",
+          "icon": "IconPhone",
+          "isNullable": true
+        },
+        {
+          "type": "EMAILS",
+          "name": "emails",
+          "label": "Email",
+          "description": "Vendor contact email addresses",
+          "icon": "IconMail",
+          "isNullable": true
+        },
+        {
+          "type": "TEXT",
+          "name": "city",
+          "label": "City",
+          "description": "Vendor contact city",
+          "icon": "IconMapPin",
+          "isNullable": true,
+          "defaultValue": "''"
+        },
+        {
+          "type": "ADDRESS",
+          "name": "address",
+          "label": "Address",
+          "description": "Vendor contact full address",
+          "icon": "IconMapPin",
+          "isNullable": true
+        }
+      ]
+    },
+    {
+      "labelPlural": "Vendors",
+      "labelSingular": "Vendor",
+      "namePlural": "vendors",
+      "nameSingular": "vendor",
+      "icon": "IconTruck",
+      "description": "Suppliers, manufacturers, and service providers",
+      "fields": [
+        {
+          "type": "TEXT",
+          "name": "vendorCode",
+          "label": "Vendor Code",
+          "description": "Unique vendor identifier code",
+          "icon": "IconBarcode",
+          "isNullable": false,
+          "isUnique": true,
+          "defaultValue": "''"
+        },
+        {
+          "type": "TEXT",
+          "name": "vendorName",
+          "label": "Vendor Name",
+          "description": "Vendor company or business name",
+          "icon": "IconBuilding",
+          "isNullable": false,
+          "defaultValue": "''"
+        },
+        {
+          "type": "SELECT",
+          "name": "vendorType",
+          "label": "Vendor Type",
+          "description": "Type of vendor business",
+          "icon": "IconCategory",
+          "options": [
+            {
+              "label": "Manufacturer",
+              "value": "MANUFACTURER",
+              "position": 0,
+              "color": "blue"
+            },
+            {
+              "label": "Wholesaler",
+              "value": "WHOLESALER",
+              "position": 1,
+              "color": "green"
+            },
+            {
+              "label": "Distributor",
+              "value": "DISTRIBUTOR",
+              "position": 2,
+              "color": "purple"
+            },
+            {
+              "label": "Freelancer",
+              "value": "FREELANCER",
+              "position": 3,
+              "color": "orange"
+            },
+            {
+              "label": "Aggregator",
+              "value": "AGGREGATOR",
+              "position": 4,
+              "color": "yellow"
+            },
+            {
+              "label": "Retailer",
+              "value": "RETAILER",
+              "position": 5,
+              "color": "sky"
+            },
+            {
+              "label": "Landlord",
+              "value": "LANDLORD",
+              "position": 6,
+              "color": "turquoise"
+            }
+          ]
+        },
+        {
+          "type": "SELECT",
+          "name": "status",
+          "label": "Status",
+          "description": "Current vendor status",
+          "icon": "IconCircleCheck",
+          "options": [
+            {
+              "label": "Active",
+              "value": "ACTIVE",
+              "position": 0,
+              "color": "green"
+            },
+            {
+              "label": "Inactive",
+              "value": "INACTIVE",
+              "position": 1,
+              "color": "yellow"
+            },
+            {
+              "label": "Blacklisted",
+              "value": "BLACKLISTED",
+              "position": 2,
+              "color": "red"
+            },
+            {
+              "label": "On Hold",
+              "value": "ON_HOLD",
+              "position": 3,
+              "color": "orange"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -35,15 +35,19 @@ spec:
               name: http
               protocol: TCP
           env:
-            - name: NEXT_PUBLIC_TWENTY_API_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: twenty-secrets
-                  key: APP_SECRET
+            # Server-side proxy URLs (used by /api/twenty and /api/twenty/metadata routes)
+            - name: TWENTY_GRAPHQL_URL
+              value: "https://hawkeye.flent.in/graphql"
+            - name: TWENTY_METADATA_URL
+              value: "https://hawkeye.flent.in/metadata"
+            # Public URLs so client knows which API endpoints to reference
             - name: NEXT_PUBLIC_TWENTY_METADATA_URL
               value: "https://hawkeye.flent.in/metadata"
             - name: NEXT_PUBLIC_TWENTY_GRAPHQL_URL
               value: "https://hawkeye.flent.in/graphql"
+            # NOTE: NEXT_PUBLIC_TWENTY_API_KEY is intentionally NOT set.
+            # Users must log in at /login with their own API key, which is then
+            # stored in an HTTP-only cookie and read by the proxy routes.
           resources:
             requests:
               cpu: 100m

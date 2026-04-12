@@ -34,7 +34,7 @@ export default function LoginPage() {
 
     try {
       // Validate the API key via the proxy route (sends key via Authorization header)
-      const res = await fetch("/api/twenty/metadata", {
+      const res = await fetch("/bff/metadata", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

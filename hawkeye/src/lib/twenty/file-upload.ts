@@ -10,7 +10,7 @@ export interface UploadResult {
 
 /**
  * Upload a file to Twenty using GraphQL multipart request spec.
- * Sends requests through the local proxy at /api/twenty/upload
+ * Sends requests through the local proxy at /bff/upload
  * to avoid exposing API keys on the client.
  */
 export async function uploadFile(
@@ -36,7 +36,7 @@ export async function uploadFile(
   );
   formData.append("0", file);
 
-  const res = await fetch("/api/twenty/upload", {
+  const res = await fetch("/bff/upload", {
     method: "POST",
     body: formData,
   });

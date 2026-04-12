@@ -7,7 +7,7 @@ const TOKEN_COOKIE = "hawkeye_api_key";
 const PUBLIC_PATHS = ["/login"];
 
 // Prefixes that skip auth (Next.js internals, static assets, APIs)
-const SKIP_PREFIXES = ["/_next", "/api", "/favicon", "/icon"];
+const SKIP_PREFIXES = ["/_next", "/bff", "/favicon", "/icon"];
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;

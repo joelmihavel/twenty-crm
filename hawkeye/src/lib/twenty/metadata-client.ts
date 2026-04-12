@@ -4,7 +4,7 @@ import type { ObjectMetadata, FieldMetadata } from "./types";
 function getMetadataUrl(): string {
   // Client-side: always use the proxy route to avoid exposing API keys
   if (typeof window !== "undefined") {
-    return "/api/twenty/metadata";
+    return "/bff/metadata";
   }
   // Server-side: use env var directly
   const url = process.env.TWENTY_METADATA_URL;

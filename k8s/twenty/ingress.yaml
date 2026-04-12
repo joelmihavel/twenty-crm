@@ -35,7 +35,11 @@ spec:
                 name: twenty-server
                 port:
                   number: 3000
-          - path: /api
+          # Note: /api is NOT routed to twenty-server because Hawkeye uses
+          # /api/twenty and /api/twenty/metadata for its Next.js API proxy routes.
+          # Twenty's real API endpoints (/graphql, /metadata, /rest, /files) are
+          # routed separately below.
+          - path: /files
             pathType: Prefix
             backend:
               service:

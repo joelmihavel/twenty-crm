@@ -3,7 +3,7 @@ import { getEffectiveApiKey } from "@/lib/auth";
 function getGraphQLUrl(): string {
   // Client-side: always use the proxy route to avoid exposing API keys
   if (typeof window !== "undefined") {
-    return "/api/twenty";
+    return "/bff";
   }
   // Server-side: use env var directly (never expose to client)
   const url = process.env.TWENTY_GRAPHQL_URL;
@@ -52,7 +52,7 @@ export async function graphqlQuery<T>(
 
 function getMetadataUrl(): string {
   if (typeof window !== "undefined") {
-    return "/api/twenty/metadata";
+    return "/bff/metadata";
   }
   const url = process.env.TWENTY_METADATA_URL;
   if (!url) {

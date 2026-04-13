@@ -6,8 +6,8 @@ const TOKEN_COOKIE = "hawkeye_api_key";
 // Routes that do not require authentication
 const PUBLIC_PATHS = ["/login"];
 
-// Prefixes that skip auth (Next.js internals, static assets, APIs)
-const SKIP_PREFIXES = ["/_next", "/bff", "/favicon", "/icon"];
+// Prefixes that skip auth (Next.js internals, static assets, APIs, invite links)
+const SKIP_PREFIXES = ["/_next", "/bff", "/favicon", "/icon", "/invite"];
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;

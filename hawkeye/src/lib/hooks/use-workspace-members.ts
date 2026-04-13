@@ -152,3 +152,44 @@ export async function removeMember(id: string): Promise<void> {
     workspaceMemberIdToDelete: id,
   });
 }
+
+// ── Workspace invite link ─────────────────────────────────────────────
+
+export interface WorkspaceInviteInfo {
+  id: string;
+  displayName: string;
+  inviteHash: string;
+  isPublicInviteLinkEnabled: boolean;
+}
+
+const WORKSPACE_INVITE_QUERY = `{
+  currentWorkspace {
+    id
+    displayName
+    inviteHash
+    isPublicInviteLinkEnabled
+  }
+}`;
+
+export function useWorkspaceInviteLink() {
+  const [info, setInfo] = useState<WorkspaceInviteInfo | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    metadataQuery<{ currentWorkspace: WorkspaceInviteInfo }>(
+      WORKSPACE_INVITE_QUERY,
+    )
+      .then((data) => setInfo(data.currentWorkspace))
+      .catch((err) =>
+        setError(err instanceof Error ? err : new Error(String(err))),
+      )
+      .finally(() => setLoading(false));
+  }, []);
+
+  const link = info?.inviteHash
+    ? `${typeof window !== "undefined" ? window.location.origin : ""}/invite/${info.inviteHash}`
+    : null;
+
+  return { info, link, loading, error };
+}

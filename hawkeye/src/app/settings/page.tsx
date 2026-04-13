@@ -22,6 +22,7 @@ import { useWorkspaceMember, updateMember, uploadProfilePicture } from "@/lib/ho
 import {
   useWorkspaceMembers,
   useWorkspaceInvitations,
+  useWorkspaceInviteLink,
   sendInvitation,
   deleteInvitation,
   removeMember,
@@ -430,6 +431,8 @@ function ApiKeySection() {
 function MembersSection() {
   const { members, loading: membersLoading, error: membersError, refetch: refetchMembers } = useWorkspaceMembers();
   const { invitations, loading: invitationsLoading, error: invitationsError, refetch: refetchInvitations } = useWorkspaceInvitations();
+  const { link: inviteLink, info: inviteInfo } = useWorkspaceInviteLink();
+  const { copy, copied } = useClipboard();
   const { toast } = useToast();
 
   const [inviteEmail, setInviteEmail] = useState("");
@@ -548,11 +551,47 @@ function MembersSection() {
 
   return (
     <div className="flex flex-col gap-6">
+      {/* Public invite link */}
+      {inviteLink && inviteInfo?.isPublicInviteLinkEnabled && (
+        <div className="rounded-lg border border-secondary bg-brand-secondary/5 p-4">
+          <div className="flex items-start justify-between gap-2 mb-2">
+            <div>
+              <h4 className="text-sm font-medium text-secondary">
+                Public invite link
+              </h4>
+              <p className="mt-0.5 text-xs text-tertiary">
+                Share this link with your team. Anyone with the link can join{" "}
+                <span className="font-semibold">{inviteInfo.displayName}</span>.
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="flex-1 rounded-lg bg-secondary px-3 py-2 font-mono text-xs text-secondary truncate">
+              {inviteLink}
+            </div>
+            <Button
+              size="sm"
+              color={copied === "invite-link" ? "primary" : "secondary"}
+              iconLeading={copied === "invite-link" ? Check : Copy01}
+              onClick={async () => {
+                const result = await copy(inviteLink, "invite-link");
+                if (result.success) toast("Invite link copied", "success");
+              }}
+            >
+              {copied === "invite-link" ? "Copied" : "Copy"}
+            </Button>
+          </div>
+        </div>
+      )}
+
       {/* Invite new member */}
       <div className="rounded-lg border border-secondary p-4">
-        <h4 className="mb-3 text-sm font-medium text-secondary">
-          Invite a new member
+        <h4 className="mb-1 text-sm font-medium text-secondary">
+          Invite by email
         </h4>
+        <p className="mb-3 text-xs text-tertiary">
+          Requires email/SMTP to be configured on the Twenty server.
+        </p>
         <div className="flex gap-2">
           <div className="flex-1">
             <Input

@@ -50,7 +50,7 @@ spec:
               protocol: TCP
           env:
             - name: SERVER_URL
-              value: "https://crm.flent.in"
+              value: "https://hawkeye.flent.in"
             - name: NODE_OPTIONS
               value: "--max-old-space-size=8192"
             - name: PG_DATABASE_URL

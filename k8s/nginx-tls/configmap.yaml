@@ -5,6 +5,7 @@ metadata:
   namespace: twenty-prod
 data:
   default.conf: |
+    # ─── HTTPS server ───────────────────────────────────────────────────
     server {
         listen 443 ssl;
         server_name hawkeye.flent.in;
@@ -12,127 +13,137 @@ data:
         ssl_certificate /etc/nginx/ssl/tls.crt;
         ssl_certificate_key /etc/nginx/ssl/tls.key;
 
-        # Twenty API endpoints (more specific paths first)
+        # Common proxy headers applied to all locations
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+
+        # ─── Twenty backend API endpoints ─────────────────────────────
         location /graphql {
             proxy_pass http://twenty-server:3000;
-            proxy_set_header Host $host;
-            proxy_set_header X-Real-IP $remote_addr;
-            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_set_header X-Forwarded-Proto $scheme;
         }
 
         location /metadata {
             proxy_pass http://twenty-server:3000;
-            proxy_set_header Host $host;
-            proxy_set_header X-Real-IP $remote_addr;
-            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_set_header X-Forwarded-Proto $scheme;
-        }
-
-        location /api/ {
-            proxy_pass http://twenty-server:3000;
-            proxy_set_header Host $host;
-            proxy_set_header X-Real-IP $remote_addr;
-            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_set_header X-Forwarded-Proto $scheme;
         }
 
         location /rest/ {
             proxy_pass http://twenty-server:3000;
-            proxy_set_header Host $host;
-            proxy_set_header X-Real-IP $remote_addr;
-            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+
+        location /files/ {
+            proxy_pass http://twenty-server:3000;
         }
 
         location /healthz {
             proxy_pass http://twenty-server:3000;
-            proxy_set_header Host $host;
-            proxy_set_header X-Real-IP $remote_addr;
-            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_set_header X-Forwarded-Proto $scheme;
         }
 
-        # CRM Ops (Twenty native UI) - trailing slash strips /crmops prefix
+        # ─── Twenty native UI frontend ────────────────────────────────
+        # The Twenty React SPA is served at /crmops/ (prefix stripped)
+        # but its built assets reference /assets/* and /images/* as
+        # absolute paths. Route those directly to Twenty server.
+        location /assets/ {
+            proxy_pass http://twenty-server:3000;
+        }
+
+        location /images/ {
+            proxy_pass http://twenty-server:3000;
+        }
+
+        location /icons/ {
+            proxy_pass http://twenty-server:3000;
+        }
+
+        # Twenty's invite acceptance, email verification, signup flows
+        location /invite/ {
+            proxy_pass http://twenty-server:3000;
+        }
+
+        location /verify {
+            proxy_pass http://twenty-server:3000;
+        }
+
+        location /reset-password {
+            proxy_pass http://twenty-server:3000;
+        }
+
+        # CRM Ops (admin panel) — strips /crmops prefix for clean URLs
         location /crmops/ {
             proxy_pass http://twenty-server:3000/;
-            proxy_set_header Host $host;
-            proxy_set_header X-Real-IP $remote_addr;
-            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_set_header X-Forwarded-Proto $scheme;
         }
 
-        # Everything else -> Hawkeye (Next.js on port 3001)
+        # ─── Hawkeye (Next.js) ────────────────────────────────────────
+        # Everything else → Hawkeye including /_next/*, /bff/*, pages
         location / {
             proxy_pass http://hawkeye:3001;
-            proxy_set_header Host $host;
-            proxy_set_header X-Real-IP $remote_addr;
-            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_set_header X-Forwarded-Proto $scheme;
             proxy_http_version 1.1;
             proxy_set_header Upgrade $http_upgrade;
             proxy_set_header Connection "upgrade";
         }
     }
 
+    # ─── HTTP (port 80) — mirror of HTTPS for Cloudflare fallback ─────
     server {
         listen 80;
         server_name hawkeye.flent.in;
 
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+
         location /graphql {
             proxy_pass http://twenty-server:3000;
-            proxy_set_header Host $host;
-            proxy_set_header X-Real-IP $remote_addr;
-            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_set_header X-Forwarded-Proto $scheme;
         }
 
         location /metadata {
             proxy_pass http://twenty-server:3000;
-            proxy_set_header Host $host;
-            proxy_set_header X-Real-IP $remote_addr;
-            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_set_header X-Forwarded-Proto $scheme;
-        }
-
-        location /api/ {
-            proxy_pass http://twenty-server:3000;
-            proxy_set_header Host $host;
-            proxy_set_header X-Real-IP $remote_addr;
-            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_set_header X-Forwarded-Proto $scheme;
         }
 
         location /rest/ {
             proxy_pass http://twenty-server:3000;
-            proxy_set_header Host $host;
-            proxy_set_header X-Real-IP $remote_addr;
-            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+
+        location /files/ {
+            proxy_pass http://twenty-server:3000;
         }
 
         location /healthz {
             proxy_pass http://twenty-server:3000;
-            proxy_set_header Host $host;
-            proxy_set_header X-Real-IP $remote_addr;
-            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+
+        location /assets/ {
+            proxy_pass http://twenty-server:3000;
+        }
+
+        location /images/ {
+            proxy_pass http://twenty-server:3000;
+        }
+
+        location /icons/ {
+            proxy_pass http://twenty-server:3000;
+        }
+
+        location /invite/ {
+            proxy_pass http://twenty-server:3000;
+        }
+
+        location /verify {
+            proxy_pass http://twenty-server:3000;
+        }
+
+        location /reset-password {
+            proxy_pass http://twenty-server:3000;
         }
 
         location /crmops/ {
             proxy_pass http://twenty-server:3000/;
-            proxy_set_header Host $host;
-            proxy_set_header X-Real-IP $remote_addr;
-            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_set_header X-Forwarded-Proto $scheme;
         }
 
         location / {
             proxy_pass http://hawkeye:3001;
-            proxy_set_header Host $host;
-            proxy_set_header X-Real-IP $remote_addr;
-            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_set_header X-Forwarded-Proto $scheme;
             proxy_http_version 1.1;
             proxy_set_header Upgrade $http_upgrade;
             proxy_set_header Connection "upgrade";

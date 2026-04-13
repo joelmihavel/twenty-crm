@@ -119,6 +119,11 @@ export function AppSidebar({
 
   const handleNavClick = useCallback(
     (href: string) => {
+      // External URLs open in a new tab
+      if (/^https?:\/\//.test(href)) {
+        window.open(href, "_blank", "noopener,noreferrer");
+        return;
+      }
       router.push(href);
       if (isMobile && onMobileClose) {
         onMobileClose();
@@ -147,7 +152,7 @@ export function AppSidebar({
         footerItems={[
           {
             label: "CRM Ops",
-            href: "/crmops",
+            href: "https://crmops-hawkeye.flent.in",
             icon: Briefcase01,
           },
           {

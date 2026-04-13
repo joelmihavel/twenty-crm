@@ -5,7 +5,19 @@ metadata:
   namespace: twenty-prod
 data:
   default.conf: |
-    # ─── hawkeye.flent.in — Hawkeye frontend + Twenty backend APIs ────
+    # ─── hawkeye.flent.in — single-domain: Hawkeye + Twenty admin UI ──
+    #
+    # Path routing:
+    #   /graphql, /metadata, /rest/, /files/, /healthz → Twenty API
+    #   /crmops/                                        → Twenty UI (prefix stripped)
+    #   /assets/, /icons/, /manifest.json               → Twenty static assets
+    #                                                     (required by Twenty's built SPA)
+    #   everything else (including /invite/, /login)   → Hawkeye
+    #
+    # NOTE: /images/ is NOT routed here because both Hawkeye and Twenty
+    # use /images/ paths. Twenty's icon paths (/icons/*) and PWA manifest
+    # are routed separately.
+
     server {
         listen 443 ssl;
         server_name hawkeye.flent.in;
@@ -18,7 +30,7 @@ data:
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
 
-        # Twenty backend API endpoints (needed by Hawkeye's BFF proxy)
+        # ─── Twenty backend API ──────────────────────────────────────
         location /graphql {
             proxy_pass http://twenty-server:3000;
         }
@@ -39,7 +51,34 @@ data:
             proxy_pass http://twenty-server:3000;
         }
 
-        # Everything else → Hawkeye (Next.js) including /invite, /login, /bff, pages
+        location /client-config {
+            proxy_pass http://twenty-server:3000;
+        }
+
+        # ─── Twenty native admin UI ──────────────────────────────────
+        # /crmops/* strips the /crmops prefix before forwarding so Twenty
+        # serves its SPA at the root as expected.
+        location /crmops/ {
+            proxy_pass http://twenty-server:3000/;
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection "upgrade";
+        }
+
+        # Twenty's built SPA references these absolute paths
+        location /assets/ {
+            proxy_pass http://twenty-server:3000;
+        }
+
+        location /icons/ {
+            proxy_pass http://twenty-server:3000;
+        }
+
+        location /manifest.json {
+            proxy_pass http://twenty-server:3000;
+        }
+
+        # ─── Hawkeye (everything else) ───────────────────────────────
         location / {
             proxy_pass http://hawkeye:3001;
             proxy_http_version 1.1;
@@ -48,7 +87,7 @@ data:
         }
     }
 
-    # ─── crmops-hawkeye.flent.in — Twenty native admin UI ─────────────
+    # ─── crmops-hawkeye.flent.in — redirect to single domain ──────────
     server {
         listen 443 ssl;
         server_name crmops-hawkeye.flent.in;
@@ -56,57 +95,20 @@ data:
         ssl_certificate /etc/nginx/ssl/tls.crt;
         ssl_certificate_key /etc/nginx/ssl/tls.key;
 
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-
-        # All paths → Twenty server (frontend + API in one)
-        location / {
-            proxy_pass http://twenty-server:3000;
-            proxy_http_version 1.1;
-            proxy_set_header Upgrade $http_upgrade;
-            proxy_set_header Connection "upgrade";
-        }
+        # 301 redirect to single-domain admin URL
+        return 301 https://hawkeye.flent.in/crmops/;
     }
 
-    # ─── HTTP port 80 — mirror both hosts (Cloudflare fallback) ───────
+    # ─── HTTP port 80 — Cloudflare fallback ───────────────────────────
     server {
         listen 80;
-        server_name hawkeye.flent.in;
+        server_name hawkeye.flent.in crmops-hawkeye.flent.in;
 
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
 
-        location /graphql { proxy_pass http://twenty-server:3000; }
-        location /metadata { proxy_pass http://twenty-server:3000; }
-        location /rest/ { proxy_pass http://twenty-server:3000; }
-        location /files/ { proxy_pass http://twenty-server:3000; }
-        location /healthz { proxy_pass http://twenty-server:3000; }
-
-        location / {
-            proxy_pass http://hawkeye:3001;
-            proxy_http_version 1.1;
-            proxy_set_header Upgrade $http_upgrade;
-            proxy_set_header Connection "upgrade";
-        }
-    }
-
-    server {
-        listen 80;
-        server_name crmops-hawkeye.flent.in;
-
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-
-        location / {
-            proxy_pass http://twenty-server:3000;
-            proxy_http_version 1.1;
-            proxy_set_header Upgrade $http_upgrade;
-            proxy_set_header Connection "upgrade";
-        }
+        # Upgrade to HTTPS
+        return 301 https://$host$request_uri;
     }

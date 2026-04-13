@@ -124,6 +124,11 @@ export function AppSidebar({
         window.open(href, "_blank", "noopener,noreferrer");
         return;
       }
+      // /crmops/ bypasses Next.js router so nginx can serve Twenty's UI
+      if (href.startsWith("/crmops")) {
+        window.open(href, "_blank", "noopener,noreferrer");
+        return;
+      }
       router.push(href);
       if (isMobile && onMobileClose) {
         onMobileClose();
@@ -152,7 +157,7 @@ export function AppSidebar({
         footerItems={[
           {
             label: "CRM Ops",
-            href: "https://crmops-hawkeye.flent.in",
+            href: "/crmops/",
             icon: Briefcase01,
           },
           {

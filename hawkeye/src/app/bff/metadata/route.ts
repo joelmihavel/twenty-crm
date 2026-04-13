@@ -16,22 +16,24 @@ export async function POST(request: NextRequest) {
   const cookieToken = request.cookies.get("hawkeye_api_key")?.value;
   const apiKey = clientToken || cookieToken || process.env.TWENTY_API_KEY;
 
-  if (!apiKey) {
-    return NextResponse.json(
-      { error: "No API key available" },
-      { status: 401 },
-    );
-  }
+  // NOTE: Metadata endpoint supports some unauthenticated operations
+  // (findWorkspaceFromInviteHash, signUpInWorkspace, getAuthTokensFromLoginToken).
+  // If no API key is available, forward the request without Authorization header
+  // so these public mutations still work.
 
   try {
     const body = await request.json();
 
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+    };
+    if (apiKey) {
+      headers["Authorization"] = `Bearer ${apiKey}`;
+    }
+
     const res = await fetch(METADATA_URL, {
       method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-      },
+      headers,
       body: JSON.stringify(body),
     });
 

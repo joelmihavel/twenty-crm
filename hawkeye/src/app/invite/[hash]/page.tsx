@@ -59,8 +59,8 @@ const SIGN_UP_MUTATION = `
 `;
 
 const GET_AUTH_TOKENS_MUTATION = `
-  mutation GetAuthTokensFromLoginToken($loginToken: String!) {
-    getAuthTokensFromLoginToken(loginToken: $loginToken) {
+  mutation GetAuthTokensFromLoginToken($loginToken: String!, $origin: String!) {
+    getAuthTokensFromLoginToken(loginToken: $loginToken, origin: $origin) {
       tokens {
         accessOrWorkspaceAgnosticToken { token }
         refreshToken { token }
@@ -136,7 +136,7 @@ export default function InvitePage({
       // Step 2: Exchange login token for access token
       const tokensData = await metadataQuery<GetAuthTokensResponse>(
         GET_AUTH_TOKENS_MUTATION,
-        { loginToken },
+        { loginToken, origin: window.location.origin },
       );
 
       const accessToken =

@@ -1,8 +1,8 @@
 {
   "run": {
     "command": "nx run twenty-front:lingui:compile",
-    "startTime": "2026-04-17T12:43:36.651Z",
-    "endTime": "2026-04-17T12:44:08.099Z",
+    "startTime": "2026-04-17T15:02:53.989Z",
+    "endTime": "2026-04-17T15:03:31.288Z",
     "inner": false
   },
   "tasks": [
@@ -11,8 +11,8 @@
       "target": "generateBarrels",
       "projectName": "twenty-shared",
       "hash": "4500573448938583282",
-      "startTime": "2026-04-17T12:43:36.667Z",
-      "endTime": "2026-04-17T12:43:36.673Z",
+      "startTime": "2026-04-17T15:02:54.004Z",
+      "endTime": "2026-04-17T15:02:54.011Z",
       "params": "",
       "cacheStatus": "local-cache-hit",
       "status": 0
@@ -22,8 +22,8 @@
       "target": "generateBarrels",
       "projectName": "twenty-ui",
       "hash": "13554886103473340076",
-      "startTime": "2026-04-17T12:43:36.667Z",
-      "endTime": "2026-04-17T12:43:36.673Z",
+      "startTime": "2026-04-17T15:02:54.005Z",
+      "endTime": "2026-04-17T15:02:54.011Z",
       "params": "",
       "cacheStatus": "local-cache-hit",
       "status": 0
@@ -33,8 +33,8 @@
       "target": "build",
       "projectName": "twenty-shared",
       "hash": "844926477573863667",
-      "startTime": "2026-04-17T12:43:36.675Z",
-      "endTime": "2026-04-17T12:43:36.735Z",
+      "startTime": "2026-04-17T15:02:54.013Z",
+      "endTime": "2026-04-17T15:02:54.073Z",
       "params": "",
       "cacheStatus": "local-cache-hit",
       "status": 0
@@ -44,8 +44,8 @@
       "target": "build",
       "projectName": "twenty-ui",
       "hash": "15713597644957903519",
-      "startTime": "2026-04-17T12:43:36.737Z",
-      "endTime": "2026-04-17T12:43:36.789Z",
+      "startTime": "2026-04-17T15:02:54.075Z",
+      "endTime": "2026-04-17T15:02:54.131Z",
       "params": "",
       "cacheStatus": "local-cache-hit",
       "status": 0
@@ -55,8 +55,8 @@
       "target": "build",
       "projectName": "twenty-client-sdk",
       "hash": "8003943853125539845",
-      "startTime": "2026-04-17T12:43:36.737Z",
-      "endTime": "2026-04-17T12:43:36.789Z",
+      "startTime": "2026-04-17T15:02:54.075Z",
+      "endTime": "2026-04-17T15:02:54.131Z",
       "params": "",
       "cacheStatus": "local-cache-hit",
       "status": 0
@@ -66,8 +66,8 @@
       "target": "build",
       "projectName": "twenty-sdk",
       "hash": "11399727332414176001",
-      "startTime": "2026-04-17T12:43:36.790Z",
-      "endTime": "2026-04-17T12:43:36.811Z",
+      "startTime": "2026-04-17T15:02:54.133Z",
+      "endTime": "2026-04-17T15:02:54.157Z",
       "params": "",
       "cacheStatus": "local-cache-hit",
       "status": 0
@@ -77,10 +77,10 @@
       "target": "build",
       "projectName": "twenty-front-component-renderer",
       "hash": "10098788272450566069",
-      "startTime": "2026-04-17T12:43:36.812Z",
-      "endTime": "2026-04-17T12:43:36.818Z",
+      "startTime": "2026-04-17T15:02:54.158Z",
+      "endTime": "2026-04-17T15:03:00.558Z",
       "params": "",
-      "cacheStatus": "local-cache-hit",
+      "cacheStatus": "cache-miss",
       "status": 0
     },
     {
@@ -88,8 +88,8 @@
       "target": "lingui:compile",
       "projectName": "twenty-front",
       "hash": "14612221949741407985",
-      "startTime": "2026-04-17T12:43:36.819Z",
-      "endTime": "2026-04-17T12:44:08.098Z",
+      "startTime": "2026-04-17T15:03:00.566Z",
+      "endTime": "2026-04-17T15:03:31.287Z",
       "params": "",
       "cacheStatus": "cache-miss",
       "status": 0

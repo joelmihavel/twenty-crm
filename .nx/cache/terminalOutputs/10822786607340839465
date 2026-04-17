@@ -68,6 +68,6 @@ rendering chunks...
 [2mdist/[22m[36mlocales/generated/el-GR.js      [39m[1m[2m  6.21 kB[22m[1m[22m
 [2mdist/[22m[36mlocales/generated/ru-RU.js      [39m[1m[2m  6.46 kB[22m[1m[22m
 [2mdist/[22m[36mindex.js                        [39m[1m[33m643.79 kB[39m[22m
-[32m✓ built in 6.06s[39m
+[32m✓ built in 5.46s[39m
 [2m> [22mtsgo -p tsconfig.lib.json --declaration --emitDeclarationOnly --outDir dist --rootDir src --composite false && npx tsc-alias -p tsconfig.lib.json --outDir dist
 

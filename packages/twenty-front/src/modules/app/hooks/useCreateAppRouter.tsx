@@ -13,8 +13,35 @@ import { lazy } from 'react';
 import {
   createBrowserRouter,
   createRoutesFromElements,
+  Navigate,
   Route,
 } from 'react-router-dom';
+import { HawkeyeLayout } from '@/hawkeye/components/HawkeyeLayout';
+import { HawkeyeProviders } from '@/hawkeye/components/HawkeyeProviders';
+import {
+  TenantsListPage,
+  TenantDetailPage,
+  MerchantsListPage,
+  MerchantDetailPage,
+  VendorsListPage,
+  VendorDetailPage,
+  PropertiesListPage,
+  PropertyDetailPage,
+  RoomsListPage,
+  RoomDetailPage,
+  ContractsListPage,
+  ContractDetailPage,
+  TransactionsListPage,
+  TransactionDetailPage,
+  TicketsListPage,
+  TicketDetailPage,
+  CatalogsListPage,
+  CatalogDetailPage,
+  ItemsListPage,
+  ItemDetailPage,
+  OverheadsListPage,
+  OverheadDetailPage,
+} from '@/hawkeye/pages/HawkeyePages';
 
 const RecordIndexPage = lazy(() =>
   import('~/pages/object-record/RecordIndexPage').then((module) => ({
@@ -106,6 +133,34 @@ export const useCreateAppRouter = (
 ) =>
   createBrowserRouter(
     createRoutesFromElements(
+      <>
+      <Route path="/hawkeye" element={<HawkeyeProviders />}>
+        <Route element={<HawkeyeLayout />}>
+          <Route index element={<Navigate to="tenants" replace />} />
+          <Route path="tenants" element={<TenantsListPage />} />
+          <Route path="tenants/:id" element={<TenantDetailPage />} />
+          <Route path="merchants" element={<MerchantsListPage />} />
+          <Route path="merchants/:id" element={<MerchantDetailPage />} />
+          <Route path="vendors" element={<VendorsListPage />} />
+          <Route path="vendors/:id" element={<VendorDetailPage />} />
+          <Route path="properties" element={<PropertiesListPage />} />
+          <Route path="properties/:id" element={<PropertyDetailPage />} />
+          <Route path="rooms" element={<RoomsListPage />} />
+          <Route path="rooms/:id" element={<RoomDetailPage />} />
+          <Route path="contracts" element={<ContractsListPage />} />
+          <Route path="contracts/:id" element={<ContractDetailPage />} />
+          <Route path="transactions" element={<TransactionsListPage />} />
+          <Route path="transactions/:id" element={<TransactionDetailPage />} />
+          <Route path="tickets" element={<TicketsListPage />} />
+          <Route path="tickets/:id" element={<TicketDetailPage />} />
+          <Route path="catalogs" element={<CatalogsListPage />} />
+          <Route path="catalogs/:id" element={<CatalogDetailPage />} />
+          <Route path="items" element={<ItemsListPage />} />
+          <Route path="items/:id" element={<ItemDetailPage />} />
+          <Route path="overheads" element={<OverheadsListPage />} />
+          <Route path="overheads/:id" element={<OverheadDetailPage />} />
+        </Route>
+      </Route>
       <Route
         element={<AppRouterProviders />}
         // To switch state to `loading` temporarily to enable us
@@ -248,6 +303,7 @@ export const useCreateAppRouter = (
             }
           />
         </Route>
-      </Route>,
+      </Route>
+      </>,
     ),
   );

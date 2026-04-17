@@ -109,6 +109,18 @@ export const metadataGraphql = graphql.link(
 
 export const graphqlMocks = {
   handlers: [
+    graphql.query('CheckUserExists', () => {
+      return HttpResponse.json({
+        data: {
+          checkUserExists: {
+            __typename: 'CheckUserExist',
+            exists: true,
+            availableWorkspacesCount: 1,
+            isEmailVerified: true,
+          },
+        },
+      });
+    }),
     graphql.query('IntrospectionQuery', () => {
       return HttpResponse.json({
         data: {

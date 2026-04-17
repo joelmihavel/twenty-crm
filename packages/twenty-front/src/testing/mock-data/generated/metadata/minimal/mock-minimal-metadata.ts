@@ -463,6 +463,138 @@ export const mockedMinimalMetadata: MinimalMetadata =
       "isActive": true,
       "isSystem": false,
       "isRemote": false
+    },
+    {
+      "id": "cc76bcc0-cb13-4d9b-85b3-cdf5eedea28d",
+      "nameSingular": "tenant",
+      "namePlural": "tenants",
+      "labelSingular": "Tenant",
+      "labelPlural": "Tenants",
+      "icon": "IconUser",
+      "isCustom": true,
+      "isActive": true,
+      "isSystem": false,
+      "isRemote": false
+    },
+    {
+      "id": "8788a828-e4fa-43e8-9ec9-d39339be53d9",
+      "nameSingular": "merchant",
+      "namePlural": "merchants",
+      "labelSingular": "Merchant",
+      "labelPlural": "Merchants",
+      "icon": "IconBuildingStore",
+      "isCustom": true,
+      "isActive": true,
+      "isSystem": false,
+      "isRemote": false
+    },
+    {
+      "id": "05cff33b-e59b-457e-9669-4a0fb92b0359",
+      "nameSingular": "vendor",
+      "namePlural": "vendors",
+      "labelSingular": "Vendor",
+      "labelPlural": "Vendors",
+      "icon": "IconTool",
+      "isCustom": true,
+      "isActive": true,
+      "isSystem": false,
+      "isRemote": false
+    },
+    {
+      "id": "f078ef26-56f3-4235-a3bb-2be40e285921",
+      "nameSingular": "property",
+      "namePlural": "properties",
+      "labelSingular": "Property",
+      "labelPlural": "Properties",
+      "icon": "IconBuilding",
+      "isCustom": true,
+      "isActive": true,
+      "isSystem": false,
+      "isRemote": false
+    },
+    {
+      "id": "f86b92b4-c1be-467f-a752-36fb6019484c",
+      "nameSingular": "room",
+      "namePlural": "rooms",
+      "labelSingular": "Room",
+      "labelPlural": "Rooms",
+      "icon": "IconDoor",
+      "isCustom": true,
+      "isActive": true,
+      "isSystem": false,
+      "isRemote": false
+    },
+    {
+      "id": "3d6bc62f-4b0b-443d-9db1-857d51bacc33",
+      "nameSingular": "contract",
+      "namePlural": "contracts",
+      "labelSingular": "Contract",
+      "labelPlural": "Contracts",
+      "icon": "IconFileDescription",
+      "isCustom": true,
+      "isActive": true,
+      "isSystem": false,
+      "isRemote": false
+    },
+    {
+      "id": "dcda053c-6f46-432f-874c-c0562cd6f1a5",
+      "nameSingular": "transaction",
+      "namePlural": "transactions",
+      "labelSingular": "Transaction",
+      "labelPlural": "Transactions",
+      "icon": "IconCreditCard",
+      "isCustom": true,
+      "isActive": true,
+      "isSystem": false,
+      "isRemote": false
+    },
+    {
+      "id": "6a5948bc-4619-4ad2-b4be-23daa7b8f3d0",
+      "nameSingular": "overhead",
+      "namePlural": "overheads",
+      "labelSingular": "Overhead",
+      "labelPlural": "Overheads",
+      "icon": "IconReceipt",
+      "isCustom": true,
+      "isActive": true,
+      "isSystem": false,
+      "isRemote": false
+    },
+    {
+      "id": "4c7a00fe-70c2-4ccd-b3ae-7573c6bfb9b1",
+      "nameSingular": "operationsTicket",
+      "namePlural": "operationsTickets",
+      "labelSingular": "Ticket",
+      "labelPlural": "Tickets",
+      "icon": "IconTicket",
+      "isCustom": true,
+      "isActive": true,
+      "isSystem": false,
+      "isRemote": false
+    },
+    {
+      "id": "b9082fbe-dfa5-4675-a9da-292c7e5680bd",
+      "nameSingular": "catalog",
+      "namePlural": "catalogs",
+      "labelSingular": "Catalog (FSN)",
+      "labelPlural": "Catalogs (FSN)",
+      "icon": "IconCategory",
+      "isCustom": true,
+      "isActive": true,
+      "isSystem": false,
+      "isRemote": false
+    },
+    {
+      "id": "d400cbb7-d6ef-4d9c-8169-89001e0aca62",
+      "nameSingular": "inventoryItem",
+      "namePlural": "inventoryItems",
+      "labelSingular": "Item",
+      "labelPlural": "Items",
+      "icon": "IconPackage",
+      "isCustom": true,
+      "isActive": true,
+      "isSystem": false,
+      "isRemote": false
     }
   ],
   "views": [
@@ -765,6 +897,72 @@ export const mockedMinimalMetadata: MinimalMetadata =
       "type": "FIELDS_WIDGET",
       "key": null,
       "objectMetadataId": "44b00550-b1cb-4e25-b18e-7c6bac97903b"
+    },
+    {
+      "id": "53be4bfa-2901-4955-a2d5-cc34eba00e5c",
+      "type": "TABLE",
+      "key": "INDEX",
+      "objectMetadataId": "cc76bcc0-cb13-4d9b-85b3-cdf5eedea28d"
+    },
+    {
+      "id": "0782313e-65b9-49dc-9775-1ba4050501c9",
+      "type": "TABLE",
+      "key": "INDEX",
+      "objectMetadataId": "8788a828-e4fa-43e8-9ec9-d39339be53d9"
+    },
+    {
+      "id": "03dddecd-b702-45c0-81ac-1150a7a759af",
+      "type": "TABLE",
+      "key": "INDEX",
+      "objectMetadataId": "05cff33b-e59b-457e-9669-4a0fb92b0359"
+    },
+    {
+      "id": "86b113a1-49bb-4890-a1b9-ee9d75fdcf78",
+      "type": "TABLE",
+      "key": "INDEX",
+      "objectMetadataId": "f078ef26-56f3-4235-a3bb-2be40e285921"
+    },
+    {
+      "id": "5b89df35-b2d8-4b7b-8b96-e56f86efbdaa",
+      "type": "TABLE",
+      "key": "INDEX",
+      "objectMetadataId": "f86b92b4-c1be-467f-a752-36fb6019484c"
+    },
+    {
+      "id": "5c53c4fd-2981-4a3c-b47c-3922c44bec6c",
+      "type": "TABLE",
+      "key": "INDEX",
+      "objectMetadataId": "3d6bc62f-4b0b-443d-9db1-857d51bacc33"
+    },
+    {
+      "id": "ab363bb1-4ec0-4b24-86fd-c1e098d123b4",
+      "type": "TABLE",
+      "key": "INDEX",
+      "objectMetadataId": "dcda053c-6f46-432f-874c-c0562cd6f1a5"
+    },
+    {
+      "id": "fd794ad8-50e8-4224-8633-07c0b31ff2a6",
+      "type": "TABLE",
+      "key": "INDEX",
+      "objectMetadataId": "6a5948bc-4619-4ad2-b4be-23daa7b8f3d0"
+    },
+    {
+      "id": "be81046b-4a35-4999-a328-46bbdd031562",
+      "type": "TABLE",
+      "key": "INDEX",
+      "objectMetadataId": "4c7a00fe-70c2-4ccd-b3ae-7573c6bfb9b1"
+    },
+    {
+      "id": "f7fa4450-83e9-42c4-8aab-a5fe456c0dc6",
+      "type": "TABLE",
+      "key": "INDEX",
+      "objectMetadataId": "b9082fbe-dfa5-4675-a9da-292c7e5680bd"
+    },
+    {
+      "id": "1ebd54df-f2b5-40fd-b144-df795d6cc9ba",
+      "type": "TABLE",
+      "key": "INDEX",
+      "objectMetadataId": "d400cbb7-d6ef-4d9c-8169-89001e0aca62"
     }
   ],
   "collectionHashes": [

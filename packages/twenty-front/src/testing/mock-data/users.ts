@@ -62,7 +62,7 @@ export const mockCurrentWorkspace = {
   workspaceCustomApplication: CUSTOM_WORKSPACE_APPLICATION_MOCK,
   workspaceCustomApplicationId: CUSTOM_WORKSPACE_APPLICATION_MOCK.id,
   subdomain: 'acme.twenty.com',
-  id: '7dfbc3f7-6e5e-4128-957e-8d86808cdf6w',
+  id: '7dfbc3f7-6e5e-4128-957e-8d86808cdf60',
   displayName: 'Twenty',
   inviteHash: 'twenty.com-invite-hash',
   logo: workspaceLogoUrl,
@@ -75,6 +75,7 @@ export const mockCurrentWorkspace = {
   isGoogleAuthEnabled: true,
   isPasswordAuthEnabled: true,
   isMicrosoftAuthEnabled: false,
+  customDomain: null,
   isCustomDomainEnabled: false,
   isPasswordAuthBypassEnabled: false,
   isGoogleAuthBypassEnabled: false,
@@ -161,6 +162,25 @@ export const mockCurrentWorkspace = {
   databaseSchema: null,
   isTwoFactorAuthenticationEnforced: false,
   eventLogRetentionDays: 90,
+  defaultRole: {
+    __typename: 'Role',
+    id: 'a0000001-0001-4000-8000-000000000001',
+    label: 'Member',
+    description: 'Default member role',
+    icon: 'IconUser',
+    canUpdateAllSettings: false,
+    canAccessAllTools: true,
+    isEditable: false,
+    canReadAllObjectRecords: true,
+    canUpdateAllObjectRecords: true,
+    canSoftDeleteAllObjectRecords: true,
+    canDestroyAllObjectRecords: true,
+    canBeAssignedToUsers: true,
+    canBeAssignedToAgents: false,
+    canBeAssignedToApiKeys: false,
+  },
+  aiAdditionalInstructions: null,
+  editableProfileFields: [],
   __typename: 'Workspace',
 } as const satisfies Workspace;
 
@@ -181,6 +201,9 @@ export const mockedWorkspaceMemberData: WorkspaceMember = {
   dateFormat: WorkspaceMemberDateFormatEnum.DAY_FIRST,
   timeFormat: WorkspaceMemberTimeFormatEnum.HOUR_24,
   timeZone: 'America/New_York',
+  calendarStartDay: 0,
+  numberFormat: 'SYSTEM',
+  userWorkspaceId: '7dfbc3f7-6e5e-4128-957e-8d86808cdf6e',
 };
 
 export const mockedUserData: MockedUser = {
@@ -197,6 +220,7 @@ export const mockedUserData: MockedUser = {
   workspaceMember: mockedWorkspaceMemberData,
   currentWorkspace: mockCurrentWorkspace,
   currentUserWorkspace: {
+    id: '7dfbc3f7-6e5e-4128-957e-8d86808cdf6e',
     permissionFlags: [
       PermissionFlagType.WORKSPACE_MEMBERS,
       PermissionFlagType.CONNECTED_ACCOUNTS,
@@ -218,6 +242,7 @@ export const mockedUserData: MockedUser = {
   locale: 'en',
   workspaces: [{ workspace: mockCurrentWorkspace }],
   workspaceMembers: [mockedWorkspaceMemberData],
+  deletedWorkspaceMembers: [],
   onboardingStatus: OnboardingStatus.COMPLETED,
   availableWorkspaces: {
     availableWorkspacesForSignIn: [],
@@ -267,8 +292,10 @@ export const mockedOnboardingUserData = (
     workspaceMembers: [],
     currentWorkspace: mockCurrentWorkspace,
     currentUserWorkspace: {
+      id: '7dfbc3f7-6e5e-4128-957e-8d86808cdf6f',
       permissionFlags: [PermissionFlagType.WORKSPACE_MEMBERS],
-      objectPermissions: getTestEnrichedObjectMetadataItemsMock().map(
+      twoFactorAuthenticationMethodSummary: [],
+      objectsPermissions: getTestEnrichedObjectMetadataItemsMock().map(
         (item) => ({
           objectMetadataId: item.id,
           canReadObjectRecords: true,

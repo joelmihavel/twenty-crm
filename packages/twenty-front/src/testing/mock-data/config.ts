@@ -40,8 +40,8 @@ export const mockedClientConfig: ClientConfig = {
     ],
   },
   captcha: {
-    provider: CaptchaDriverType.GOOGLE_RECAPTCHA,
-    siteKey: 'MOCKED_SITE_KEY',
+    provider: null,
+    siteKey: null,
   },
   api: { mutationMaximumAffectedRecords: 100 },
   canManageFeatureFlags: true,

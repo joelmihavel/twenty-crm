@@ -31,6 +31,14 @@ export const UserMetadataProviderInitialEffect = () => {
   const currentUser = useAtomStateValue(currentUserState);
   const store = useStore();
   const [isInitialized, setIsInitialized] = useState(false);
+  const [initializedWithToken, setInitializedWithToken] = useState<
+    boolean | null
+  >(null);
+
+  // Reset initialization if the token state changes (e.g. MSW cookie loaded late)
+  if (isInitialized && initializedWithToken !== hasAccessTokenPair) {
+    setIsInitialized(false);
+  }
 
   const setCurrentUser = useSetAtomState(currentUserState);
   const setCurrentWorkspace = useSetAtomState(currentWorkspaceState);
@@ -82,6 +90,7 @@ export const UserMetadataProviderInitialEffect = () => {
     if (!hasAccessTokenPair) {
       setIsCurrentUserLoaded(true);
       setIsInitialized(true);
+      setInitializedWithToken(false);
       return;
     }
 
@@ -163,6 +172,7 @@ export const UserMetadataProviderInitialEffect = () => {
 
     setIsCurrentUserLoaded(true);
     setIsInitialized(true);
+    setInitializedWithToken(true);
   }, [
     isInitialized,
     hasAccessTokenPair,

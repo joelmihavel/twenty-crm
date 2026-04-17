@@ -1,16 +1,20 @@
 import { styled } from '@linaria/react';
-import { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ThemeContext, themeCssVariables } from 'twenty-ui/theme-constants';
 import { Tag } from 'twenty-ui/components';
 import { Checkbox } from 'twenty-ui/input';
 import { MenuItem } from 'twenty-ui/navigation';
 import {
+  IconArrowDown,
   IconArrowLeft,
   IconArrowRight,
+  IconArrowUp,
   IconEyeOff,
   IconFilter,
+  IconSortAscending,
   IconSortDescending,
+  IconX,
 } from 'twenty-ui/display';
 
 import { TableRow } from '@/ui/layout/table/components/TableRow';
@@ -86,6 +90,15 @@ const StyledHeaderIcon = styled.div`
   flex-shrink: 0;
 `;
 
+// Sort direction indicator
+const StyledSortIndicator = styled.div`
+  align-items: center;
+  color: ${themeCssVariables.color.blue};
+  display: flex;
+  flex-shrink: 0;
+  margin-left: auto;
+`;
+
 // ── Checkbox column cells ────────────────────────────────────────
 const StyledCheckboxCell = styled.div`
   align-items: center;
@@ -125,6 +138,87 @@ const StyledDropdownItemsContainer = styled.div`
   flex-direction: column;
   gap: 2px;
   width: 100%;
+`;
+
+// ── Filter bar ──────────────────────────────────────────────────
+const StyledFilterBar = styled.div`
+  align-items: center;
+  background-color: ${themeCssVariables.background.primary};
+  border-bottom: 1px solid ${themeCssVariables.border.color.light};
+  display: flex;
+  flex-wrap: wrap;
+  gap: ${themeCssVariables.spacing[2]};
+  min-height: 36px;
+  padding: ${themeCssVariables.spacing[1]} ${themeCssVariables.spacing[3]};
+  position: sticky;
+  top: 32px;
+  z-index: 4;
+`;
+
+const StyledFilterChip = styled.div`
+  align-items: center;
+  backdrop-filter: ${themeCssVariables.blur.medium};
+  background: ${themeCssVariables.background.transparent.light};
+  border: 1px solid ${themeCssVariables.border.color.medium};
+  border-radius: ${themeCssVariables.border.radius.sm};
+  display: flex;
+  gap: ${themeCssVariables.spacing[1]};
+  height: 24px;
+  padding: 0 ${themeCssVariables.spacing[1]} 0 ${themeCssVariables.spacing[2]};
+`;
+
+const StyledFilterLabel = styled.span`
+  color: ${themeCssVariables.font.color.tertiary};
+  font-size: ${themeCssVariables.font.size.sm};
+  white-space: nowrap;
+`;
+
+const StyledFilterInput = styled.input`
+  background: transparent;
+  border: none;
+  color: ${themeCssVariables.font.color.primary};
+  font-family: ${themeCssVariables.font.family};
+  font-size: ${themeCssVariables.font.size.sm};
+  outline: none;
+  width: 80px;
+
+  &::placeholder {
+    color: ${themeCssVariables.font.color.light};
+  }
+`;
+
+const StyledFilterRemove = styled.button`
+  align-items: center;
+  background: none;
+  border: none;
+  border-radius: ${themeCssVariables.border.radius.xs};
+  color: ${themeCssVariables.font.color.tertiary};
+  cursor: pointer;
+  display: flex;
+  height: 16px;
+  justify-content: center;
+  padding: 0;
+  width: 16px;
+
+  &:hover {
+    background: ${themeCssVariables.background.transparent.medium};
+    color: ${themeCssVariables.font.color.primary};
+  }
+`;
+
+// ── Sort indicator chip in filter bar ────────────────────────────
+const StyledSortChip = styled.div`
+  align-items: center;
+  background: ${themeCssVariables.background.transparent.light};
+  border: 1px solid ${themeCssVariables.color.blue};
+  border-radius: ${themeCssVariables.border.radius.sm};
+  color: ${themeCssVariables.color.blue};
+  display: flex;
+  font-size: ${themeCssVariables.font.size.sm};
+  gap: ${themeCssVariables.spacing[1]};
+  height: 24px;
+  padding: 0 ${themeCssVariables.spacing[1]} 0 ${themeCssVariables.spacing[2]};
+  white-space: nowrap;
 `;
 
 // ── Footer (aggregate bar) ───────────────────────────────────────
@@ -192,6 +286,15 @@ const StyledChipText = styled.span`
 `;
 
 // ── Types ────────────────────────────────────────────────────────
+
+type SortDirection = 'asc' | 'desc';
+
+type SortState = {
+  columnKey: string;
+  direction: SortDirection;
+} | null;
+
+type FilterState = Record<string, string>;
 
 type HawkeyeTableProps<T> = {
   columns: HawkeyeColumn<T>[];
@@ -266,6 +369,75 @@ const getAvatarColor = (text: string) => {
   return AVATAR_COLORS[code % AVATAR_COLORS.length];
 };
 
+// ── Sort comparator ─────────────────────────────────────────────
+
+const compareValues = <T,>(
+  a: T,
+  b: T,
+  key: keyof T & string,
+  type: string | undefined,
+  direction: SortDirection,
+): number => {
+  const aVal = a[key];
+  const bVal = b[key];
+
+  // Nulls always last
+  if (aVal === null || aVal === undefined || aVal === '') return 1;
+  if (bVal === null || bVal === undefined || bVal === '') return -1;
+
+  let result: number;
+
+  switch (type) {
+    case 'number':
+    case 'currency':
+      result = (aVal as number) - (bVal as number);
+      break;
+    case 'date':
+      result = new Date(aVal as string).getTime() - new Date(bVal as string).getTime();
+      break;
+    case 'boolean':
+      result = (aVal === bVal) ? 0 : (aVal ? -1 : 1);
+      break;
+    default:
+      result = String(aVal).localeCompare(String(bVal), 'en', { sensitivity: 'base' });
+  }
+
+  return direction === 'desc' ? -result : result;
+};
+
+// ── Filter matcher ──────────────────────────────────────────────
+
+const matchesFilter = <T,>(
+  row: T,
+  key: keyof T & string,
+  type: string | undefined,
+  filterValue: string,
+): boolean => {
+  const value = row[key];
+  if (value === null || value === undefined || value === '') {
+    return filterValue === '';
+  }
+
+  const search = filterValue.toLowerCase();
+
+  switch (type) {
+    case 'number':
+    case 'currency':
+      return String(value).includes(search);
+    case 'boolean':
+      return (
+        (search === 'yes' && value === true) ||
+        (search === 'no' && value === false) ||
+        (search === 'true' && value === true) ||
+        (search === 'false' && value === false) ||
+        'yes'.startsWith(search) && value === true ||
+        'no'.startsWith(search) && value === false
+      );
+    default:
+      return String(value).toLowerCase().includes(search);
+  }
+};
+
 // ── Cell renderers ───────────────────────────────────────────────
 
 const renderChipCell = (text: string) => {
@@ -316,6 +488,9 @@ const ColumnHeaderDropdown = ({
   onMoveLeft,
   onMoveRight,
   onHide,
+  onFilter,
+  onSort,
+  currentSortDirection,
 }: {
   onClose: () => void;
   columnIndex: number;
@@ -323,6 +498,9 @@ const ColumnHeaderDropdown = ({
   onMoveLeft: () => void;
   onMoveRight: () => void;
   onHide: () => void;
+  onFilter: () => void;
+  onSort: () => void;
+  currentSortDirection: SortDirection | null;
 }) => {
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -339,8 +517,22 @@ const ColumnHeaderDropdown = ({
   return (
     <StyledDropdownOverlay ref={dropdownRef}>
       <StyledDropdownItemsContainer>
-        <MenuItem LeftIcon={IconFilter} text="Filter" onClick={onClose} />
-        <MenuItem LeftIcon={IconSortDescending} text="Sort" onClick={onClose} />
+        <MenuItem
+          LeftIcon={IconFilter}
+          text="Filter"
+          onClick={() => { onFilter(); onClose(); }}
+        />
+        <MenuItem
+          LeftIcon={currentSortDirection === 'asc' ? IconSortDescending : IconSortAscending}
+          text={
+            currentSortDirection === 'asc'
+              ? 'Sort descending'
+              : currentSortDirection === 'desc'
+                ? 'Remove sort'
+                : 'Sort ascending'
+          }
+          onClick={() => { onSort(); onClose(); }}
+        />
         {columnIndex > 0 && (
           <MenuItem
             LeftIcon={IconArrowLeft}
@@ -394,16 +586,93 @@ export const HawkeyeTable = <T,>({
 
   // Row selection
   const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set());
-  const allSelected = data.length > 0 && selectedRows.size === data.length;
+
+  // Sort state
+  const [sort, setSort] = useState<SortState>(null);
+
+  // Filter state
+  const [filters, setFilters] = useState<FilterState>({});
+
+  // Column header dropdown
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+
+  // Filter input refs for auto-focus
+  const filterInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
+
+  // ── Sort handler ──────────────────────────────────────────────
+  const handleSort = useCallback((columnKey: string) => {
+    setSort((prev) => {
+      if (!prev || prev.columnKey !== columnKey) {
+        return { columnKey, direction: 'asc' };
+      }
+      if (prev.direction === 'asc') {
+        return { columnKey, direction: 'desc' };
+      }
+      return null;
+    });
+  }, []);
+
+  // ── Filter handlers ───────────────────────────────────────────
+  const handleAddFilter = useCallback((columnKey: string) => {
+    setFilters((prev) => {
+      if (columnKey in prev) return prev;
+      return { ...prev, [columnKey]: '' };
+    });
+    // Focus the input after render
+    requestAnimationFrame(() => {
+      filterInputRefs.current[columnKey]?.focus();
+    });
+  }, []);
+
+  const handleFilterChange = useCallback((columnKey: string, value: string) => {
+    setFilters((prev) => ({ ...prev, [columnKey]: value }));
+  }, []);
+
+  const handleRemoveFilter = useCallback((columnKey: string) => {
+    setFilters((prev) => {
+      const next = { ...prev };
+      delete next[columnKey];
+      return next;
+    });
+  }, []);
+
+  // ── Process data (filter → sort) ──────────────────────────────
+  const processedData = useMemo(() => {
+    let result = [...data];
+
+    // Apply filters
+    const activeFilters = Object.entries(filters).filter(([, v]) => v.length > 0);
+    if (activeFilters.length > 0) {
+      result = result.filter((row) =>
+        activeFilters.every(([key, filterValue]) => {
+          const col = columns.find((c) => c.key === key);
+          return matchesFilter(row, key as keyof T & string, col?.type, filterValue);
+        }),
+      );
+    }
+
+    // Apply sort
+    if (sort) {
+      const col = columns.find((c) => c.key === sort.columnKey);
+      result.sort((a, b) =>
+        compareValues(a, b, sort.columnKey as keyof T & string, col?.type, sort.direction),
+      );
+    }
+
+    return result;
+  }, [data, filters, sort, columns]);
+
+  // ── Selection ─────────────────────────────────────────────────
+  const allSelected = processedData.length > 0 && selectedRows.size === processedData.length;
   const someSelected = selectedRows.size > 0 && !allSelected;
 
   const handleSelectAll = useCallback(() => {
     if (allSelected) {
       setSelectedRows(new Set());
     } else {
-      setSelectedRows(new Set(data.map((row) => String(row[idKey]))));
+      setSelectedRows(new Set(processedData.map((row) => String(row[idKey]))));
     }
-  }, [allSelected, data, idKey]);
+  }, [allSelected, processedData, idKey]);
 
   const handleSelectRow = useCallback((rowId: string) => {
     setSelectedRows((prev) => {
@@ -417,9 +686,7 @@ export const HawkeyeTable = <T,>({
     });
   }, []);
 
-  // Column header dropdown
-  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
-
+  // ── Column operations ─────────────────────────────────────────
   const handleMoveColumn = useCallback((fromIndex: number, toIndex: number) => {
     setColumns((prev) => {
       const next = [...prev];
@@ -433,7 +700,7 @@ export const HawkeyeTable = <T,>({
     setColumns((prev) => prev.filter((_, i) => i !== index));
   }, []);
 
-  // Resize state
+  // ── Resize ────────────────────────────────────────────────────
   const resizingRef = useRef<{
     key: string;
     startX: number;
@@ -478,7 +745,7 @@ export const HawkeyeTable = <T,>({
     [columnWidths],
   );
 
-  // Build gridTemplateColumns for data rows
+  // ── Layout helpers ────────────────────────────────────────────
   const gridTemplateColumns =
     `${CHECKBOX_COLUMN_WIDTH}px ` +
     columns
@@ -489,7 +756,6 @@ export const HawkeyeTable = <T,>({
       })
       .join(' ');
 
-  // Build style for a header cell
   const buildColumnStyle = useCallback(
     (col: HawkeyeColumn<T>, isLast: boolean) => {
       const width = columnWidths[col.key] ?? col.width ?? 150;
@@ -501,6 +767,11 @@ export const HawkeyeTable = <T,>({
     },
     [columnWidths],
   );
+
+  // ── Active filter/sort state for the bar ──────────────────────
+  const hasActiveFilters = Object.keys(filters).length > 0;
+  const hasActiveSort = sort !== null;
+  const showBar = hasActiveFilters || hasActiveSort;
 
   if (data.length === 0) {
     return <StyledEmptyState>No records found</StyledEmptyState>;
@@ -521,6 +792,7 @@ export const HawkeyeTable = <T,>({
           </StyledCheckboxHeaderCell>
           {columns.map((col, idx) => {
             const isLast = idx === columns.length - 1;
+            const isSortedColumn = sort?.columnKey === col.key;
             return (
               <StyledHeaderCellWrapper
                 key={col.key}
@@ -539,6 +811,15 @@ export const HawkeyeTable = <T,>({
                     </StyledHeaderIcon>
                   )}
                   {col.label}
+                  {isSortedColumn && (
+                    <StyledSortIndicator>
+                      {sort.direction === 'asc' ? (
+                        <IconArrowUp size={14} />
+                      ) : (
+                        <IconArrowDown size={14} />
+                      )}
+                    </StyledSortIndicator>
+                  )}
                 </TableHeader>
                 {openDropdown === col.key && (
                   <ColumnHeaderDropdown
@@ -548,6 +829,11 @@ export const HawkeyeTable = <T,>({
                     onMoveLeft={() => handleMoveColumn(idx, idx - 1)}
                     onMoveRight={() => handleMoveColumn(idx, idx + 1)}
                     onHide={() => handleHideColumn(idx)}
+                    onFilter={() => handleAddFilter(col.key)}
+                    onSort={() => handleSort(col.key)}
+                    currentSortDirection={
+                      sort?.columnKey === col.key ? sort.direction : null
+                    }
                   />
                 )}
                 {!isLast && (
@@ -560,50 +846,96 @@ export const HawkeyeTable = <T,>({
           })}
         </StyledHeaderRow>
 
+        {/* ── Filter / sort bar ── */}
+        {showBar && (
+          <StyledFilterBar>
+            {/* Sort chip */}
+            {hasActiveSort && sort && (
+              <StyledSortChip>
+                {sort.direction === 'asc' ? (
+                  <IconArrowUp size={12} />
+                ) : (
+                  <IconArrowDown size={12} />
+                )}
+                {columns.find((c) => c.key === sort.columnKey)?.label ?? sort.columnKey}
+                <StyledFilterRemove onClick={() => setSort(null)}>
+                  <IconX size={10} />
+                </StyledFilterRemove>
+              </StyledSortChip>
+            )}
+
+            {/* Filter chips */}
+            {Object.keys(filters).map((key) => {
+              const col = columns.find((c) => c.key === key);
+              return (
+                <StyledFilterChip key={key}>
+                  <StyledFilterLabel>
+                    {col?.label ?? key} contains
+                  </StyledFilterLabel>
+                  <StyledFilterInput
+                    ref={(el) => { filterInputRefs.current[key] = el; }}
+                    value={filters[key]}
+                    onChange={(e) => handleFilterChange(key, e.target.value)}
+                    placeholder="type..."
+                    autoFocus
+                  />
+                  <StyledFilterRemove onClick={() => handleRemoveFilter(key)}>
+                    <IconX size={10} />
+                  </StyledFilterRemove>
+                </StyledFilterChip>
+              );
+            })}
+          </StyledFilterBar>
+        )}
+
         {/* ── Data rows ── */}
-        {data.map((row) => {
-          const rowId = String(row[idKey]);
-          return (
-            <TableRow
-              key={rowId}
-              isSelected={
-                selectedRows.has(rowId) || selectedId === rowId
-              }
-              gridTemplateColumns={gridTemplateColumns}
-            >
-              <StyledCheckboxCell
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleSelectRow(rowId);
-                }}
+        {processedData.length === 0 ? (
+          <StyledEmptyState>No records match the current filters</StyledEmptyState>
+        ) : (
+          processedData.map((row) => {
+            const rowId = String(row[idKey]);
+            return (
+              <TableRow
+                key={rowId}
+                isSelected={
+                  selectedRows.has(rowId) || selectedId === rowId
+                }
+                gridTemplateColumns={gridTemplateColumns}
               >
-                <Checkbox
-                  checked={selectedRows.has(rowId)}
-                  hoverable
-                />
-              </StyledCheckboxCell>
-              {columns.map((col, idx) => (
-                <TableCell
-                  key={col.key}
-                  color={themeCssVariables.font.color.primary}
-                  overflow="hidden"
-                  textOverflow="ellipsis"
-                  whiteSpace="nowrap"
-                  clickable
-                  onClick={() =>
-                    onRowClick
-                      ? onRowClick(row)
-                      : navigate(
-                          `${basePath}/${encodeURIComponent(rowId)}`,
-                        )
-                  }
+                <StyledCheckboxCell
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleSelectRow(rowId);
+                  }}
                 >
-                  {renderCell(row, col, idx === 0)}
-                </TableCell>
-              ))}
-            </TableRow>
-          );
-        })}
+                  <Checkbox
+                    checked={selectedRows.has(rowId)}
+                    hoverable
+                  />
+                </StyledCheckboxCell>
+                {columns.map((col, idx) => (
+                  <TableCell
+                    key={col.key}
+                    color={themeCssVariables.font.color.primary}
+                    overflow="hidden"
+                    textOverflow="ellipsis"
+                    whiteSpace="nowrap"
+                    clickable
+                    onClick={() =>
+                      onRowClick
+                        ? onRowClick(row)
+                        : navigate(
+                            `${basePath}/${encodeURIComponent(rowId)}`,
+                          )
+                    }
+                  >
+                    {renderCell(row, col, idx === 0)}
+                  </TableCell>
+                ))}
+              </TableRow>
+            );
+          })
+        )}
 
         {/* ── Footer (aggregate bar) ── */}
         <StyledFooter>
@@ -611,7 +943,12 @@ export const HawkeyeTable = <T,>({
             style={{ flex: '0 0 auto', minWidth: `${CHECKBOX_COLUMN_WIDTH}px` }}
           />
           <StyledFooterCell style={{ flex: 1 }}>
-            Count all <StyledFooterValue>{data.length}</StyledFooterValue>
+            Count all <StyledFooterValue>{processedData.length}</StyledFooterValue>
+            {processedData.length !== data.length && (
+              <StyledFilterLabel style={{ marginLeft: '8px' }}>
+                of {data.length}
+              </StyledFilterLabel>
+            )}
           </StyledFooterCell>
         </StyledFooter>
       </StyledTableContainer>

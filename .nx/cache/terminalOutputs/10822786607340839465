@@ -1,0 +1,73 @@
+[2m> [22mnpx vite build
+
+[36mvite v7.1.12 [32mbuilding for production...[36m[39m
+transforming...
+[32m✓[39m 1008 modules transformed.
+rendering chunks...
+[2mdist/[22m[36mlocales/generated/zh-CN.mjs      [39m[1m[2m  3.98 kB[22m[1m[22m
+[2mdist/[22m[36mlocales/generated/zh-TW.mjs      [39m[1m[2m  4.03 kB[22m[1m[22m
+[2mdist/[22m[36mlocales/generated/en.mjs         [39m[1m[2m  4.13 kB[22m[1m[22m
+[2mdist/[22m[36mlocales/generated/fi-FI.mjs      [39m[1m[2m  4.21 kB[22m[1m[22m
+[2mdist/[22m[36mlocales/generated/af-ZA.mjs      [39m[1m[2m  4.29 kB[22m[1m[22m
+[2mdist/[22m[36mlocales/generated/no-NO.mjs      [39m[1m[2m  4.30 kB[22m[1m[22m
+[2mdist/[22m[36mlocales/generated/da-DK.mjs      [39m[1m[2m  4.32 kB[22m[1m[22m
+[2mdist/[22m[36mlocales/generated/nl-NL.mjs      [39m[1m[2m  4.34 kB[22m[1m[22m
+[2mdist/[22m[36mlocales/generated/sv-SE.mjs      [39m[1m[2m  4.34 kB[22m[1m[22m
+[2mdist/[22m[36mlocales/generated/pt-BR.mjs      [39m[1m[2m  4.35 kB[22m[1m[22m
+[2mdist/[22m[36mlocales/generated/pt-PT.mjs      [39m[1m[2m  4.36 kB[22m[1m[22m
+[2mdist/[22m[36mlocales/generated/it-IT.mjs      [39m[1m[2m  4.40 kB[22m[1m[22m
+[2mdist/[22m[36mlocales/generated/pl-PL.mjs      [39m[1m[2m  4.46 kB[22m[1m[22m
+[2mdist/[22m[36mlocales/generated/tr-TR.mjs      [39m[1m[2m  4.47 kB[22m[1m[22m
+[2mdist/[22m[36mlocales/generated/cs-CZ.mjs      [39m[1m[2m  4.48 kB[22m[1m[22m
+[2mdist/[22m[36mlocales/generated/ro-RO.mjs      [39m[1m[2m  4.49 kB[22m[1m[22m
+[2mdist/[22m[36mlocales/generated/de-DE.mjs      [39m[1m[2m  4.50 kB[22m[1m[22m
+[2mdist/[22m[36mlocales/generated/ca-ES.mjs      [39m[1m[2m  4.51 kB[22m[1m[22m
+[2mdist/[22m[36mlocales/generated/ko-KR.mjs      [39m[1m[2m  4.51 kB[22m[1m[22m
+[2mdist/[22m[36mlocales/generated/fr-FR.mjs      [39m[1m[2m  4.53 kB[22m[1m[22m
+[2mdist/[22m[36mlocales/generated/es-ES.mjs      [39m[1m[2m  4.54 kB[22m[1m[22m
+[2mdist/[22m[36mlocales/generated/hu-HU.mjs      [39m[1m[2m  4.59 kB[22m[1m[22m
+[2mdist/[22m[36mlocales/generated/he-IL.mjs      [39m[1m[2m  4.68 kB[22m[1m[22m
+[2mdist/[22m[36mlocales/generated/ja-JP.mjs      [39m[1m[2m  4.73 kB[22m[1m[22m
+[2mdist/[22m[36mlocales/generated/vi-VN.mjs      [39m[1m[2m  4.93 kB[22m[1m[22m
+[2mdist/[22m[36mlocales/generated/ar-SA.mjs      [39m[1m[2m  5.11 kB[22m[1m[22m
+[2mdist/[22m[36mlocales/generated/pseudo-en.mjs  [39m[1m[2m  5.40 kB[22m[1m[22m
+[2mdist/[22m[36mlocales/generated/sr-Cyrl.mjs    [39m[1m[2m  5.52 kB[22m[1m[22m
+[2mdist/[22m[36mlocales/generated/uk-UA.mjs      [39m[1m[2m  5.77 kB[22m[1m[22m
+[2mdist/[22m[36mlocales/generated/el-GR.mjs      [39m[1m[2m  6.14 kB[22m[1m[22m
+[2mdist/[22m[36mlocales/generated/ru-RU.mjs      [39m[1m[2m  6.39 kB[22m[1m[22m
+[2mdist/[22m[36mindex.mjs                        [39m[1m[33m871.25 kB[39m[22m
+[2mdist/[22m[36mlocales/generated/zh-CN.js      [39m[1m[2m  4.05 kB[22m[1m[22m
+[2mdist/[22m[36mlocales/generated/zh-TW.js      [39m[1m[2m  4.10 kB[22m[1m[22m
+[2mdist/[22m[36mlocales/generated/en.js         [39m[1m[2m  4.20 kB[22m[1m[22m
+[2mdist/[22m[36mlocales/generated/fi-FI.js      [39m[1m[2m  4.28 kB[22m[1m[22m
+[2mdist/[22m[36mlocales/generated/af-ZA.js      [39m[1m[2m  4.36 kB[22m[1m[22m
+[2mdist/[22m[36mlocales/generated/no-NO.js      [39m[1m[2m  4.37 kB[22m[1m[22m
+[2mdist/[22m[36mlocales/generated/da-DK.js      [39m[1m[2m  4.39 kB[22m[1m[22m
+[2mdist/[22m[36mlocales/generated/nl-NL.js      [39m[1m[2m  4.41 kB[22m[1m[22m
+[2mdist/[22m[36mlocales/generated/sv-SE.js      [39m[1m[2m  4.41 kB[22m[1m[22m
+[2mdist/[22m[36mlocales/generated/pt-BR.js      [39m[1m[2m  4.42 kB[22m[1m[22m
+[2mdist/[22m[36mlocales/generated/pt-PT.js      [39m[1m[2m  4.43 kB[22m[1m[22m
+[2mdist/[22m[36mlocales/generated/it-IT.js      [39m[1m[2m  4.47 kB[22m[1m[22m
+[2mdist/[22m[36mlocales/generated/pl-PL.js      [39m[1m[2m  4.53 kB[22m[1m[22m
+[2mdist/[22m[36mlocales/generated/tr-TR.js      [39m[1m[2m  4.54 kB[22m[1m[22m
+[2mdist/[22m[36mlocales/generated/cs-CZ.js      [39m[1m[2m  4.55 kB[22m[1m[22m
+[2mdist/[22m[36mlocales/generated/ro-RO.js      [39m[1m[2m  4.56 kB[22m[1m[22m
+[2mdist/[22m[36mlocales/generated/de-DE.js      [39m[1m[2m  4.57 kB[22m[1m[22m
+[2mdist/[22m[36mlocales/generated/ca-ES.js      [39m[1m[2m  4.58 kB[22m[1m[22m
+[2mdist/[22m[36mlocales/generated/ko-KR.js      [39m[1m[2m  4.58 kB[22m[1m[22m
+[2mdist/[22m[36mlocales/generated/fr-FR.js      [39m[1m[2m  4.60 kB[22m[1m[22m
+[2mdist/[22m[36mlocales/generated/es-ES.js      [39m[1m[2m  4.60 kB[22m[1m[22m
+[2mdist/[22m[36mlocales/generated/hu-HU.js      [39m[1m[2m  4.66 kB[22m[1m[22m
+[2mdist/[22m[36mlocales/generated/he-IL.js      [39m[1m[2m  4.75 kB[22m[1m[22m
+[2mdist/[22m[36mlocales/generated/ja-JP.js      [39m[1m[2m  4.80 kB[22m[1m[22m
+[2mdist/[22m[36mlocales/generated/vi-VN.js      [39m[1m[2m  5.00 kB[22m[1m[22m
+[2mdist/[22m[36mlocales/generated/ar-SA.js      [39m[1m[2m  5.18 kB[22m[1m[22m
+[2mdist/[22m[36mlocales/generated/pseudo-en.js  [39m[1m[2m  5.46 kB[22m[1m[22m
+[2mdist/[22m[36mlocales/generated/sr-Cyrl.js    [39m[1m[2m  5.59 kB[22m[1m[22m
+[2mdist/[22m[36mlocales/generated/uk-UA.js      [39m[1m[2m  5.84 kB[22m[1m[22m
+[2mdist/[22m[36mlocales/generated/el-GR.js      [39m[1m[2m  6.21 kB[22m[1m[22m
+[2mdist/[22m[36mlocales/generated/ru-RU.js      [39m[1m[2m  6.46 kB[22m[1m[22m
+[2mdist/[22m[36mindex.js                        [39m[1m[33m643.79 kB[39m[22m
+[32m✓ built in 6.06s[39m
+[2m> [22mtsgo -p tsconfig.lib.json --declaration --emitDeclarationOnly --outDir dist --rootDir src --composite false && npx tsc-alias -p tsconfig.lib.json --outDir dist
+

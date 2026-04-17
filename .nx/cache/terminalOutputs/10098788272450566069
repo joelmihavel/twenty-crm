@@ -1,0 +1,4 @@
+[2m> [22mnpx rimraf dist && npx vite build -c vite.config.ts
+
+[2m> [22mtsgo -p tsconfig.lib.json --declaration --emitDeclarationOnly --noEmit false --outDir dist --rootDir src && npx tsc-alias -p tsconfig.lib.json --outDir dist
+

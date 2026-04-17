@@ -1,0 +1,10 @@
+[linaria/wyw] Starting CSS pre-build
+[linaria/wyw] Pre-warm: 377ms
+
+[linaria/wyw] ===== CSS PRE-BUILD SUMMARY =====
+[linaria/wyw] Files transformed: 111
+[linaria/wyw] Files skipped (no @linaria): 6988
+[linaria/wyw] Transform time: 3227ms
+[linaria/wyw] Avg per transformed file: 29.1ms
+[linaria/wyw] ==========================================
+

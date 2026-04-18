@@ -1,0 +1,262 @@
+[linaria/wyw] Starting CSS pre-build
+[linaria/wyw] Pre-warm: 371ms
+  [32m➜[39m  [1mLocal[22m:   [36mhttp://localhost:[1m3001[22m/[39m
+[2m  [32m➜[39m  [1mNetwork[22m[2m: use [22m[1m--host[22m[2m to expose[22m
+[linaria/wyw] slow: /packages/twenty-front/src/modules/error-handler/components/AppRootErrorFallback.tsx 501ms
+[linaria/wyw] slow: /packages/twenty-front/src/modules/ui/layout/page/components/BlankLayout.tsx 350ms
+[linaria/wyw] slow: /packages/twenty-front/src/modules/ui/feedback/snack-bar-manager/components/SnackBarProvider.tsx 345ms
+[linaria/wyw] slow: /packages/twenty-front/src/modules/ui/field/display/components/GlobalFilePreviewModal.tsx 520ms
+[2m4:33:52 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32m✨ new dependencies optimized: [33mmsw[32m[39m
+[2m4:33:52 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32m✨ optimized dependencies changed. reloading[39m
+[2m4:33:53 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/ui/layout/modal/components/ConfirmationModal.wyw-in-js.css[22m
+[linaria/wyw] slow: /packages/twenty-front/src/modules/ui/layout/modal/components/ConfirmationModal.tsx 547ms
+[2m4:33:53 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/ui/feedback/snack-bar-manager/components/SnackBar.wyw-in-js.css[22m
+[linaria/wyw] slow: /packages/twenty-front/src/modules/ui/feedback/snack-bar-manager/components/SnackBar.tsx 409ms
+[2m4:33:54 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/ui/input/components/TextInput.wyw-in-js.css[22m
+[linaria/wyw] slow: /packages/twenty-front/src/modules/ui/input/components/TextInput.tsx 379ms
+[2m4:33:54 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/error-handler/components/AppRootErrorFallback.wyw-in-js.css[22m
+[linaria/wyw] slow: /packages/twenty-front/src/modules/error-handler/components/AppRootErrorFallback.tsx 343ms
+[2m4:33:54 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/ui/input/components/InputErrorHelper.wyw-in-js.css[22m
+[linaria/wyw] slow: /packages/twenty-front/src/modules/ui/input/components/InputErrorHelper.tsx 331ms
+[2m4:33:55 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/ui/input/components/InputLabel.wyw-in-js.css[22m
+[linaria/wyw] slow: /packages/twenty-front/src/modules/ui/input/components/InputLabel.tsx 324ms
+[2m4:33:55 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/settings/components/SettingsPageContainer.wyw-in-js.css[22m
+[linaria/wyw] slow: /packages/twenty-front/src/modules/settings/components/SettingsPageContainer.tsx 338ms
+[2m4:33:55 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/ui/utilities/scroll/components/ScrollWrapper.wyw-in-js.css[22m
+[2m4:33:55 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/ui/layout/page/components/BlankLayout.wyw-in-js.css[22m
+[linaria/wyw] slow: /packages/twenty-front/src/modules/ui/layout/page/components/BlankLayout.tsx 393ms
+[2m4:33:56 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/ui/layout/page/components/DefaultLayout.wyw-in-js.css[22m
+[linaria/wyw] slow: /packages/twenty-front/src/modules/ui/layout/page/components/DefaultLayout.tsx 350ms
+[2m4:33:56 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/ui/layout/page/components/PageContainer.wyw-in-js.css[22m
+[2m4:33:56 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/loading/components/PageContentSkeletonLoader.wyw-in-js.css[22m
+[linaria/wyw] slow: /packages/twenty-front/src/loading/components/PageContentSkeletonLoader.tsx 354ms
+[2m4:33:57 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/ui/feedback/snack-bar-manager/components/SnackBarProvider.wyw-in-js.css[22m
+[linaria/wyw] slow: /packages/twenty-front/src/modules/ui/feedback/snack-bar-manager/components/SnackBarProvider.tsx 353ms
+[2m4:33:57 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/ui/field/display/components/GlobalFilePreviewModal.wyw-in-js.css[22m
+[linaria/wyw] slow: /packages/twenty-front/src/modules/ui/field/display/components/GlobalFilePreviewModal.tsx 390ms
+[2m4:33:58 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/auth/sign-in-up/components/EmailVerificationSent.wyw-in-js.css[22m
+[linaria/wyw] slow: /packages/twenty-front/src/modules/auth/sign-in-up/components/EmailVerificationSent.tsx 425ms
+[2m4:33:58 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/settings/domains/components/SettingPublicDomain.wyw-in-js.css[22m
+[linaria/wyw] slow: /packages/twenty-front/src/modules/settings/domains/components/SettingPublicDomain.tsx 378ms
+[2m4:33:58 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/settings/components/SettingsSkeletonLoader.wyw-in-js.css[22m
+[linaria/wyw] slow: /packages/twenty-front/src/modules/settings/components/SettingsSkeletonLoader.tsx 373ms
+[2m4:33:59 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/error-handler/components/AppFullScreenErrorFallback.wyw-in-js.css[22m
+[linaria/wyw] slow: /packages/twenty-front/src/modules/error-handler/components/AppFullScreenErrorFallback.tsx 334ms
+[2m4:33:59 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/file-upload/components/FileUploadProvider.wyw-in-js.css[22m
+[2m4:33:59 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/layout-customization/components/LayoutCustomizationBar.wyw-in-js.css[22m
+[linaria/wyw] slow: /packages/twenty-front/src/modules/layout-customization/components/LayoutCustomizationBar.tsx 351ms
+[2m4:33:59 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/sign-in-background-mock/components/SignInAppNavigationDrawerMock.wyw-in-js.css[22m
+[2m4:33:59 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/auth/components/AuthModal.wyw-in-js.css[22m
+[2m4:33:59 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/loading/components/UserOrMetadataLoader.wyw-in-js.css[22m
+[linaria/wyw] slow: /packages/twenty-front/src/loading/components/UserOrMetadataLoader.tsx 370ms
+[2m4:34:00 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/ui/layout/modal/components/ConfirmationModal.wyw-in-js.css[22m
+[linaria/wyw] slow: /packages/twenty-front/src/modules/ui/layout/modal/components/ConfirmationModal.tsx 487ms
+[2m4:34:00 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/ui/layout/page/components/PageBody.wyw-in-js.css[22m
+[linaria/wyw] slow: /packages/twenty-front/src/modules/ui/layout/page/components/PageBody.tsx 342ms
+[2m4:34:01 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/activities/components/SkeletonLoader.wyw-in-js.css[22m
+[linaria/wyw] slow: /packages/twenty-front/src/modules/activities/components/SkeletonLoader.tsx 548ms
+[2m4:34:01 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/ui/feedback/dialog-manager/components/Dialog.wyw-in-js.css[22m
+[linaria/wyw] slow: /packages/twenty-front/src/modules/ui/feedback/dialog-manager/components/Dialog.tsx 351ms
+[2m4:34:02 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/auth/components/SubTitle.wyw-in-js.css[22m
+[linaria/wyw] slow: /packages/twenty-front/src/modules/auth/components/SubTitle.tsx 343ms
+[2m4:34:02 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/auth/components/Title.wyw-in-js.css[22m
+[linaria/wyw] slow: /packages/twenty-front/src/modules/auth/components/Title.tsx 328ms
+[2m4:34:02 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/settings/components/SettingsPageContainer.wyw-in-js.css[22m
+[linaria/wyw] slow: /packages/twenty-front/src/modules/settings/components/SettingsPageContainer.tsx 337ms
+[2m4:34:03 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/ui/layout/page/components/SubMenuTopBarContainer.wyw-in-js.css[22m
+[linaria/wyw] slow: /packages/twenty-front/src/modules/ui/layout/page/components/SubMenuTopBarContainer.tsx 362ms
+[2m4:34:03 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/onboarding/components/OnboardingModalCircularIcon.wyw-in-js.css[22m
+[linaria/wyw] slow: /packages/twenty-front/src/modules/onboarding/components/OnboardingModalCircularIcon.tsx 348ms
+[2m4:34:03 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/ui/input/components/TextInput.wyw-in-js.css[22m
+[linaria/wyw] slow: /packages/twenty-front/src/modules/ui/input/components/TextInput.tsx 361ms
+[2m4:34:04 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/settings/components/SaveAndCancelButtons/SaveAndCancelButtons.wyw-in-js.css[22m
+[linaria/wyw] slow: /packages/twenty-front/src/modules/settings/components/SaveAndCancelButtons/SaveAndCancelButtons.tsx 353ms
+[2m4:34:04 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/ui/layout/page/components/PageHeader.wyw-in-js.css[22m
+[linaria/wyw] slow: /packages/twenty-front/src/modules/ui/layout/page/components/PageHeader.tsx 344ms
+[2m4:34:04 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/information-banner/components/InformationBanner.wyw-in-js.css[22m
+[linaria/wyw] slow: /packages/twenty-front/src/modules/information-banner/components/InformationBanner.tsx 349ms
+[2m4:34:05 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/ui/navigation/navigation-drawer/components/NavigationDrawer.wyw-in-js.css[22m
+[linaria/wyw] slow: /packages/twenty-front/src/modules/ui/navigation/navigation-drawer/components/NavigationDrawer.tsx 520ms
+[2m4:34:05 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/ui/navigation/navigation-drawer/components/NavigationDrawerSection.wyw-in-js.css[22m
+[linaria/wyw] slow: /packages/twenty-front/src/modules/ui/navigation/navigation-drawer/components/NavigationDrawerSection.tsx 330ms
+[2m4:34:06 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/ui/navigation/navigation-drawer/components/NavigationDrawerItem.wyw-in-js.css[22m
+[linaria/wyw] slow: /packages/twenty-front/src/modules/ui/navigation/navigation-drawer/components/NavigationDrawerItem.tsx 350ms
+[2m4:34:06 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/ui/layout/page/components/DefaultLayout.wyw-in-js.css[22m
+[linaria/wyw] slow: /packages/twenty-front/src/modules/ui/layout/page/components/DefaultLayout.tsx 319ms
+[2m4:34:06 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/loading/components/LeftPanelSkeletonLoader.wyw-in-js.css[22m
+[2m4:34:06 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/loading/components/RightPanelSkeletonLoader.wyw-in-js.css[22m
+[2m4:34:06 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/ui/layout/page/components/PagePanel.wyw-in-js.css[22m
+[linaria/wyw] slow: /packages/twenty-front/src/modules/ui/layout/page/components/PagePanel.tsx 328ms
+[2m4:34:06 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/information-banner/components/InformationBannerWrapper.wyw-in-js.css[22m
+[2m4:34:06 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/settings/components/SettingsDnsRecordsTable.wyw-in-js.css[22m
+[2m4:34:07 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/ui/navigation/bread-crumb/components/Breadcrumb.wyw-in-js.css[22m
+[linaria/wyw] slow: /packages/twenty-front/src/modules/ui/navigation/bread-crumb/components/Breadcrumb.tsx 318ms
+[2m4:34:07 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/ui/navigation/navigation-drawer/components/NavigationDrawerCollapseButton.wyw-in-js.css[22m
+[linaria/wyw] slow: /packages/twenty-front/src/modules/ui/navigation/navigation-drawer/components/NavigationDrawerCollapseButton.tsx 317ms
+[2m4:34:07 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/ui/navigation/navigation-drawer/components/NavigationDrawerFixedContent.wyw-in-js.css[22m
+[2m4:34:07 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/ui/navigation/navigation-drawer/components/NavigationDrawerScrollableContent.wyw-in-js.css[22m
+[linaria/wyw] slow: /packages/twenty-front/src/modules/ui/navigation/navigation-drawer/components/NavigationDrawerScrollableContent.tsx 314ms
+[2m4:34:08 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/ai/components/NavigationDrawerAIChatContent.wyw-in-js.css[22m
+[linaria/wyw] slow: /packages/twenty-front/src/modules/ai/components/NavigationDrawerAIChatContent.tsx 407ms
+[2m4:34:08 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/navigation/components/MainNavigationDrawerNavigationContent.wyw-in-js.css[22m
+[2m4:34:08 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/navigation/components/MainNavigationDrawerTabsRow.wyw-in-js.css[22m
+[linaria/wyw] slow: /packages/twenty-front/src/modules/navigation/components/MainNavigationDrawerTabsRow.tsx 349ms
+[2m4:34:08 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/ui/navigation/navigation-drawer/components/NavigationDrawerSectionTitle.wyw-in-js.css[22m
+[linaria/wyw] slow: /packages/twenty-front/src/modules/ui/navigation/navigation-drawer/components/NavigationDrawerSectionTitle.tsx 357ms
+[2m4:34:08 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/ui/navigation/navigation-drawer/components/NavigationDrawerAnimatedCollapseWrapper.wyw-in-js.css[22m
+[2m4:34:09 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/ui/layout/resizable-panel/components/ResizablePanelEdge.wyw-in-js.css[22m
+[linaria/wyw] slow: /packages/twenty-front/src/modules/ui/layout/resizable-panel/components/ResizablePanelEdge.tsx 399ms
+[2m4:34:10 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/ui/navigation/navigation-drawer/components/NavigationDrawerHeader.wyw-in-js.css[22m
+[linaria/wyw] slow: /packages/twenty-front/src/modules/ui/navigation/navigation-drawer/components/NavigationDrawerHeader.tsx 622ms
+[2m4:34:10 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/ui/navigation/navigation-drawer/components/NavigationDrawerItemBreadcrumb.wyw-in-js.css[22m
+[linaria/wyw] slow: /packages/twenty-front/src/modules/ui/navigation/navigation-drawer/components/NavigationDrawerItemBreadcrumb.tsx 333ms
+[2m4:34:10 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/ui/navigation/navigation-drawer/components/NavigationDrawerBackButton.wyw-in-js.css[22m
+[linaria/wyw] slow: /packages/twenty-front/src/modules/ui/navigation/navigation-drawer/components/NavigationDrawerBackButton.tsx 340ms
+[2m4:34:10 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/sign-in-background-mock/components/SignInAppNavigationDrawerMock.wyw-in-js.css[22m
+[2m4:34:11 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/error-handler/components/AppFullScreenErrorFallback.wyw-in-js.css[22m
+[linaria/wyw] slow: /packages/twenty-front/src/modules/error-handler/components/AppFullScreenErrorFallback.tsx 347ms
+[2m4:34:11 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/layout-customization/components/LayoutCustomizationBar.wyw-in-js.css[22m
+[linaria/wyw] slow: /packages/twenty-front/src/modules/layout-customization/components/LayoutCustomizationBar.tsx 340ms
+[2m4:34:11 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/settings/domains/components/SettingPublicDomain.wyw-in-js.css[22m
+[linaria/wyw] slow: /packages/twenty-front/src/modules/settings/domains/components/SettingPublicDomain.tsx 336ms
+[2m4:34:12 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/settings/components/SettingsSkeletonLoader.wyw-in-js.css[22m
+[linaria/wyw] slow: /packages/twenty-front/src/modules/settings/components/SettingsSkeletonLoader.tsx 329ms
+[2m4:34:12 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/loading/components/MainNavigationDrawerItemsSkeletonLoader.wyw-in-js.css[22m
+[2m4:34:12 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/ui/layout/page/components/DefaultLayout.wyw-in-js.css[22m
+[linaria/wyw] slow: /packages/twenty-front/src/modules/ui/layout/page/components/DefaultLayout.tsx 343ms
+[2m4:34:12 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/ui/layout/table/components/TableHeader.wyw-in-js.css[22m
+[linaria/wyw] slow: /packages/twenty-front/src/modules/ui/layout/table/components/TableHeader.tsx 349ms
+[2m4:34:13 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/ui/layout/table/components/TableRow.wyw-in-js.css[22m
+[linaria/wyw] slow: /packages/twenty-front/src/modules/ui/layout/table/components/TableRow.tsx 354ms
+[2m4:34:13 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/ui/layout/table/components/TableCell.wyw-in-js.css[22m
+[2m4:34:13 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/ui/layout/table/components/Table.wyw-in-js.css[22m
+[2m4:34:13 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/ui/navigation/bread-crumb/components/MobileBreadcrumb.wyw-in-js.css[22m
+[linaria/wyw] slow: /packages/twenty-front/src/modules/ui/navigation/bread-crumb/components/MobileBreadcrumb.tsx 329ms
+[2m4:34:13 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/keyboard-shortcut-menu/components/KeyboardShortcutMenuStyles.wyw-in-js.css[22m
+[linaria/wyw] slow: /packages/twenty-front/src/modules/keyboard-shortcut-menu/components/KeyboardShortcutMenuStyles.tsx 343ms
+[2m4:34:13 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/settings/components/AdvancedSettingsWrapper.wyw-in-js.css[22m
+[2m4:34:13 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/ui/navigation/navigation-drawer/components/NavigationDrawerItemGroup.wyw-in-js.css[22m
+[2m4:34:14 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/ai/components/NavigationDrawerAIChatThreadDateSection.wyw-in-js.css[22m
+[linaria/wyw] slow: /packages/twenty-front/src/modules/ai/components/NavigationDrawerAIChatThreadDateSection.tsx 341ms
+[2m4:34:14 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/ai/components/internal/AIChatSkeletonLoader.wyw-in-js.css[22m
+[linaria/wyw] slow: /packages/twenty-front/src/modules/ai/components/internal/AIChatSkeletonLoader.tsx 410ms
+[2m4:34:15 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/navigation/components/MainNavigationDrawerScrollableItems.wyw-in-js.css[22m
+[linaria/wyw] slow: /packages/twenty-front/src/modules/navigation/components/MainNavigationDrawerScrollableItems.tsx 323ms
+[2m4:34:15 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/navigation-menu-item/display/view/components/ObjectIconWithViewOverlay.wyw-in-js.css[22m
+[2m4:34:15 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/ui/navigation/navigation-drawer/components/NavigationDrawerItem.wyw-in-js.css[22m
+[linaria/wyw] slow: /packages/twenty-front/src/modules/ui/navigation/navigation-drawer/components/NavigationDrawerItem.tsx 769ms
+[2m4:34:16 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/navigation-menu-item/display/components/NavigationMenuItemIconContainer.wyw-in-js.css[22m
+[linaria/wyw] slow: /packages/twenty-front/src/modules/navigation-menu-item/display/components/NavigationMenuItemIconContainer.tsx 306ms
+[2m4:34:16 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/ui/navigation/navigation-drawer/components/NavigationDrawer.wyw-in-js.css[22m
+[linaria/wyw] slow: /packages/twenty-front/src/modules/ui/navigation/navigation-drawer/components/NavigationDrawer.tsx 323ms
+[2m4:34:16 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/loading/components/UserOrMetadataLoader.wyw-in-js.css[22m
+[linaria/wyw] slow: /packages/twenty-front/src/loading/components/UserOrMetadataLoader.tsx 323ms
+[2m4:34:17 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/ui/layout/page/components/PageHeader.wyw-in-js.css[22m
+[linaria/wyw] slow: /packages/twenty-front/src/modules/ui/layout/page/components/PageHeader.tsx 328ms
+[2m4:34:17 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/ui/layout/page/components/SubMenuTopBarContainer.wyw-in-js.css[22m
+[linaria/wyw] slow: /packages/twenty-front/src/modules/ui/layout/page/components/SubMenuTopBarContainer.tsx 322ms
+[2m4:34:17 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/settings/domains/components/SettingPublicDomain.wyw-in-js.css[22m
+[linaria/wyw] slow: /packages/twenty-front/src/modules/settings/domains/components/SettingPublicDomain.tsx 323ms
+[2m4:34:17 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/sign-in-background-mock/components/SignInAppNavigationDrawerMock.wyw-in-js.css[22m
+[2m4:34:18 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/ai/components/NavigationDrawerAIChatContent.wyw-in-js.css[22m
+[linaria/wyw] slow: /packages/twenty-front/src/modules/ai/components/NavigationDrawerAIChatContent.tsx 315ms
+[2m4:34:18 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/navigation/components/MainNavigationDrawerNavigationContent.wyw-in-js.css[22m
+[2m4:34:18 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/settings/components/AdvancedSettingsContentWrapperWithDot.wyw-in-js.css[22m
+[linaria/wyw] slow: /packages/twenty-front/src/modules/settings/components/AdvancedSettingsContentWrapperWithDot.tsx 310ms
+[2m4:34:18 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/object-metadata/components/NavigationDrawerWorkspaceSectionSkeletonLoader.wyw-in-js.css[22m
+[linaria/wyw] slow: /packages/twenty-front/src/modules/object-metadata/components/NavigationDrawerWorkspaceSectionSkeletonLoader.tsx 322ms
+[2m4:34:18 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/ui/layout/dropdown/components/Dropdown.wyw-in-js.css[22m
+[2m4:34:19 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/ui/navigation/navigation-drawer/components/MultiWorkspaceDropdown/internal/MultiWorkspaceDropdownDefaultComponents.wyw-in-js.css[22m
+[linaria/wyw] slow: /packages/twenty-front/src/modules/ui/navigation/navigation-drawer/components/MultiWorkspaceDropdown/internal/MultiWorkspaceDropdownDefaultComponents.tsx 330ms
+[2m4:34:19 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/loading/components/LeftPanelSkeletonLoader.wyw-in-js.css[22m
+[2m4:34:19 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/ui/navigation/bread-crumb/components/Breadcrumb.wyw-in-js.css[22m
+[linaria/wyw] slow: /packages/twenty-front/src/modules/ui/navigation/bread-crumb/components/Breadcrumb.tsx 309ms
+[2m4:34:19 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/ui/navigation/navigation-drawer/components/NavigationDrawer.wyw-in-js.css[22m
+[linaria/wyw] slow: /packages/twenty-front/src/modules/ui/navigation/navigation-drawer/components/NavigationDrawer.tsx 324ms
+[2m4:34:20 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/navigation/components/MainNavigationDrawerScrollableItems.wyw-in-js.css[22m
+[linaria/wyw] slow: /packages/twenty-front/src/modules/navigation/components/MainNavigationDrawerScrollableItems.tsx 313ms
+[2m4:34:20 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/navigation-menu-item/edit/components/NavigationMenuItemBackButton.wyw-in-js.css[22m
+[linaria/wyw] slow: /packages/twenty-front/src/modules/navigation-menu-item/edit/components/NavigationMenuItemBackButton.tsx 341ms
+[2m4:34:20 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/navigation-menu-item/display/dnd/components/NavigationMenuItemSortableItem.wyw-in-js.css[22m
+[2m4:34:20 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/ui/layout/dropdown/components/internal/DropdownInternalContainer.wyw-in-js.css[22m
+[2m4:34:20 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/ui/layout/dropdown/components/DropdownContent.wyw-in-js.css[22m
+[2m4:34:20 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/ui/layout/dropdown/components/DropdownMenuHeader/internal/DropdownMenuHeaderLeftComponent.wyw-in-js.css[22m
+[linaria/wyw] slow: /packages/twenty-front/src/modules/ui/layout/dropdown/components/DropdownMenuHeader/internal/DropdownMenuHeaderLeftComponent.tsx 323ms
+[2m4:34:21 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/ui/layout/dropdown/components/DropdownMenuHeader/DropdownMenuHeader.wyw-in-js.css[22m
+[linaria/wyw] slow: /packages/twenty-front/src/modules/ui/layout/dropdown/components/DropdownMenuHeader/DropdownMenuHeader.tsx 332ms
+[2m4:34:21 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/ui/layout/dropdown/components/DropdownMenuSeparator.wyw-in-js.css[22m
+[linaria/wyw] slow: /packages/twenty-front/src/modules/ui/layout/dropdown/components/DropdownMenuSeparator.tsx 663ms
+[2m4:34:22 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/ui/navigation/navigation-drawer/components/MultiWorkspaceDropdown/internal/MultiWorkspacesDropdownStyles.wyw-in-js.css[22m
+[linaria/wyw] slow: /packages/twenty-front/src/modules/ui/navigation/navigation-drawer/components/MultiWorkspaceDropdown/internal/MultiWorkspacesDropdownStyles.tsx 319ms
+[2m4:34:22 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/ui/layout/dropdown/components/DropdownMenuSearchInput.wyw-in-js.css[22m
+[linaria/wyw] slow: /packages/twenty-front/src/modules/ui/layout/dropdown/components/DropdownMenuSearchInput.tsx 313ms
+[2m4:34:22 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/ui/layout/dropdown/components/DropdownMenuItemsContainer.wyw-in-js.css[22m
+[linaria/wyw] slow: /packages/twenty-front/src/modules/ui/layout/dropdown/components/DropdownMenuItemsContainer.tsx 317ms
+[2m4:34:23 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/ui/navigation/navigation-drawer/components/MultiWorkspaceDropdown/internal/MultiWorkspaceDropdownDefaultComponents.wyw-in-js.css[22m
+[linaria/wyw] slow: /packages/twenty-front/src/modules/ui/navigation/navigation-drawer/components/MultiWorkspaceDropdown/internal/MultiWorkspaceDropdownDefaultComponents.tsx 322ms
+[2m4:34:23 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/navigation-menu-item/display/link/components/LinkIconWithLinkOverlay.wyw-in-js.css[22m
+[linaria/wyw] slow: /packages/twenty-front/src/modules/navigation-menu-item/display/link/components/LinkIconWithLinkOverlay.tsx 328ms
+[2m4:34:23 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/ui/layout/overlay/components/OverlayContainer.wyw-in-js.css[22m
+[linaria/wyw] slow: /packages/twenty-front/src/modules/ui/layout/overlay/components/OverlayContainer.tsx 319ms
+[2m4:34:24 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/ui/layout/dropdown/components/StyledDropdownMenuSubheader.wyw-in-js.css[22m
+[linaria/wyw] slow: /packages/twenty-front/src/modules/ui/layout/dropdown/components/StyledDropdownMenuSubheader.tsx 312ms
+[2m4:34:24 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/ui/layout/dropdown/components/internal/DropdownInternalContainer.wyw-in-js.css[22m
+[2m4:34:24 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/ui/layout/page/components/DefaultLayout.wyw-in-js.css[22m
+[linaria/wyw] slow: /packages/twenty-front/src/modules/ui/layout/page/components/DefaultLayout.tsx 380ms
+[2m4:34:25 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/settings/domains/components/SettingPublicDomain.wyw-in-js.css[22m
+[linaria/wyw] slow: /packages/twenty-front/src/modules/settings/domains/components/SettingPublicDomain.tsx 341ms
+[2m4:34:25 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/ui/navigation/navigation-drawer/components/NavigationDrawer.wyw-in-js.css[22m
+[linaria/wyw] slow: /packages/twenty-front/src/modules/ui/navigation/navigation-drawer/components/NavigationDrawer.tsx 330ms
+[2m4:34:25 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/sign-in-background-mock/components/SignInAppNavigationDrawerMock.wyw-in-js.css[22m
+[2m4:34:25 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/navigation/components/MainNavigationDrawerNavigationContent.wyw-in-js.css[22m
+[2m4:34:25 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/ui/navigation/navigation-drawer/components/MultiWorkspaceDropdown/internal/MultiWorkspaceDropdownDefaultComponents.wyw-in-js.css[22m
+[linaria/wyw] slow: /packages/twenty-front/src/modules/ui/navigation/navigation-drawer/components/MultiWorkspaceDropdown/internal/MultiWorkspaceDropdownDefaultComponents.tsx 356ms
+[2m4:34:25 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/sign-in-background-mock/components/SignInAppNavigationDrawerMock.wyw-in-js.css[22m
+[linaria/wyw] slow: /packages/twenty-front/src/pages/auth/SignInUp.tsx 432ms
+[linaria/wyw] slow: /packages/twenty-front/src/modules/views/view-picker/components/ViewPickerDropdown.tsx 375ms
+[linaria/wyw] slow: /packages/twenty-front/src/modules/ui/layout/dropdown/components/StyledHeaderDropdownButton.tsx 344ms
+[linaria/wyw] slow: /packages/twenty-front/src/modules/object-record/record-table/record-table-footer/components/RecordTableAggregateFooter.tsx 425ms
+[linaria/wyw] slow: /packages/twenty-front/src/modules/ui/input/components/SelectControl.tsx 377ms
+[linaria/wyw] slow: /packages/twenty-front/src/modules/object-record/record-table/record-table-header/components/RecordTableColumnHead.tsx 353ms
+[linaria/wyw] slow: /packages/twenty-front/src/modules/object-record/record-table/record-table-header/components/RecordTableHeaderLabelIdentifierCellPlusButton.tsx 352ms
+[linaria/wyw] slow: /packages/twenty-front/src/modules/object-record/record-table/record-table-body/components/RecordTableBodyVirtualizedDraggableClone.tsx 717ms
+[linaria/wyw] slow: /packages/twenty-front/src/modules/object-record/advanced-filter/components/AdvancedFilterDropdownRow.tsx 319ms
+[2m4:38:13 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2msrc/index.tsx[22m
+[2m4:39:01 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2msrc/testing/mock-data/config.ts[22m
+[2m4:41:09 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2msrc/testing/graphqlMocks.ts[22m
+[2m4:41:47 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2msrc/index.tsx[22m
+[linaria/wyw] slow: /packages/twenty-front/src/modules/advanced-text-editor/components/AdvancedTextEditor.tsx 479ms
+[linaria/wyw] slow: /packages/twenty-front/src/modules/workflow/workflow-steps/workflow-actions/ai-agent-action/components/WorkflowEditActionAiAgent.tsx 374ms
+[linaria/wyw] slow: /packages/twenty-front/src/modules/ui/layout/tab-list/components/TabMoreButton.tsx 355ms
+[linaria/wyw] slow: /packages/twenty-front/src/modules/object-record/record-field/ui/form-types/components/FormDateTimeFieldInput.tsx 356ms
+[linaria/wyw] slow: /packages/twenty-front/src/modules/activities/timeline-activities/components/TimelineCard.tsx 368ms
+[linaria/wyw] slow: /packages/twenty-front/src/modules/page-layout/widgets/components/WidgetActionFieldSeeAll.tsx 355ms
+[2m5:07:53 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2msrc/testing/mock-data/generated/metadata/navigation-menu-items/mock-navigation-menu-items-data.ts[22m
+[2m5:08:41 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2msrc/testing/mock-data/generated/metadata/minimal/mock-minimal-metadata.ts[22m
+[2m5:08:55 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2msrc/testing/mock-data/generated/metadata/minimal/mock-minimal-metadata.ts[22m
+[2m5:10:00 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2msrc/testing/mock-data/generated/metadata/views/mock-views-data.ts[22m
+[2m5:17:42 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2msrc/testing/mock-data/generated/metadata/objects/mock-objects-metadata.ts[22m
+
+[linaria/wyw] ===== CSS PRE-BUILD SUMMARY =====
+[linaria/wyw] Files transformed: 752
+[linaria/wyw] Files skipped (no @linaria): 6326
+[linaria/wyw] Transform time: 48673ms
+[linaria/wyw] Avg per transformed file: 64.7ms
+[linaria/wyw] Slow files (>10x avg = 647ms):
+[linaria/wyw]   769ms /packages/twenty-front/src/modules/ui/navigation/navigation-drawer/components/NavigationDrawerItem.tsx
+[linaria/wyw]   717ms /packages/twenty-front/src/modules/object-record/record-table/record-table-body/components/RecordTableBodyVirtualizedDraggableClone.tsx
+[linaria/wyw]   663ms /packages/twenty-front/src/modules/ui/layout/dropdown/components/DropdownMenuSeparator.tsx
+[linaria/wyw] ==========================================
+
+
+[linaria/wyw] ===== CSS PRE-BUILD SUMMARY =====
+[linaria/wyw] Files transformed: 752
+[linaria/wyw] Files skipped (no @linaria): 6326
+[linaria/wyw] Transform time: 48673ms
+[linaria/wyw] Avg per transformed file: 64.7ms
+[linaria/wyw] Slow files (>10x avg = 647ms):
+[linaria/wyw]   769ms /packages/twenty-front/src/modules/ui/navigation/navigation-drawer/components/NavigationDrawerItem.tsx
+[linaria/wyw]   717ms /packages/twenty-front/src/modules/object-record/record-table/record-table-body/components/RecordTableBodyVirtualizedDraggableClone.tsx
+[linaria/wyw]   663ms /packages/twenty-front/src/modules/ui/layout/dropdown/components/DropdownMenuSeparator.tsx
+[linaria/wyw] ==========================================
+

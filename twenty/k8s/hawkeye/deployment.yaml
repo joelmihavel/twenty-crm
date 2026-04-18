@@ -1,0 +1,94 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hawkeye
+  namespace: twenty-prod
+  labels:
+    app: hawkeye
+    app.kubernetes.io/part-of: twenty
+    app.kubernetes.io/component: frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: hawkeye
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  template:
+    metadata:
+      labels:
+        app: hawkeye
+        app.kubernetes.io/part-of: twenty
+        app.kubernetes.io/component: frontend
+    spec:
+      nodeSelector:
+        pool: server
+      terminationGracePeriodSeconds: 30
+      containers:
+        - name: hawkeye
+          image: asia-south1-docker.pkg.dev/flent-twenty-prod/hawkeye/hawkeye:latest
+          ports:
+            - containerPort: 3001
+              name: http
+              protocol: TCP
+          env:
+            # Server-side proxy URLs (used by /api/twenty and /api/twenty/metadata routes)
+            - name: TWENTY_GRAPHQL_URL
+              value: "https://hawkeye.flent.in/graphql"
+            - name: TWENTY_METADATA_URL
+              value: "https://hawkeye.flent.in/metadata"
+            # Public URLs so client knows which API endpoints to reference
+            - name: NEXT_PUBLIC_TWENTY_METADATA_URL
+              value: "https://hawkeye.flent.in/metadata"
+            - name: NEXT_PUBLIC_TWENTY_GRAPHQL_URL
+              value: "https://hawkeye.flent.in/graphql"
+            # NOTE: NEXT_PUBLIC_TWENTY_API_KEY is intentionally NOT set.
+            # Users must log in at /login with their own API key, which is then
+            # stored in an HTTP-only cookie and read by the proxy routes.
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 3001
+            initialDelaySeconds: 10
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3001
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hawkeye
+  namespace: twenty-prod
+  labels:
+    app: hawkeye
+    app.kubernetes.io/part-of: twenty
+    app.kubernetes.io/component: frontend
+  annotations:
+    cloud.google.com/backend-config: '{"default": "hawkeye-backend-config"}'
+spec:
+  type: ClusterIP
+  selector:
+    app: hawkeye
+  ports:
+    - name: http
+      port: 3001
+      targetPort: 3001
+      protocol: TCP

@@ -1,0 +1,18 @@
+.env.secrets
+terraform.tfvars
+*.tfstate
+*.tfstate.backup
+.terraform/
+*.tfplan
+node_modules/
+dist/
+
+# K8s secrets (contain real credentials - use .template files)
+k8s/twenty/secrets.yaml
+k8s/twenty/redis-ca-cert.yaml
+
+
+# Secrets (never commit)
+k8s/twenty/secrets.yaml
+k8s/twenty/redis-ca-cert.yaml
+

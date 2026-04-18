@@ -1,0 +1,15 @@
+"use client";
+
+import type { SVGProps } from "react";
+import { cx } from "@/utils/cx";
+
+export const UntitledLogoMinimal = (props: SVGProps<SVGSVGElement>) => {
+    return (
+        <svg viewBox="0 0 48 48" fill="none" {...props} className={cx("size-8", props.className)}>
+            <path
+                d="M19.9771 43.3995H11.5782V25.3575H8.00098V20.3804H11.5782C9.58739 12.6658 15.2074 8.04132 18.2662 6.69338C27.225 1.96513 36.5156 8.2487 40.0411 11.9815V43.3995H31.6422V16.181C26.7895 8.21758 20.7029 10.0633 18.2662 11.9815C15.1555 17.3319 19.5623 19.8101 22.1546 20.3804H26.5096V25.3575H19.9771V43.3995Z"
+                className="fill-fg-primary"
+            />
+        </svg>
+    );
+};

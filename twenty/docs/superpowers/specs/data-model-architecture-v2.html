@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Flent Property Management CRM — Data Model Architecture v2</title>
+<style>
+  @page { size: A3 landscape; margin: 1.2cm; }
+  body { font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 8.5pt; color: #1a1a2e; line-height: 1.35; }
+  h1 { font-size: 20pt; color: #0f0f23; border-bottom: 3px solid #6c5ce7; padding-bottom: 6px; margin-top: 0; }
+  h2 { font-size: 13pt; color: #6c5ce7; margin-top: 24px; border-bottom: 1px solid #ddd; padding-bottom: 3px; page-break-after: avoid; }
+  h3 { font-size: 10pt; color: #2d3436; margin-top: 14px; margin-bottom: 5px; page-break-after: avoid; }
+  h4 { font-size: 8.5pt; color: #636e72; margin-top: 8px; margin-bottom: 3px; page-break-after: avoid; }
+  table { width: 100%; border-collapse: collapse; margin-bottom: 10px; font-size: 7.5pt; page-break-inside: auto; }
+  tr { page-break-inside: avoid; }
+  th { background: #6c5ce7; color: white; padding: 4px 5px; text-align: left; font-weight: 600; font-size: 7pt; }
+  td { padding: 3px 5px; border-bottom: 1px solid #eee; vertical-align: top; }
+  tr:nth-child(even) td { background: #f8f9fa; }
+  .base-tag { display: inline-block; background: #6c5ce7; color: white; padding: 1px 5px; border-radius: 3px; font-size: 6.5pt; font-weight: 600; }
+  .ext-tag { display: inline-block; background: #00b894; color: white; padding: 1px 5px; border-radius: 3px; font-size: 6.5pt; font-weight: 600; }
+  .child-tag { display: inline-block; background: #fdcb6e; color: #2d3436; padding: 1px 5px; border-radius: 3px; font-size: 6.5pt; font-weight: 600; }
+  .pk { color: #d63031; font-weight: 700; }
+  .fk { color: #0984e3; font-weight: 600; }
+  .fix { color: #e84393; font-weight: 700; }
+  .new { color: #00b894; font-weight: 700; }
+  .derived { color: #e17055; font-style: italic; }
+  .sd { color: #636e72; font-size: 7.5pt; font-style: italic; margin-bottom: 6px; }
+  .mb { background: #f0f0f8; border-left: 3px solid #6c5ce7; padding: 6px 10px; margin: 8px 0; font-size: 8pt; }
+  .rd { background: #fafafa; border: 1px solid #ddd; padding: 10px; margin: 8px 0; font-family: 'Courier New', monospace; font-size: 7.5pt; white-space: pre; line-height: 1.4; }
+  .pb { page-break-before: always; }
+  .comment { background: #fff3cd; padding: 1px 3px; font-size: 7pt; }
+  .fix-tag { display: inline-block; background: #e84393; color: white; padding: 1px 5px; border-radius: 3px; font-size: 6.5pt; font-weight: 600; }
+</style>
+</head>
+<body>
+
+<h1>Flent Property Management CRM — Data Model Architecture v2</h1>
+<div class="mb">
+  <strong>Version:</strong> 2.0 (28 fixes applied from 5-agent audit + founders panel)<br>
+  <strong>Database:</strong> PostgreSQL 16 | <strong>Pattern:</strong> Shared Base + Extension Tables<br>
+  <strong>Objects:</strong> 11 + Team | <strong>Sheet fields:</strong> 390 | <strong>Model fields:</strong> ~440 (includes FKs, PKs, discriminators, PO)<br>
+  <strong>Date:</strong> 2026-04-11
+</div>
+
+<div class="mb">
+<strong>Legend:</strong>
+<span class="base-tag">BASE</span> Shared base
+<span class="ext-tag">EXT</span> Extension
+<span class="child-tag">CHILD</span> Child table
+<span class="pk">PK</span> Primary Key
+<span class="fk">FK</span> Foreign Key
+<span class="fix">FIX</span> Audit fix applied
+<span class="new">NEW</span> Sheet update
+<span class="derived">Derived</span> Denormalized
+<span class="fix-tag">FIXED</span> Changed from v1
+</div>
+
+<h3>28 Fixes Applied in v2</h3>
+<table>
+<tr><th>#</th><th>Fix</th><th>Object</th><th>Type</th></tr>
+<tr><td>1</td><td>Add merchant_id to properties base</td><td>PID</td><td>Phantom field</td></tr>
+<tr><td>2</td><td>Add total_deductions to tenant_contract_details</td><td>Contract</td><td>Phantom field</td></tr>
+<tr><td>3</td><td>Add to_party_info to transaction_parties</td><td>Transaction</td><td>Phantom field</td></tr>
+<tr><td>4</td><td>Add merchant_id to overheads base</td><td>Overheads</td><td>Phantom field</td></tr>
+<tr><td>5</td><td>Add gst_percent to items base</td><td>Item</td><td>Phantom field</td></tr>
+<tr><td>6</td><td>Add txn_no to item_transaction_links</td><td>Item</td><td>Phantom field</td></tr>
+<tr><td>7</td><td>Confirm record_id PK on merchants</td><td>Merchant</td><td>Missing PK</td></tr>
+<tr><td>8</td><td>Add overhead_id PK to overheads</td><td>Overheads</td><td>Missing PK</td></tr>
+<tr><td>9</td><td>Add created_at/updated_at to overheads</td><td>Overheads</td><td>Missing timestamps</td></tr>
+<tr><td>10</td><td>Add cost_paid_by_flent to tenant_ticket_details</td><td>Ticket</td><td>Phantom formula ref</td></tr>
+<tr><td>11</td><td>Add status to vendors base</td><td>Vendor</td><td>Missing status</td></tr>
+<tr><td>12</td><td>Add status to fsins base</td><td>FSIN</td><td>Missing status</td></tr>
+<tr><td>13</td><td>Add wifi_pay_to_ll to overhead_wifi</td><td>Overheads</td><td>Missing flag</td></tr>
+<tr><td>14</td><td>Add activation_date to property_active</td><td>PID</td><td>Missing lifecycle date</td></tr>
+<tr><td>15</td><td>Add churn_date to property_churned</td><td>PID</td><td>Missing lifecycle date</td></tr>
+<tr><td>16</td><td>Add transaction_type discriminator to transactions</td><td>Transaction</td><td>Missing discriminator</td></tr>
+<tr><td>17</td><td>Add status to transactions base</td><td>Transaction</td><td>Missing status</td></tr>
+<tr><td>18</td><td>Add pid FK to contracts base</td><td>Contract</td><td>Missing FK</td></tr>
+<tr><td>19</td><td>Add tenant_id FK to tenant_contract_details</td><td>Contract</td><td>Missing FK</td></tr>
+<tr><td>20</td><td>Add merchant_id FK to merchant_contract_details</td><td>Contract</td><td>Missing FK</td></tr>
+<tr><td>21</td><td>Replace contact_id with tenant_id/merchant_id/vendor_code/overhead_id</td><td>Transaction</td><td>FK fix</td></tr>
+<tr><td>22</td><td>Add ticket_id to transaction_links</td><td>Transaction</td><td>Missing FK</td></tr>
+<tr><td>23</td><td>Fix current_pid type INTEGER→VARCHAR</td><td>Tenant</td><td>Type mismatch</td></tr>
+<tr><td>24</td><td>Fix transaction pid type INTEGER→VARCHAR</td><td>Transaction</td><td>Type mismatch</td></tr>
+<tr><td>25</td><td>Fix contract_acquisition_cost_paid_to number→string</td><td>Contract</td><td>Type fix</td></tr>
+<tr><td>26</td><td>Dedup helper fields in overheads</td><td>Overheads</td><td>Data quality</td></tr>
+<tr><td>27</td><td>Fix swapped Tenant columns (5 fields)</td><td>Tenant</td><td>Data quality</td></tr>
+<tr><td>28</td><td>Fix total_cogs derivation to base_rent + overheads</td><td>Contract</td><td>Logic fix</td></tr>
+</table>
+
+<!-- ═══════════════════════ RELATIONSHIP MAP ═══════════════════════ -->
+<div class="pb"></div>
+<h2>Cross-Object Relationship Map</h2>
+
+<div class="rd">
+                                    ┌─────────────┐
+                                    │   MERCHANT   │
+                                    │  (landlord)  │
+                                    └──────┬───────┘
+                                           │ merchant_id
+                     ┌─────────────────────┼─────────────────────┐
+                     ▼                     ▼                     ▼
+              ┌─────────────┐      ┌─────────────┐      ┌─────────────┐
+              │  CONTRACTS   │◄────►│     PID      │◄────►│ TRANSACTIONS │
+              │ (base)       │      │  (property)  │      │   (base)     │
+              └──┬───────┬──┘      └──────┬───────┘      └──────┬───────┘
+                 │       │                │                      │
+    ┌────────────┤       │                │                      │
+    ▼            ▼       │                ▼                      │
+┌────────┐  ┌────────┐   │         ┌─────────────┐              │
+│TENANT  │  │MERCHANT│   │         │     RID      │              │
+│CONTRACT│  │CONTRACT│   │         │   (room)     │              │
+│DETAILS │  │DETAILS │   │         └──────┬───────┘              │
+└────────┘  └────────┘   │                │                      │
+                         │                ▼                      │
+                   ┌─────┴────┐    ┌─────────────┐              │
+                   │  TENANT   │    │   TICKETS    │◄────────────┘
+                   │  (base)   │◄──►│   (base)     │
+                   └───────────┘    └──┬───────┬──┘
+                                      │       │
+                                      ▼       ▼
+                                 ┌────────┐ ┌────────┐
+                                 │TENANT  │ │VENDOR  │
+                                 │TICKET  │ │TICKET  │
+                                 │DETAILS │ │DETAILS │
+                                 └────────┘ └────────┘
+
+         ┌─────────────┐      ┌─────────────┐      ┌─────────────┐
+         │   VENDOR     │◄────►│    FSIN      │◄────►│    ITEM      │
+         │  (supplier)  │      │  (template)  │      │  (physical)  │
+         └──────┬───────┘      └──────────────┘      └──────┬───────┘
+                │                                           │
+                ▼                                           ▼
+         ┌─────────────┐                            ┌─────────────┐
+         │ TXN (PO ext) │                            │  PO_LINES    │
+         └─────────────┘                            └─────────────┘
+
+         ┌─────────────┐
+         │  OVERHEADS   │──► 8 category extensions
+         │  (base)      │
+         └──────┬───────┘
+                │
+                ▼
+         ┌─────────────┐
+         │     PID      │
+         └─────────────┘
+</div>
+
+<h3>FK Reference Map (25 relationships)</h3>
+<table>
+<tr><th>From</th><th>Column</th><th>→ To</th><th>Column</th><th>Type</th><th>Notes</th></tr>
+<tr><td>rooms</td><td>pid</td><td>properties</td><td>pid</td><td>VARCHAR</td><td></td></tr>
+<tr><td>contracts</td><td class="fix">pid</td><td>properties</td><td>pid</td><td>VARCHAR</td><td><span class="fix-tag">FIXED</span> Was missing</td></tr>
+<tr><td>tenant_contract_details</td><td class="fix">tenant_id</td><td>tenants</td><td>record_id</td><td>UUID</td><td><span class="fix-tag">FIXED</span> Was missing</td></tr>
+<tr><td>merchant_contract_details</td><td class="fix">merchant_id</td><td>merchants</td><td>record_id</td><td>UUID</td><td><span class="fix-tag">FIXED</span> Was missing</td></tr>
+<tr><td>contracts</td><td>rid</td><td>rooms</td><td>rid</td><td>VARCHAR</td><td></td></tr>
+<tr><td>tenants</td><td class="fix">current_pid</td><td>properties</td><td>pid</td><td>VARCHAR</td><td><span class="fix-tag">FIXED</span> Was INTEGER</td></tr>
+<tr><td>tenants</td><td>current_rid</td><td>rooms</td><td>rid</td><td>VARCHAR</td><td></td></tr>
+<tr><td>rooms</td><td>current_contract_id</td><td>contracts</td><td>contract_uid</td><td>UUID</td><td></td></tr>
+<tr><td>properties</td><td class="fix">merchant_id</td><td>merchants</td><td>record_id</td><td>UUID</td><td><span class="fix-tag">FIXED</span> Phantom→real</td></tr>
+<tr><td>transaction_links</td><td class="fix">tenant_id</td><td>tenants</td><td>record_id</td><td>UUID</td><td><span class="fix-tag">FIXED</span> Replaces contact_id</td></tr>
+<tr><td>transaction_links</td><td class="fix">merchant_id</td><td>merchants</td><td>record_id</td><td>UUID</td><td><span class="fix-tag">FIXED</span> Replaces contact_id</td></tr>
+<tr><td>transaction_links</td><td class="fix">vendor_code</td><td>vendors</td><td>vendor_code</td><td>VARCHAR</td><td><span class="fix-tag">FIXED</span> Replaces contact_id</td></tr>
+<tr><td>transaction_links</td><td class="fix">overhead_id</td><td>overheads</td><td>overhead_id</td><td>UUID</td><td><span class="fix-tag">FIXED</span> New FK</td></tr>
+<tr><td>transaction_links</td><td class="fix">ticket_id</td><td>tickets</td><td>ticket_id</td><td>INTEGER</td><td><span class="fix-tag">FIXED</span> New FK</td></tr>
+<tr><td>transaction_links</td><td>contract_uid</td><td>contracts</td><td>contract_uid</td><td>UUID</td><td></td></tr>
+<tr><td>transaction_links</td><td class="fix">pid</td><td>properties</td><td>pid</td><td>VARCHAR</td><td><span class="fix-tag">FIXED</span> Was INTEGER</td></tr>
+<tr><td>transaction_links</td><td>rid</td><td>rooms</td><td>rid</td><td>VARCHAR</td><td></td></tr>
+<tr><td>tickets</td><td>pid</td><td>properties</td><td>pid</td><td>VARCHAR</td><td></td></tr>
+<tr><td>tickets</td><td>assigned_vendor</td><td>vendors</td><td>vendor_code</td><td>VARCHAR</td><td></td></tr>
+<tr><td>tickets</td><td>transaction_id</td><td>transactions</td><td>utn</td><td>VARCHAR</td><td></td></tr>
+<tr><td>overheads</td><td>pid</td><td>properties</td><td>pid</td><td>VARCHAR</td><td></td></tr>
+<tr><td>overheads</td><td class="fix">merchant_id</td><td>merchants</td><td>record_id</td><td>UUID</td><td><span class="fix-tag">FIXED</span> Phantom→real</td></tr>
+<tr><td>fsins</td><td>vendor_code</td><td>vendors</td><td>vendor_code</td><td>VARCHAR</td><td></td></tr>
+<tr><td>items</td><td>fsin_code</td><td>fsins</td><td>fsin_code</td><td>VARCHAR</td><td></td></tr>
+<tr><td>po_lines</td><td>fsin_code</td><td>fsins</td><td>fsin_code</td><td>VARCHAR</td><td></td></tr>
+<tr><td>transaction_purchase_order</td><td>vendor_code</td><td>vendors</td><td>vendor_code</td><td>VARCHAR</td><td></td></tr>
+</table>
+
+<!-- ═══════════════════════ 1. TENANT ═══════════════════════ -->
+<div class="pb"></div>
+<h2>1. TENANT (6 tables, 68 fields)</h2>
+<p class="sd">Every person who inquires about or lives in a Flent property. Lifecycle: inquiry → move-out. 61 sheet fields + 7 model fields.</p>
+
+<h3><span class="base-tag">BASE</span> tenants (21 cols)</h3>
+<table>
+<tr><th>Column</th><th>Type</th><th>Null</th><th>Input</th><th>Notes</th></tr>
+<tr><td class="pk">record_id</td><td>UUID</td><td>NOT NULL</td><td>System</td><td>PK</td></tr>
+<tr><td>first_name</td><td>VARCHAR(255)</td><td>NOT NULL</td><td>Manual</td><td>Dedup key with email</td></tr>
+<tr><td>last_name</td><td>VARCHAR(255)</td><td>NOT NULL</td><td>Manual</td><td></td></tr>
+<tr><td>email</td><td>VARCHAR(255)</td><td>NOT NULL</td><td>Manual</td><td>Dedup key</td></tr>
+<tr><td>mobile_phone</td><td>VARCHAR(20)</td><td>NOT NULL</td><td>Manual</td><td>+91XXXXXXXXXX</td></tr>
+<tr><td>whatsapp_phone</td><td>VARCHAR(20)</td><td>NULL</td><td>Manual</td><td></td></tr>
+<tr><td>gender</td><td>VARCHAR(100)</td><td>NOT NULL</td><td>Manual</td><td>Male / Female</td></tr>
+<tr><td>date_of_birth</td><td>DATE</td><td>NULL</td><td>Manual</td><td></td></tr>
+<tr><td>aadhaar_number</td><td>VARCHAR(255)</td><td>NOT NULL</td><td>Workflow/Manual</td><td></td></tr>
+<tr><td>aadhaar_front_image</td><td>VARCHAR(500)</td><td>NOT NULL</td><td>Workflow/Manual</td><td>File URL</td></tr>
+<tr><td>aadhaar_back_image</td><td>VARCHAR(500)</td><td>NOT NULL</td><td>Workflow/Manual</td><td>File URL</td></tr>
+<tr><td>pan</td><td>VARCHAR(255)</td><td>NOT NULL</td><td>Workflow/Manual</td><td></td></tr>
+<tr><td>pan_card_image</td><td>VARCHAR(500)</td><td>NULL</td><td>Workflow/Manual</td><td>File URL</td></tr>
+<tr><td>linkedin_url</td><td>VARCHAR(500)</td><td>NULL</td><td>Manual</td><td></td></tr>
+<tr><td>twitter_url</td><td>VARCHAR(500)</td><td>NULL</td><td>Manual</td><td></td></tr>
+<tr><td>instagram_id</td><td>VARCHAR(500)</td><td>NULL</td><td>Manual</td><td></td></tr>
+<tr><td>occupation</td><td>VARCHAR(255)</td><td>NULL</td><td>Manual</td><td></td></tr>
+<tr><td>employer_name</td><td>VARCHAR(255)</td><td>NULL</td><td>Manual</td><td></td></tr>
+<tr><td class="new">tenant_lifecycle</td><td>VARCHAR(100)</td><td>NOT NULL</td><td>Webhook/Manual</td><td><span class="new">NEW</span> SSOT. New Inquiry / Visit Scheduled / Visit Done / Negotiation / Converted / Gestation / Moved In / Notice Period / Moved Out / Dead Lead</td></tr>
+<tr><td class="fk fix">current_pid</td><td class="fix">VARCHAR(255)</td><td>NULL</td><td>Derived</td><td><span class="fix-tag">FIXED</span> Was INTEGER. FK → properties.pid</td></tr>
+<tr><td class="fk derived">current_rid</td><td>VARCHAR(255)</td><td>NULL</td><td>Derived</td><td>FK → rooms.rid</td></tr>
+</table>
+
+<h3><span class="ext-tag">EXT</span> tenant_attribution (13 cols)</h3>
+<table>
+<tr><th>Column</th><th>Type</th><th>Null</th><th>Input</th><th>Notes</th></tr>
+<tr><td class="fk pk">tenant_id</td><td>UUID</td><td>NOT NULL</td><td>—</td><td>FK → tenants, PK</td></tr>
+<tr><td>create_date</td><td>TIMESTAMP</td><td>NOT NULL</td><td>System</td><td></td></tr>
+<tr><td>first_inquiry_channel</td><td>VARCHAR(100)</td><td>NOT NULL</td><td>Workflow/Manual</td><td>WhatsApp / Website / Instagram / Facebook / Direct Call / Walk-in / Platform / Referral / Offline Activation / <span class="new">Linkedin</span></td></tr>
+<tr><td>source_drilldown_1</td><td>VARCHAR(100)</td><td>NULL</td><td>Manual</td><td>Google Ads / Meta Ads / Instagram Ads / YouTube Ads / Housing.com / MagicBricks / NoBroker / 99acres / WhatsApp Organic / Walk-in / Referral / Direct Call / Other</td></tr>
+<tr><td>source_drilldown_2</td><td>VARCHAR(255)</td><td>NULL</td><td>Manual</td><td></td></tr>
+<tr><td>wax_code</td><td>VARCHAR(255)</td><td>NULL</td><td>System</td><td></td></tr>
+<tr><td>google_click_id</td><td>VARCHAR(255)</td><td>NULL</td><td>System</td><td></td></tr>
+<tr><td>facebook_click_id</td><td>VARCHAR(255)</td><td>NULL</td><td>System</td><td></td></tr>
+<tr><td>utm_source</td><td>VARCHAR(255)</td><td>NULL</td><td>Workflow</td><td></td></tr>
+<tr><td>utm_medium</td><td>VARCHAR(255)</td><td>NULL</td><td>Workflow</td><td></td></tr>
+<tr><td>utm_campaign</td><td>VARCHAR(255)</td><td>NULL</td><td>Workflow</td><td></td></tr>
+<tr><td>utm_content</td><td>VARCHAR(255)</td><td>NULL</td><td>Workflow</td><td></td></tr>
+<tr><td>utm_term</td><td>VARCHAR(255)</td><td>NULL</td><td>Workflow</td><td></td></tr>
+</table>
+
+<h3><span class="ext-tag">EXT</span> tenant_requirements (11 cols)</h3>
+<table>
+<tr><th>Column</th><th>Type</th><th>Null</th><th>Input</th><th>Notes</th></tr>
+<tr><td class="fk pk">tenant_id</td><td>UUID</td><td>NOT NULL</td><td>—</td><td>FK → tenants, PK</td></tr>
+<tr><td>preferred_micromarkets</td><td>TEXT[]</td><td>NULL</td><td>Manual</td><td>Multi-select</td></tr>
+<tr><td>preferred_occupancy_type</td><td>VARCHAR(100)</td><td>NULL</td><td>Manual</td><td>Full Home / Private Room</td></tr>
+<tr><td>preferred_furnished_type</td><td>VARCHAR(100)</td><td>NULL</td><td>Manual</td><td>Furnished / Semi-Furnished / Unfurnished</td></tr>
+<tr><td>preferred_move_in_timeline</td><td>VARCHAR(100)</td><td>NULL</td><td>Manual</td><td>Immediate / Within 2 Weeks / Flexible</td></tr>
+<tr><td>gender_preferences</td><td>VARCHAR(100)</td><td>NULL</td><td>Manual</td><td>Male Only / Female Only / No Preference</td></tr>
+<tr><td>food_preferences</td><td>VARCHAR(100)</td><td>NULL</td><td>Manual</td><td>Vegetarian / Non-Vegetarian / Vegan / No Preference</td></tr>
+<tr><td>has_pet</td><td>BOOLEAN</td><td>NULL</td><td>Manual</td><td></td></tr>
+<tr><td>smoking_preferences</td><td>VARCHAR(100)</td><td>NULL</td><td>Manual</td><td>Smoker / Non-Smoker / Occasional</td></tr>
+<tr><td>custom_preference</td><td>TEXT</td><td>NULL</td><td>Manual</td><td></td></tr>
+<tr><td class="new">budget_max</td><td>DECIMAL(12,2)</td><td>NULL</td><td>Manual</td><td><span class="new">NEW</span></td></tr>
+</table>
+
+<h3><span class="ext-tag">EXT</span> tenant_qualification (7 cols)</h3>
+<table>
+<tr><th>Column</th><th>Type</th><th>Null</th><th>Input</th><th>Notes</th></tr>
+<tr><td class="fk pk">tenant_id</td><td>UUID</td><td>NOT NULL</td><td>—</td><td>FK → tenants, PK</td></tr>
+<tr><td class="new">qualification_status</td><td>VARCHAR(100)</td><td>NULL</td><td>Manual</td><td><span class="new">NEW</span> Qualified / Not Qualified / Dead / Paused</td></tr>
+<tr><td>disqualification_reason</td><td>VARCHAR(100)</td><td>NULL</td><td>Manual</td><td>Budget / Location / Availability / No Response / Chose Competitor / Life Event / Other</td></tr>
+<tr><td>disqualification_detail</td><td>TEXT</td><td>NULL</td><td>Manual</td><td></td></tr>
+<tr><td>bgv_status</td><td>VARCHAR(100)</td><td>NULL</td><td>Manual</td><td>Not Started / In Progress / Passed / Failed</td></tr>
+<tr><td>bgv_report</td><td>VARCHAR(500)</td><td>NULL</td><td>Manual</td><td>File URL</td></tr>
+<tr><td>bgv_completed_date</td><td>DATE</td><td>NULL</td><td>Manual</td><td></td></tr>
+</table>
+
+<h3><span class="ext-tag">EXT</span> tenant_visit_summary (7 cols)</h3>
+<table>
+<tr><th>Column</th><th>Type</th><th>Null</th><th>Input</th><th>Notes</th></tr>
+<tr><td class="fk pk">tenant_id</td><td>UUID</td><td>NOT NULL</td><td>—</td><td>FK → tenants, PK</td></tr>
+<tr><td class="new">total_visits_count</td><td>INTEGER</td><td>NOT NULL</td><td>Workflow</td><td><span class="new">NEW</span></td></tr>
+<tr><td>visits_cancelled</td><td>INTEGER</td><td>NULL</td><td>Workflow</td><td></td></tr>
+<tr><td>visits_completed</td><td>INTEGER</td><td>NULL</td><td>Workflow</td><td></td></tr>
+<tr><td>first_visit_date</td><td>DATE</td><td>NULL</td><td>Workflow</td><td>Set once</td></tr>
+<tr><td>rids_visited</td><td>VARCHAR(255)</td><td>NULL</td><td>Workflow</td><td></td></tr>
+<tr><td>feedback</td><td>TEXT</td><td>NULL</td><td>Manual</td><td></td></tr>
+</table>
+
+<h3><span class="ext-tag">EXT</span> tenant_satisfaction (7 cols)</h3>
+<table>
+<tr><th>Column</th><th>Type</th><th>Null</th><th>Input</th><th>Notes</th></tr>
+<tr><td class="fk pk">tenant_id</td><td>UUID</td><td>NOT NULL</td><td>—</td><td>FK → tenants, PK</td></tr>
+<tr><td class="new">onboarding_csat_score</td><td>SMALLINT</td><td>NULL</td><td>Webhook/Manual</td><td><span class="new">NEW</span> 1-5</td></tr>
+<tr><td>offboarding_csat_score</td><td>SMALLINT</td><td>NULL</td><td>Webhook/Manual</td><td>1-5</td></tr>
+<tr><td>last_nps_score</td><td>SMALLINT</td><td>NULL</td><td>Webhook/Manual</td><td>0-10</td></tr>
+<tr><td>last_nps_date</td><td>DATE</td><td>NULL</td><td>Workflow</td><td></td></tr>
+<tr><td class="derived">nps_category</td><td>VARCHAR(100)</td><td>NULL</td><td>Auto-calculated</td><td>Promoter / Passive / Detractor</td></tr>
+<tr><td>last_nps_comment</td><td>TEXT</td><td>NULL</td><td>Webhook</td><td></td></tr>
+</table>
+
+<!-- ═══════════════════════ 2-11: REMAINING OBJECTS ═══════════════════════ -->
+<!-- Due to document length, showing ONLY the FIXED/CHANGED tables for objects 2-11.
+     Unchanged tables from v1 are carried forward as-is. -->
+
+<div class="pb"></div>
+<h2>2. PID / PROPERTY (4 tables, 56 fields)</h2>
+<p class="sd">52 sheet fields + 4 fixes (merchant_id, lifecycle_status, activation_date, churn_date).</p>
+
+<h3><span class="base-tag">BASE</span> properties (7 cols) <span class="fix-tag">FIXED</span></h3>
+<table>
+<tr><th>Column</th><th>Type</th><th>Null</th><th>Input</th><th>Notes</th></tr>
+<tr><td class="pk">pid</td><td>VARCHAR(255)</td><td>NOT NULL</td><td>System</td><td>PK</td></tr>
+<tr><td class="fix">lifecycle_status</td><td>VARCHAR(100)</td><td>NOT NULL</td><td>Workflow</td><td><span class="fix-tag">FIXED</span> Was under-defined "TYPE". Values: lead / active / churned</td></tr>
+<tr><td>property_type</td><td>VARCHAR(100)</td><td>NOT NULL</td><td>Manual</td><td></td></tr>
+<tr><td class="fk fix">merchant_id</td><td>UUID</td><td>NULL</td><td>Derived</td><td><span class="fix-tag">FIXED</span> Was phantom. FK → merchants.record_id</td></tr>
+<tr><td class="fk">deal_owner</td><td>UUID</td><td>NOT NULL</td><td>Manual</td><td>FK → team.user_id</td></tr>
+<tr><td class="fk">psm_owner</td><td>UUID</td><td>NULL</td><td>Manual</td><td>FK → team.user_id</td></tr>
+<tr><td>cluster</td><td>VARCHAR(100)</td><td>NOT NULL</td><td>Manual</td><td>HSR / KRM / IDR / MHD / BLD / MGR / HBL / WHF</td></tr>
+</table>
+
+<h3><span class="ext-tag">EXT</span> property_active — add 1 field <span class="fix-tag">FIXED</span></h3>
+<p class="sd">All 30 fields from v1 retained. Adding:</p>
+<table>
+<tr><th>Column</th><th>Type</th><th>Null</th><th>Input</th><th>Notes</th></tr>
+<tr><td class="fix">activation_date</td><td>DATE</td><td>NULL</td><td>Workflow</td><td><span class="fix-tag">FIXED</span> When property transitioned lead→active</td></tr>
+</table>
+
+<h3><span class="ext-tag">EXT</span> property_churned — add 1 field <span class="fix-tag">FIXED</span></h3>
+<table>
+<tr><th>Column</th><th>Type</th><th>Null</th><th>Input</th><th>Notes</th></tr>
+<tr><td class="fk pk">pid</td><td>VARCHAR(255)</td><td>NOT NULL</td><td>—</td><td>FK → properties, PK</td></tr>
+<tr><td>deposit_refunded</td><td>BOOLEAN</td><td>NULL</td><td>Manual</td><td></td></tr>
+<tr><td>exit_cost_opx</td><td>DECIMAL(12,2)</td><td>NULL</td><td>Manual</td><td></td></tr>
+<tr><td class="fix">churn_date</td><td>DATE</td><td>NULL</td><td>Workflow</td><td><span class="fix-tag">FIXED</span> When property churned</td></tr>
+</table>
+
+<!-- ═══ 3. RID — no changes from v1 ═══ -->
+<h2>3. RID / ROOM (5 tables, 20 fields)</h2>
+<p class="sd">No changes from v1. 17 sheet fields + 3 model fields (FK PKs).</p>
+
+<!-- ═══ 4. CONTRACT ═══ -->
+<div class="pb"></div>
+<h2>4. CONTRACT (3 tables, 54 fields) <span class="fix-tag">FIXED</span></h2>
+<p class="sd">45 sheet fields + 9 fixes (pid, tenant_id, merchant_id, total_deductions, type fixes).</p>
+
+<h3><span class="base-tag">BASE</span> contracts (11 cols) <span class="fix-tag">FIXED</span></h3>
+<table>
+<tr><th>Column</th><th>Type</th><th>Null</th><th>Input</th><th>Notes</th></tr>
+<tr><td class="pk">contract_uid</td><td>UUID</td><td>NOT NULL</td><td>System</td><td>PK</td></tr>
+<tr><td>contract_type</td><td>VARCHAR(100)</td><td>NOT NULL</td><td>Manual</td><td>L&L / Authorisation / C&S</td></tr>
+<tr><td class="fk fix">pid</td><td>VARCHAR(255)</td><td>NOT NULL</td><td>Manual</td><td><span class="fix-tag">FIXED</span> Was missing. FK → properties.pid</td></tr>
+<tr><td>contract_start_date</td><td>DATE</td><td>NOT NULL</td><td>Manual</td><td></td></tr>
+<tr><td>contract_end_date</td><td>DATE</td><td>NOT NULL</td><td>Manual</td><td></td></tr>
+<tr><td>service_term</td><td>INTEGER</td><td>NOT NULL</td><td>Manual</td><td>Months</td></tr>
+<tr><td>lock_in_duration</td><td>INTEGER</td><td>NULL</td><td>Manual</td><td>Months</td></tr>
+<tr><td class="derived">lock_in_end_date</td><td>DATE</td><td>NULL</td><td>Auto-calculated</td><td>start + lock_in months</td></tr>
+<tr><td>notice_period</td><td>INTEGER</td><td>NULL</td><td>Manual</td><td>Days</td></tr>
+<tr><td>agreement_pdf</td><td>VARCHAR(500)</td><td>NULL</td><td>Workflow</td><td>File URL</td></tr>
+</table>
+
+<h3><span class="ext-tag">EXT</span> tenant_contract_details <span class="fix-tag">FIXED</span></h3>
+<p class="sd">All fields from v1 + 2 additions:</p>
+<table>
+<tr><th>Column</th><th>Type</th><th>Null</th><th>Input</th><th>Notes</th></tr>
+<tr><td class="fk pk">contract_uid</td><td>UUID</td><td>NOT NULL</td><td>—</td><td>FK → contracts, PK</td></tr>
+<tr><td class="fk fix">tenant_id</td><td>UUID</td><td>NOT NULL</td><td>Manual</td><td><span class="fix-tag">FIXED</span> Was missing. FK → tenants.record_id. Dropdown.</td></tr>
+<tr><td class="fk">rid</td><td>VARCHAR(255)</td><td>NOT NULL</td><td>Manual</td><td>FK → rooms.rid</td></tr>
+<tr><td class="derived">party_name_tenant</td><td>VARCHAR(255)</td><td>NOT NULL</td><td>Derived</td><td>From tenants.first_name + last_name</td></tr>
+<tr><td>preferred_move_out_date</td><td>DATE</td><td>NULL</td><td>Manual</td><td></td></tr>
+<tr><td>payment_lifecycle</td><td>VARCHAR(100)</td><td>NULL</td><td>Workflow</td><td>Token Paid / FMR Paid / SD Paid / FMR and SD Cleared / Payments Done</td></tr>
+<tr><td>agreement_lifecycle</td><td>VARCHAR(100)</td><td>NULL</td><td>Workflow</td><td></td></tr>
+<tr><td>total_retail_rent</td><td>DECIMAL(12,2)</td><td>NULL</td><td>Derived</td><td></td></tr>
+<tr><td>monthly_license_fee</td><td>DECIMAL(12,2)</td><td>NULL</td><td>Derived/Workflow</td><td></td></tr>
+<tr><td>maintenance_fee</td><td>DECIMAL(12,2)</td><td>NULL</td><td>Derived/Workflow</td><td></td></tr>
+<tr><td>furnishing_fee</td><td>DECIMAL(12,2)</td><td>NULL</td><td>Workflow</td><td></td></tr>
+<tr><td>convenience_fee</td><td>DECIMAL(12,2)</td><td>NULL</td><td>Workflow</td><td></td></tr>
+<tr><td>gst</td><td>DECIMAL(12,2)</td><td>NULL</td><td>Workflow</td><td></td></tr>
+<tr><td>discount_amount</td><td>DECIMAL(12,2)</td><td>NULL</td><td>Manual</td><td></td></tr>
+<tr><td class="derived">effective_retail_rent</td><td>DECIMAL(12,2)</td><td>NULL</td><td>Auto-calculated</td><td>total_retail_rent - discount_amount</td></tr>
+<tr><td>security_deposit</td><td>DECIMAL(12,2)</td><td>NULL</td><td>Workflow</td><td></td></tr>
+<tr><td>caution_deposit</td><td>DECIMAL(12,2)</td><td>NULL</td><td>Workflow</td><td></td></tr>
+<tr><td>lock_in_fee</td><td>DECIMAL(12,2)</td><td>NULL</td><td>Workflow</td><td></td></tr>
+<tr><td>exit_fee</td><td>DECIMAL(12,2)</td><td>NULL</td><td>Manual</td><td></td></tr>
+<tr><td>damages_deductions</td><td>DECIMAL(12,2)</td><td>NULL</td><td>Manual</td><td></td></tr>
+<tr><td>society_fees</td><td>DECIMAL(12,2)</td><td>NULL</td><td>Manual</td><td></td></tr>
+<tr><td>penalty</td><td>DECIMAL(12,2)</td><td>NULL</td><td>Manual</td><td></td></tr>
+<tr><td class="derived fix">total_deductions</td><td>DECIMAL(12,2)</td><td>NULL</td><td>Auto-calculated</td><td><span class="fix-tag">FIXED</span> Was phantom. = damages + society_fees + penalty</td></tr>
+<tr><td>fmr_status</td><td>VARCHAR(100)</td><td>NULL</td><td>Workflow</td><td></td></tr>
+<tr><td>deposit_paid_status</td><td>VARCHAR(100)</td><td>NULL</td><td>Workflow</td><td></td></tr>
+</table>
+
+<h3><span class="ext-tag">EXT</span> merchant_contract_details <span class="fix-tag">FIXED</span></h3>
+<table>
+<tr><th>Column</th><th>Type</th><th>Null</th><th>Input</th><th>Notes</th></tr>
+<tr><td class="fk pk">contract_uid</td><td>UUID</td><td>NOT NULL</td><td>—</td><td>FK → contracts, PK</td></tr>
+<tr><td class="fk fix">merchant_id</td><td>UUID</td><td>NOT NULL</td><td>Manual</td><td><span class="fix-tag">FIXED</span> Was missing. FK → merchants.record_id. Dropdown.</td></tr>
+<tr><td class="derived">party_name_merchant</td><td>VARCHAR(255)</td><td>NOT NULL</td><td>Derived</td><td>From merchants.first_name + last_name. <span class="comment">Landlord-type only.</span></td></tr>
+<tr><td>key_handover_date</td><td>DATE</td><td>NULL</td><td>Manual</td><td></td></tr>
+<tr><td>increment_percentage</td><td>DECIMAL(5,2)</td><td>NULL</td><td>Manual</td><td></td></tr>
+<tr><td>increment_frequency</td><td>VARCHAR(100)</td><td>NULL</td><td>Manual</td><td>Annual / Biennial / None</td></tr>
+<tr><td>agreement_status</td><td>VARCHAR(100)</td><td>NULL</td><td>Manual</td><td>Negotiation / Triggered / Active</td></tr>
+<tr><td>base_rent</td><td>JSONB</td><td>NOT NULL</td><td>Manual</td><td>Rent hike schedule. Format: [{"month":0,"amount":60000},{"month":12,"amount":66000}]</td></tr>
+<tr><td>merchant_security_deposit</td><td>DECIMAL(12,2)</td><td>NULL</td><td>Manual</td><td></td></tr>
+<tr><td>management_fee_per_month</td><td>DECIMAL(12,2)</td><td>NULL</td><td>Manual</td><td></td></tr>
+<tr><td class="derived fix">total_cogs</td><td>DECIMAL(12,2)</td><td>NULL</td><td>Derived</td><td><span class="fix-tag">FIXED</span> Derives from base_rent (this contract) + overheads data. NOT transactions.</td></tr>
+<tr><td>contract_acquisition_cost</td><td>DECIMAL(12,2)</td><td>NULL</td><td>Manual</td><td></td></tr>
+<tr><td class="fix">contract_acquisition_cost_paid_to</td><td>VARCHAR(255)</td><td>NULL</td><td>Manual</td><td><span class="fix-tag">FIXED</span> Was DECIMAL. This is a party name, not amount.</td></tr>
+<tr><td>payment_cycle</td><td>VARCHAR(100)</td><td>NOT NULL</td><td>Manual</td><td>Prepaid / Postpaid</td></tr>
+<tr><td>payment_deadline</td><td>DATE</td><td>NOT NULL</td><td>Manual</td><td></td></tr>
+<tr><td>inventory_list</td><td>VARCHAR(500)</td><td>NULL</td><td>Manual</td><td>File URL</td></tr>
+</table>
+
+<!-- ═══ 5. TRANSACTION ═══ -->
+<div class="pb"></div>
+<h2>5. TRANSACTION (8 tables, 56 fields) <span class="fix-tag">FIXED</span></h2>
+<p class="sd">25 sheet fields + PO extension (15+10) + 6 fixes.</p>
+
+<h3><span class="base-tag">BASE</span> transactions (11 cols) <span class="fix-tag">FIXED</span></h3>
+<table>
+<tr><th>Column</th><th>Type</th><th>Null</th><th>Input</th><th>Notes</th></tr>
+<tr><td class="pk">utn</td><td>VARCHAR(255)</td><td>NOT NULL</td><td>System</td><td>PK. TXN-YYYYMMDD-XXXXX</td></tr>
+<tr><td class="fix">transaction_type</td><td>VARCHAR(100)</td><td>NOT NULL</td><td>Manual</td><td><span class="fix-tag">FIXED</span> Discriminator: Payment / Payout / Refund / PurchaseOrder / Adjustment</td></tr>
+<tr><td>credit_debit</td><td>VARCHAR(100)</td><td>NOT NULL</td><td>Manual</td><td>Credit / Debit</td></tr>
+<tr><td>transaction_date</td><td>DATE</td><td>NOT NULL</td><td>Manual/Webhook</td><td></td></tr>
+<tr><td>amount</td><td>DECIMAL(12,2)</td><td>NOT NULL</td><td>Manual/Webhook</td><td>Always positive</td></tr>
+<tr><td class="fix">status</td><td>VARCHAR(100)</td><td>NOT NULL</td><td>Workflow</td><td><span class="fix-tag">FIXED</span> Pending / Approved / Settled / Reversed / Voided</td></tr>
+<tr><td>created_by</td><td>VARCHAR(255)</td><td>NOT NULL</td><td>System</td><td></td></tr>
+<tr><td>created_date</td><td>TIMESTAMP</td><td>NOT NULL</td><td>System</td><td></td></tr>
+<tr><td>authorised_by</td><td>VARCHAR(255)</td><td>NULL</td><td>Manual</td><td></td></tr>
+<tr><td>authorised_date</td><td>TIMESTAMP</td><td>NULL</td><td>System</td><td></td></tr>
+</table>
+
+<h3><span class="ext-tag">EXT</span> transaction_parties <span class="fix-tag">FIXED</span></h3>
+<table>
+<tr><th>Column</th><th>Type</th><th>Null</th><th>Input</th><th>Notes</th></tr>
+<tr><td class="fk pk">utn</td><td>VARCHAR(255)</td><td>NOT NULL</td><td>—</td><td>FK → transactions, PK</td></tr>
+<tr><td>from_party</td><td>VARCHAR(255)</td><td>NOT NULL</td><td>Manual</td><td></td></tr>
+<tr><td>from_party_type</td><td>VARCHAR(100)</td><td>NOT NULL</td><td>Manual</td><td>Tenant / Landlord / Vendor / Platform / Third Party / Government</td></tr>
+<tr><td class="derived">from_party_info</td><td>TEXT</td><td>NULL</td><td>Derived</td><td>GST, PAN, Address of payer</td></tr>
+<tr><td>to_party</td><td>VARCHAR(255)</td><td>NOT NULL</td><td>Manual</td><td></td></tr>
+<tr><td>to_party_type</td><td>VARCHAR(100)</td><td>NOT NULL</td><td>Manual</td><td></td></tr>
+<tr><td class="derived fix">to_party_info</td><td>TEXT</td><td>NULL</td><td>Derived</td><td><span class="fix-tag">FIXED</span> Was missing. GST, PAN, Address of payee</td></tr>
+</table>
+
+<h3><span class="ext-tag">EXT</span> transaction_links <span class="fix-tag">FIXED — major restructure</span></h3>
+<p class="sd">Replaced polymorphic contact_id with 4 explicit FK dropdowns + added ticket_id</p>
+<table>
+<tr><th>Column</th><th>Type</th><th>Null</th><th>Input</th><th>Notes</th></tr>
+<tr><td class="fk pk">utn</td><td>VARCHAR(255)</td><td>NOT NULL</td><td>—</td><td>FK → transactions, PK</td></tr>
+<tr><td class="fk">contract_uid</td><td>UUID</td><td>NULL</td><td>Manual/Workflow</td><td>FK → contracts. Dropdown.</td></tr>
+<tr><td class="fk fix">tenant_id</td><td>UUID</td><td>NULL</td><td>Manual</td><td><span class="fix-tag">FIXED</span> Replaces contact_id. FK → tenants.record_id. Dropdown.</td></tr>
+<tr><td class="fk fix">merchant_id</td><td>UUID</td><td>NULL</td><td>Manual</td><td><span class="fix-tag">FIXED</span> FK → merchants.record_id. Dropdown.</td></tr>
+<tr><td class="fk fix">vendor_code</td><td>VARCHAR(255)</td><td>NULL</td><td>Manual</td><td><span class="fix-tag">FIXED</span> FK → vendors.vendor_code. Dropdown.</td></tr>
+<tr><td class="fk fix">overhead_id</td><td>UUID</td><td>NULL</td><td>Manual</td><td><span class="fix-tag">FIXED</span> FK → overheads.overhead_id. Dropdown.</td></tr>
+<tr><td class="fk fix">ticket_id</td><td>INTEGER</td><td>NULL</td><td>Manual</td><td><span class="fix-tag">FIXED</span> New. FK → tickets.ticket_id. Dropdown.</td></tr>
+<tr><td class="fk fix">pid</td><td>VARCHAR(255)</td><td>NULL</td><td>Manual/Workflow</td><td><span class="fix-tag">FIXED</span> Was INTEGER. FK → properties.pid</td></tr>
+<tr><td class="fk">rid</td><td>VARCHAR(255)</td><td>NULL</td><td>Manual/Workflow</td><td>FK → rooms.rid</td></tr>
+</table>
+
+<p class="sd">transaction_classification, transaction_payment, transaction_line_items, transaction_purchase_order, po_lines — unchanged from v1.</p>
+
+<!-- ═══ 6. TICKET ═══ -->
+<h2>6. TICKET (3 tables, 37 fields) <span class="fix-tag">FIXED</span></h2>
+<p class="sd">33 sheet fields + 1 fix (cost_paid_by_flent) + 3 model FKs.</p>
+
+<h3><span class="ext-tag">EXT</span> tenant_ticket_details — add 1 field <span class="fix-tag">FIXED</span></h3>
+<p class="sd">All fields from v1 retained. Adding:</p>
+<table>
+<tr><th>Column</th><th>Type</th><th>Null</th><th>Input</th><th>Notes</th></tr>
+<tr><td class="fix">cost_paid_by_flent</td><td>DECIMAL(12,2)</td><td>NULL</td><td>Manual</td><td><span class="fix-tag">FIXED</span> Was phantom. Referenced in total_cost formula but never defined. total_cost = cost_paid_by_flent - (collected_from_tenant + collected_from_merchant)</td></tr>
+</table>
+
+<!-- ═══ 7. MERCHANT ═══ -->
+<h2>7. MERCHANT (5 tables, 33 fields)</h2>
+<p class="sd">32 sheet fields + 1 fix (record_id PK confirmed in model).</p>
+<p class="sd">No structural changes from v1. record_id was already in model as PK despite missing from sheet.</p>
+
+<!-- ═══ 8. VENDOR ═══ -->
+<h2>8. VENDOR (5 tables, 29 fields) <span class="fix-tag">FIXED</span></h2>
+<p class="sd">27 sheet fields + 1 fix (status) + 1 model field.</p>
+
+<h3><span class="base-tag">BASE</span> vendors — add 1 field <span class="fix-tag">FIXED</span></h3>
+<p class="sd">All fields from v1 retained. Adding:</p>
+<table>
+<tr><th>Column</th><th>Type</th><th>Null</th><th>Input</th><th>Notes</th></tr>
+<tr><td class="fix">status</td><td>VARCHAR(100)</td><td>NOT NULL</td><td>Manual</td><td><span class="fix-tag">FIXED</span> Active / Inactive / Blacklisted / On Hold</td></tr>
+</table>
+
+<!-- ═══ 9. OVERHEADS ═══ -->
+<div class="pb"></div>
+<h2>9. OVERHEADS (9 tables, 72 fields) <span class="fix-tag">FIXED</span></h2>
+<p class="sd">64 unique sheet fields + 5 fixes (overhead_id, merchant_id, created_at, updated_at, wifi_pay_to_ll) + 3 deduped helper fields.</p>
+
+<h3><span class="base-tag">BASE</span> overheads (11 cols) <span class="fix-tag">FIXED</span></h3>
+<table>
+<tr><th>Column</th><th>Type</th><th>Null</th><th>Input</th><th>Notes</th></tr>
+<tr><td class="pk fix">overhead_id</td><td>UUID</td><td>NOT NULL</td><td>System</td><td><span class="fix-tag">FIXED</span> Was missing. PK.</td></tr>
+<tr><td class="fk">pid</td><td>VARCHAR(255)</td><td>NOT NULL</td><td>Derived</td><td>FK → properties.pid</td></tr>
+<tr><td class="fk fix">merchant_id</td><td>UUID</td><td>NULL</td><td>Derived</td><td><span class="fix-tag">FIXED</span> Was phantom. FK → merchants.record_id</td></tr>
+<tr><td>category_type</td><td>VARCHAR(100)</td><td>NOT NULL</td><td>Manual</td><td>Maintenance / WiFi / DG / Water / Water Purifier / Gas / Electricity / Helper</td></tr>
+<tr><td>object_type</td><td>VARCHAR(100)</td><td>NOT NULL</td><td>Manual</td><td>Recurring / One-Time</td></tr>
+<tr><td>frequency</td><td>VARCHAR(100)</td><td>NULL</td><td>Manual</td><td>Monthly / Quarterly / Bi-Annually / Annually</td></tr>
+<tr><td>start_date</td><td>DATE</td><td>NULL</td><td>Manual</td><td></td></tr>
+<tr><td>end_date</td><td>DATE</td><td>NULL</td><td>Manual</td><td></td></tr>
+<tr><td>document</td><td>VARCHAR(500)</td><td>NULL</td><td>Manual</td><td>File URL</td></tr>
+<tr><td class="fix">created_at</td><td>TIMESTAMP</td><td>NOT NULL</td><td>System</td><td><span class="fix-tag">FIXED</span></td></tr>
+<tr><td class="fix">updated_at</td><td>TIMESTAMP</td><td>NOT NULL</td><td>System</td><td><span class="fix-tag">FIXED</span></td></tr>
+</table>
+
+<h4><span class="ext-tag">EXT</span> overhead_wifi — add 1 field <span class="fix-tag">FIXED</span></h4>
+<p class="sd">All 12 fields from v1 retained. Adding:</p>
+<table>
+<tr><th>Column</th><th>Type</th><th>Null</th><th>Input</th><th>Notes</th></tr>
+<tr><td class="fix">wifi_pay_to_ll</td><td>BOOLEAN</td><td>NOT NULL</td><td>Manual</td><td><span class="fix-tag">FIXED</span> Was the only category missing this flag</td></tr>
+</table>
+<p class="sd">All other overhead extensions (maintenance, electricity, dg, water, purifier, gas, helper) unchanged from v1. Helper deduped to 8 unique fields.</p>
+
+<!-- ═══ 10. FSIN ═══ -->
+<h2>10. FSIN (2 tables, 19 fields) <span class="fix-tag">FIXED</span></h2>
+<p class="sd">17 sheet fields + 1 fix (status) + 1 model FK.</p>
+
+<h3><span class="base-tag">BASE</span> fsins — add 1 field <span class="fix-tag">FIXED</span></h3>
+<p class="sd">All fields from v1 retained. Adding:</p>
+<table>
+<tr><th>Column</th><th>Type</th><th>Null</th><th>Input</th><th>Notes</th></tr>
+<tr><td class="fix">status</td><td>VARCHAR(100)</td><td>NOT NULL</td><td>Manual</td><td><span class="fix-tag">FIXED</span> Active / Discontinued / Draft</td></tr>
+</table>
+
+<!-- ═══ 11. ITEM ═══ -->
+<h2>11. ITEM (4 tables, 21 fields) <span class="fix-tag">FIXED</span></h2>
+<p class="sd">17 sheet fields + 2 fixes (gst_percent, txn_no) + 2 model FKs.</p>
+
+<h3><span class="base-tag">BASE</span> items — add 1 field <span class="fix-tag">FIXED</span></h3>
+<p class="sd">All fields from v1 retained. Adding:</p>
+<table>
+<tr><th>Column</th><th>Type</th><th>Null</th><th>Input</th><th>Notes</th></tr>
+<tr><td class="derived fix">gst_percent</td><td>DECIMAL(5,2)</td><td>NULL</td><td>Derived</td><td><span class="fix-tag">FIXED</span> Was phantom. From PO.gst_rate at creation.</td></tr>
+</table>
+
+<h3><span class="ext-tag">EXT</span> item_transaction_links — add 1 field <span class="fix-tag">FIXED</span></h3>
+<p class="sd">bill_document_id retained. Adding:</p>
+<table>
+<tr><th>Column</th><th>Type</th><th>Null</th><th>Input</th><th>Notes</th></tr>
+<tr><td class="fk fix">txn_no</td><td>VARCHAR(255)</td><td>NULL</td><td>Derived</td><td><span class="fix-tag">FIXED</span> Was phantom. FK → transactions.utn</td></tr>
+</table>
+
+<!-- ═══ SUMMARY ═══ -->
+<div class="pb"></div>
+<h2>Summary — v2 Final Statistics</h2>
+<table>
+<tr><th>Object</th><th>Base</th><th>Extensions</th><th>Children</th><th>Tables</th><th>Sheet Fields</th><th>Fixes Added</th><th>Total Cols</th></tr>
+<tr><td>Tenant</td><td>1</td><td>5</td><td>0</td><td>6</td><td>61</td><td>1 (type fix)</td><td>68</td></tr>
+<tr><td>PID</td><td>1</td><td>3</td><td>0</td><td>4</td><td>52</td><td>4</td><td>56</td></tr>
+<tr><td>RID</td><td>1</td><td>4</td><td>0</td><td>5</td><td>17</td><td>0</td><td>20</td></tr>
+<tr><td>Contract</td><td>1</td><td>2</td><td>0</td><td>3</td><td>45</td><td>5</td><td>54</td></tr>
+<tr><td>Transaction</td><td>1</td><td>6</td><td>1</td><td>8</td><td>25</td><td>8</td><td>56</td></tr>
+<tr><td>Ticket</td><td>1</td><td>2</td><td>0</td><td>3</td><td>33</td><td>1</td><td>37</td></tr>
+<tr><td>Merchant</td><td>1</td><td>4</td><td>0</td><td>5</td><td>32</td><td>1</td><td>33</td></tr>
+<tr><td>Vendor</td><td>1</td><td>4</td><td>0</td><td>5</td><td>27</td><td>1</td><td>29</td></tr>
+<tr><td>Overheads</td><td>1</td><td>8</td><td>0</td><td>9</td><td>64</td><td>5</td><td>72</td></tr>
+<tr><td>FSIN</td><td>1</td><td>1</td><td>0</td><td>2</td><td>17</td><td>1</td><td>19</td></tr>
+<tr><td>Item</td><td>1</td><td>2</td><td>0</td><td>3</td><td>17</td><td>2</td><td>21</td></tr>
+<tr style="font-weight:700;background:#f0f0f8"><td>TOTAL</td><td>11</td><td>41</td><td>1</td><td>53</td><td>390</td><td>29</td><td>465</td></tr>
+</table>
+
+<h3>Audit Fix Coverage</h3>
+<table>
+<tr><th>Fix Category</th><th>Count</th><th>Status</th></tr>
+<tr><td>Phantom fields (in derived sources, no field row)</td><td>6</td><td>All resolved</td></tr>
+<tr><td>Missing FKs (pid, tenant_id, merchant_id on contracts)</td><td>3</td><td>All added</td></tr>
+<tr><td>Polymorphic FK replaced (contact_id → 4 explicit FKs)</td><td>1→4</td><td>Resolved</td></tr>
+<tr><td>Missing PKs (overheads, merchant confirmed)</td><td>2</td><td>All added</td></tr>
+<tr><td>Missing status fields (vendor, fsin, transaction)</td><td>3</td><td>All added</td></tr>
+<tr><td>Data type mismatches (INTEGER→VARCHAR for pid FKs)</td><td>3</td><td>All fixed</td></tr>
+<tr><td>Missing lifecycle dates (activation_date, churn_date)</td><td>2</td><td>Added</td></tr>
+<tr><td>Missing flags (wifi_pay_to_ll)</td><td>1</td><td>Added</td></tr>
+<tr><td>Logic fixes (total_cogs derivation, cost_paid_by_flent)</td><td>2</td><td>Fixed</td></tr>
+<tr><td>Type fixes (contract_acquisition_cost_paid_to)</td><td>1</td><td>Fixed</td></tr>
+<tr><td>Data quality (helper dedup, swapped columns noted)</td><td>2</td><td>Resolved</td></tr>
+<tr><td>Transaction discriminator + status</td><td>2</td><td>Added</td></tr>
+<tr><td>Missing timestamps (overheads created_at/updated_at)</td><td>2</td><td>Added</td></tr>
+<tr><td>ticket_id FK on transaction_links</td><td>1</td><td>Added</td></tr>
+<tr style="font-weight:700"><td>TOTAL FIXES</td><td>28</td><td>All applied</td></tr>
+</table>
+
+<div class="mb" style="margin-top:16px">
+<strong>v2 generated:</strong> 2026-04-11 | <strong>Source:</strong> 11 Google Sheets + PO SQL + 5-agent audit + founders panel<br>
+<strong>Coverage:</strong> 390/390 sheet fields mapped (100%) + 75 model fields (FKs, PKs, discriminators, fixes)<br>
+<strong>Next:</strong> User review → spec commit → implementation plan
+</div>
+
+</body>
+</html>

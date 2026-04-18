@@ -1,0 +1,40 @@
+[linaria/wyw] Starting CSS pre-build
+[linaria/wyw] Pre-warm: 407ms
+  [32m➜[39m  [1mLocal[22m:   [36mhttp://localhost:[1m3001[22m/[39m
+[2m  [32m➜[39m  [1mNetwork[22m[2m: use [22m[1m--host[22m[2m to expose[22m
+[linaria/wyw] slow: /packages/twenty-front/src/modules/error-handler/components/AppRootErrorFallback.tsx 582ms
+[linaria/wyw] slow: /packages/twenty-front/src/modules/ui/layout/page/components/BlankLayout.tsx 379ms
+[linaria/wyw] slow: /packages/twenty-front/src/modules/ui/feedback/snack-bar-manager/components/SnackBarProvider.tsx 357ms
+[linaria/wyw] slow: /packages/twenty-front/src/modules/error-handler/components/AppFullScreenErrorFallback.tsx 318ms
+[2m5:33:34 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2msrc/testing/mock-data/generated/metadata/navigation-menu-items/mock-navigation-menu-items-data.ts[22m
+[2m5:33:34 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2msrc/testing/mock-data/generated/metadata/minimal/mock-minimal-metadata.ts[22m
+[2m5:33:34 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2msrc/testing/mock-data/generated/metadata/views/mock-views-data.ts[22m
+[2m5:33:34 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2msrc/testing/mock-data/generated/metadata/objects/mock-objects-metadata.ts[22m
+[linaria/wyw] slow: /packages/twenty-front/src/modules/object-record/record-table/record-table-footer/components/RecordTableAggregateFooter.tsx 450ms
+[linaria/wyw] slow: /packages/twenty-front/src/modules/object-record/record-table/record-table-section/components/RecordTableRecordGroupSection.tsx 368ms
+[linaria/wyw] slow: /packages/twenty-front/src/modules/advanced-text-editor/components/AdvancedTextEditor.tsx 330ms
+[linaria/wyw] slow: /packages/twenty-front/src/modules/workflow/workflow-steps/workflow-actions/ai-agent-action/components/WorkflowEditActionAiAgent.tsx 313ms
+[linaria/wyw] slow: /packages/twenty-front/src/modules/object-record/record-table/record-table-body/components/RecordTableBodyVirtualizedDraggableClone.tsx 671ms
+[linaria/wyw] slow: /packages/twenty-front/src/modules/object-record/record-table/record-table-cell/components/RecordTableCellLoading.tsx 314ms
+[linaria/wyw] slow: /packages/twenty-front/src/modules/ui/layout/tab-list/components/TabMoreButton.tsx 368ms
+[linaria/wyw] slow: /packages/twenty-front/src/loading/components/SidePanelSkeletonLoader.tsx 330ms
+[linaria/wyw] slow: /packages/twenty-front/src/modules/ui/field/input/components/AddressInput.tsx 348ms
+[linaria/wyw] slow: /packages/twenty-front/src/modules/ui/field/input/components/DoubleTextInput.tsx 338ms
+[linaria/wyw] slow: /packages/twenty-front/src/modules/page-layout/components/PageLayoutVerticalListEditor.tsx 226ms
+[2m5:39:17 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2msrc/testing/mock-data/users.ts[22m
+[2m5:39:26 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2msrc/testing/mock-data/users.ts[22m
+[2m5:39:37 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2msrc/testing/mock-data/users.ts[22m
+[2m5:39:43 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2msrc/testing/mock-data/users.ts[22m
+[2m5:42:59 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2msrc/testing/mock-data/users.ts[22m
+[2m5:43:06 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2msrc/testing/mock-data/users.ts[22m
+[2m5:43:24 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2msrc/testing/mock-data/users.ts[22m
+[2m5:43:36 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2msrc/testing/mock-data/users.ts[22m
+[2m5:53:22 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/metadata-store/effect-components/UserMetadataProviderInitialEffect.tsx[22m
+[2m5:53:26 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/metadata-store/effect-components/UserMetadataProviderInitialEffect.tsx[22m
+[2m5:53:38 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/metadata-store/effect-components/UserMetadataProviderInitialEffect.tsx[22m
+[2m6:47:37 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/app/hooks/useCreateAppRouter.tsx[22m
+[2m6:47:37 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [33mhmr invalidate [39m[2m/src/modules/app/hooks/useCreateAppRouter.tsx[22m Could not Fast Refresh ("useCreateAppRouter" export is incompatible). Learn more at https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react-swc#consistent-components-exports
+[2m6:47:37 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/app/components/AppRouter.tsx[22m
+[2m6:47:46 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/app/hooks/useCreateAppRouter.tsx[22m
+[2m6:47:46 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [33mhmr invalidate [39m[2m/src/modules/app/hooks/useCreateAppRouter.tsx[22m Could not Fast Refresh ("useCreateAppRouter" export is incompatible). Learn more at https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react-swc#consistent-components-exports
+[2m6:47:46 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/modules/app/components/AppRouter.tsx[22m

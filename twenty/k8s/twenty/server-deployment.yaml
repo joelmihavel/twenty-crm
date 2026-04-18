@@ -1,0 +1,142 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: twenty-server
+  namespace: twenty-prod
+  labels:
+    app: twenty-server
+    app.kubernetes.io/part-of: twenty
+    app.kubernetes.io/component: server
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: twenty-server
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  template:
+    metadata:
+      labels:
+        app: twenty-server
+        app.kubernetes.io/part-of: twenty
+        app.kubernetes.io/component: server
+    spec:
+      serviceAccountName: twenty-server
+      nodeSelector:
+        pool: server
+      terminationGracePeriodSeconds: 30
+      securityContext:
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app: twenty-server
+                topologyKey: kubernetes.io/hostname
+      containers:
+        - name: twenty-server
+          image: twentycrm/twenty:latest
+          ports:
+            - containerPort: 3000
+              name: http
+              protocol: TCP
+          env:
+            - name: SERVER_URL
+              value: "https://hawkeye.flent.in"
+            - name: NODE_OPTIONS
+              value: "--max-old-space-size=8192"
+            - name: PG_DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: twenty-secrets
+                  key: PG_DATABASE_URL
+            - name: REDIS_URL
+              value: "rediss://10.96.135.84:6378"
+            - name: PG_DATABASE_PRIMARY_TIMEOUT_MS
+              value: "5000"
+            - name: PG_POOL_MAX_CONNECTIONS
+              value: "50"
+            - name: API_RATE_LIMITING_SHORT_LIMIT
+              value: "500"
+            - name: API_RATE_LIMITING_LONG_LIMIT
+              value: "2000"
+            - name: STORAGE_TYPE
+              value: "s3"
+            - name: STORAGE_S3_REGION
+              value: "asia-south1"
+            - name: STORAGE_S3_NAME
+              value: "flent-twenty-files"
+            - name: STORAGE_S3_ENDPOINT
+              value: "https://storage.googleapis.com"
+            - name: STORAGE_S3_ACCESS_KEY_ID
+              value: "GOOG1EHDACLGKUVHQT6IGYZFXNP747Q3POXHGY6C264NI23NJHEDB6LGCKGOL"
+            - name: STORAGE_S3_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: twenty-secrets
+                  key: HMAC_SECRET
+            - name: APP_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: twenty-secrets
+                  key: APP_SECRET
+            - name: EMAIL_FROM_ADDRESS
+              value: "crm@flent.in"
+            - name: AUTH_GOOGLE_ENABLED
+              value: "true"
+            - name: MESSAGING_PROVIDER_GMAIL_ENABLED
+              value: "true"
+            - name: CALENDAR_PROVIDER_GOOGLE_ENABLED
+              value: "true"
+            - name: IS_MULTIWORKSPACE_ENABLED
+              value: "false"
+            - name: NODE_EXTRA_CA_CERTS
+              value: "/etc/ssl/redis/redis-ca.pem"
+          volumeMounts:
+            - name: redis-ca-cert
+              mountPath: /etc/ssl/redis
+              readOnly: true
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          startupProbe:
+            httpGet:
+              path: /healthz
+              port: 3000
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            failureThreshold: 36
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 3000
+            periodSeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 3000
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: 500m
+              memory: 1Gi
+            limits:
+              cpu: 1500m
+              memory: 2Gi
+      volumes:
+        - name: redis-ca-cert
+          secret:
+            secretName: redis-ca-cert

@@ -1,0 +1,30 @@
+"Bundle","Field","Type","Options","Role","NULL info","Input Method","Why"
+"Identification","item_code","text","","primary key","NOT NULL","System","unique identifier for an item"
+"","fsin_code","text","","foreing key (FSIN)","NOT NULL","Derived","relates to what fsin was this item bought for ; used to fetch pics, attributes etc"
+"","po_line_id","uuid","","","NOT NULL","System","stitches with the PO that was created against this item to tally purchases, txn, etc."
+"","created_at","datetime","","auto","NOT NULL","System","life beginning timestamp"
+"","serial_no","numeric","","","NOT NULL","System","used to create new items beyond the latest sequence"
+"","unit_price","float","","","NOT NULL","System","excluding gst price petched from POs which creation for quick context (doesn't change over time)"
+"","gst_percent","float","","","NOT NULL","System","to get gst context on the item based on the PO"
+"State","lock","boolean","- True
+- False","","","System","Very Imp: used to identify if this item is already picked for usage on not so that multiple people don't pick it while planning,
+locked using the external PFS application layer and the location is marked only when actually used"
+"","lock_by_pfs","uuid","","","","System","The PFS that was used to lock this to track who and for what property was this item locked"
+"","locked_at","datetime","","","","System","date and time of the lock"
+"","location","text","","","","System","current location of the item ex. PID124-LRD ; <warehouse_id>-<rack_id>"
+"","state","enum","- BUY
+- WIB
+- WOB
+- PIB
+- POB
+- WORK
+- DEAD","","NOT NULL","System","Defines the state in which the item is sitting ; if it is sitting in PIB say , then its already under use, if it's WOB ; then it left the warehouse but hasn't reached anywhere (helps to find out what items are not in an end state)"
+"","state_time","datetime","","","","System","when did this item switch to it's latest state (other historical context saved in the movements log)"
+"","latest_snapshot_date","datetime","","","","System","time of the latest real pic of the item"
+"","snapshot","image","","","","System","helps to track what was the latest seen condition of the item by the flent team - helps with recon, deductions etc."
+"PIB","utilised_at","datetime","","","","System","helps to quickly calculate shelf life -- PIB is first true utilization"
+"ICQA","qa_flag","enum","-Yes
+-No","","","System","found/not found in the warehouse based on the latest health check"
+"","last_qa_time","datetime","","","","System","time at which this item was rechecked"
+"TXN","txn_no","text","Transcation Number","","","Derived",""
+"","bill_document_id","text","Document ID","","","Derived",""

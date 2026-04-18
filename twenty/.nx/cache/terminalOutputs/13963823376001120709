@@ -1,0 +1,38 @@
+[linaria/wyw] Starting CSS pre-build
+[linaria/wyw] Pre-warm: 295ms
+  [32m➜[39m  [1mLocal[22m:   [36mhttp://localhost:[1m3001[22m/[39m
+[2m  [32m➜[39m  [1mNetwork[22m[2m: use [22m[1m--host[22m[2m to expose[22m
+[linaria/wyw] slow: /packages/twenty-front/src/modules/error-handler/components/AppRootErrorFallback.tsx 545ms
+[linaria/wyw] slow: /packages/twenty-front/src/modules/ui/layout/page/components/BlankLayout.tsx 409ms
+[linaria/wyw] slow: /packages/twenty-front/src/modules/ui/feedback/snack-bar-manager/components/SnackBarProvider.tsx 378ms
+[linaria/wyw] slow: /packages/twenty-front/src/modules/settings/components/SettingsSkeletonLoader.tsx 348ms
+[2m4:29:50 PM[22m [36m[1m[vite][22m[39m [32mpackages/twenty-front/.env changed, restarting server...[39m
+
+[linaria/wyw] ===== CSS PRE-BUILD SUMMARY =====
+[linaria/wyw] Files transformed: 104
+[linaria/wyw] Files skipped (no @linaria): 1566
+[linaria/wyw] Transform time: 2909ms
+[linaria/wyw] Avg per transformed file: 28.0ms
+[linaria/wyw] Slow files (>10x avg = 280ms):
+[linaria/wyw]   545ms /packages/twenty-front/src/modules/error-handler/components/AppRootErrorFallback.tsx
+[linaria/wyw]   409ms /packages/twenty-front/src/modules/ui/layout/page/components/BlankLayout.tsx
+[linaria/wyw]   378ms /packages/twenty-front/src/modules/ui/feedback/snack-bar-manager/components/SnackBarProvider.tsx
+[linaria/wyw]   348ms /packages/twenty-front/src/modules/settings/components/SettingsSkeletonLoader.tsx
+[linaria/wyw] ==========================================
+
+
+[linaria/wyw] ===== CSS PRE-BUILD SUMMARY =====
+[linaria/wyw] Files transformed: 104
+[linaria/wyw] Files skipped (no @linaria): 1566
+[linaria/wyw] Transform time: 2909ms
+[linaria/wyw] Avg per transformed file: 28.0ms
+[linaria/wyw] Slow files (>10x avg = 280ms):
+[linaria/wyw]   545ms /packages/twenty-front/src/modules/error-handler/components/AppRootErrorFallback.tsx
+[linaria/wyw]   409ms /packages/twenty-front/src/modules/ui/layout/page/components/BlankLayout.tsx
+[linaria/wyw]   378ms /packages/twenty-front/src/modules/ui/feedback/snack-bar-manager/components/SnackBarProvider.tsx
+[linaria/wyw]   348ms /packages/twenty-front/src/modules/settings/components/SettingsSkeletonLoader.tsx
+[linaria/wyw] ==========================================
+
+[linaria/wyw] Starting CSS pre-build
+[linaria/wyw] Pre-warm: 25ms
+[2m4:29:50 PM[22m [36m[1m[vite][22m[39m server restarted.

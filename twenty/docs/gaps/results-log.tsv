@@ -1,0 +1,52 @@
+iteration	dimension	gap_severity	category	flent_blocker
+0	BASELINE	N/A	N/A	N/A
+1	Contact/Record Management	HIGH	Core CRM	No
+2	Custom Objects & Fields	MEDIUM	Core CRM	No
+3	Deal/Pipeline Management	CRITICAL	Core CRM	YES
+4	Associations & Relationships	HIGH	Core CRM	No
+5	Lists & Segmentation	HIGH	Core CRM	YES
+6	Record Scoring	CRITICAL	Core CRM	No
+7	Data Import/Export	HIGH	Core CRM	No
+8	Data Quality & Validation	CRITICAL	Core CRM	YES
+9	Calculated & Formula Fields	HIGH	Core CRM	No
+10	Record History & Changelog	MEDIUM	Core CRM	No
+11	Email Sending from CRM	CRITICAL	Communication	YES
+12	Email Templates & Snippets	CRITICAL	Communication	No
+13	Email Marketing & Campaigns	CRITICAL	Communication	No
+14	Sequences (Sales Outreach)	CRITICAL	Communication	No
+15	WhatsApp Integration	CRITICAL	Communication	YES
+16	Chat/Live Chat	CRITICAL	Communication	No
+17	Phone/Call Integration	HIGH	Communication	No
+18	Meeting Scheduling	HIGH	Communication	No
+19	Slack Integration	MEDIUM	Communication	No
+20	SMS/Text Messaging	HIGH	Communication	No
+21	Workflow Triggers	HIGH	Automation	No
+22	Workflow Actions	MEDIUM	Automation	No
+23	Workflow Advanced	MEDIUM	Automation	No
+24	Reporting & Dashboards	CRITICAL	Reporting	YES
+25	Forecasting & Revenue	CRITICAL	Reporting	No
+26	Goals & Targets	CRITICAL	Reporting	No
+27	Tasks & Activities	HIGH	Automation	No
+28	Notes & Documents	HIGH	Automation	No
+29	Forms & Lead Capture	CRITICAL	Lead Gen	YES
+30	Landing Pages & Website	CRITICAL	Lead Gen	No
+31	User Permissions & RBAC	HIGH	Enterprise	No
+32	Teams & Hierarchy	CRITICAL	Enterprise	YES
+33	SSO / SAML / OIDC	HIGH	Enterprise	No
+34	Audit Logs	HIGH	Enterprise	No
+35	GDPR & Privacy Tools	CRITICAL	Enterprise	No
+36	Multi-Currency	MEDIUM	Enterprise	No
+37	Multi-Language / i18n	TWENTY-WINS	Enterprise	No
+38	Sandbox / Testing	MEDIUM	Enterprise	No
+39	Marketplace & Extensions	CRITICAL	Enterprise	No
+40	Backup & Disaster Recovery	TWENTY-WINS	Enterprise	No
+41	API -- REST	MEDIUM	Integration	No
+42	API -- Webhooks	MEDIUM	Integration	No
+43	API -- GraphQL	TWENTY-WINS	Integration	No
+44	Google Workspace	MEDIUM	Integration	No
+45	Microsoft 365	MEDIUM	Integration	No
+46	Zapier / Make / n8n	MEDIUM	Integration	No
+47	Payment Processing	HIGH	Integration	No
+48	AI Features	CRITICAL	Integration	No
+49	Mobile App	CRITICAL	Integration	No
+50	Customer Portal	CRITICAL	Integration	No

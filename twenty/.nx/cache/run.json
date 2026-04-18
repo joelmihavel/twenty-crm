@@ -1,0 +1,87 @@
+{
+  "run": {
+    "command": "nx start twenty-front",
+    "startTime": "2026-04-17T19:19:08.977Z",
+    "endTime": "2026-04-18T02:43:28.716Z",
+    "inner": false
+  },
+  "tasks": [
+    {
+      "taskId": "twenty-shared:generateBarrels",
+      "target": "generateBarrels",
+      "projectName": "twenty-shared",
+      "hash": "6402160091283125415",
+      "startTime": "2026-04-17T19:19:09.023Z",
+      "endTime": "2026-04-17T19:19:09.029Z",
+      "params": "",
+      "cacheStatus": "local-cache-hit",
+      "status": 0
+    },
+    {
+      "taskId": "twenty-ui:generateBarrels",
+      "target": "generateBarrels",
+      "projectName": "twenty-ui",
+      "hash": "5572609494384576523",
+      "startTime": "2026-04-17T19:19:09.023Z",
+      "endTime": "2026-04-17T19:19:09.035Z",
+      "params": "",
+      "cacheStatus": "local-cache-hit",
+      "status": 0
+    },
+    {
+      "taskId": "twenty-shared:build",
+      "target": "build",
+      "projectName": "twenty-shared",
+      "hash": "5150462595030903125",
+      "startTime": "2026-04-17T19:19:09.041Z",
+      "endTime": "2026-04-17T19:19:09.056Z",
+      "params": "",
+      "cacheStatus": "local-cache-hit",
+      "status": 0
+    },
+    {
+      "taskId": "twenty-ui:build",
+      "target": "build",
+      "projectName": "twenty-ui",
+      "hash": "11176525107052715166",
+      "startTime": "2026-04-17T19:19:09.067Z",
+      "endTime": "2026-04-17T19:19:09.077Z",
+      "params": "",
+      "cacheStatus": "local-cache-hit",
+      "status": 0
+    },
+    {
+      "taskId": "twenty-client-sdk:build",
+      "target": "build",
+      "projectName": "twenty-client-sdk",
+      "hash": "13668184408736159267",
+      "startTime": "2026-04-17T19:19:09.067Z",
+      "endTime": "2026-04-17T19:19:09.082Z",
+      "params": "",
+      "cacheStatus": "local-cache-hit",
+      "status": 0
+    },
+    {
+      "taskId": "twenty-sdk:build",
+      "target": "build",
+      "projectName": "twenty-sdk",
+      "hash": "8484599304073547809",
+      "startTime": "2026-04-17T19:19:09.094Z",
+      "endTime": "2026-04-17T19:19:09.100Z",
+      "params": "",
+      "cacheStatus": "local-cache-hit",
+      "status": 0
+    },
+    {
+      "taskId": "twenty-front-component-renderer:build",
+      "target": "build",
+      "projectName": "twenty-front-component-renderer",
+      "hash": "5054791854430034743",
+      "startTime": "2026-04-17T19:19:09.104Z",
+      "endTime": "2026-04-17T19:19:09.108Z",
+      "params": "",
+      "cacheStatus": "local-cache-hit",
+      "status": 0
+    }
+  ]
+}

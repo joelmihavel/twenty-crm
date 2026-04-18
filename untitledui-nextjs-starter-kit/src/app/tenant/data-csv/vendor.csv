@@ -1,0 +1,41 @@
+"Category","Field","Type","Options","Role","Input Method","NULL info","WHY?"
+"Identification","vendor_code","text","","primary key","","NOT NULL","self-explanatory"
+"","vendor_name","text","","","","NOT NULL","self-explanatory"
+"","vendor_type","enum","- Manufacturer
+- Wholeseller
+- Distributor
+- Freelancer
+- Aggregate
+- Retailer
+- Landlord","","","NOT NULL","tells the kind of vendor"
+"Contact and Info","contact_name","text","","","","NOT NULL","self-explanatory"
+"","phone","numeric","","unique","","NOT NULL",""
+"","alternate_phone","numeric","","","","",""
+"","email","text","","unique","","NOT NULL",""
+"","city","text","","","","NOT NULL",""
+"","address","longtext","","","","NOT NULL",""
+"Billing","gst_number","text","","unique","","","self-explanatory"
+"","pan","text","","unique","","",""
+"","billing_name","text","","","","",""
+"","bank_name","text","","","","",""
+"","bank_account_number","text","","unique","","",""
+"","ifsc_code","text","","","","",""
+"","msme_vendor","enum","-Yes
+- No","","","",""
+"","udyam aadhar","text","","","","",""
+"Capability and Scope","specialization","longtext","","","","NOT NULL","gives us nuanced understanding of the expertise"
+"","tat_in_days","numeric","","","","NOT NULL","self-explanatory"
+"","customization_capability","enum","- Low
+- Medium
+- High","","","NOT NULL","gives us nuanced understanding of the capability"
+"","standardisation_fit","enum","- C1
+- C2
+- C3","","","NOT NULL","if has the capability to build lego-like designs"
+"Commercials","quality_tier","enum","- T1
+- T2
+- T3","","","NOT NULL","helps us understand who can work with what budgets"
+"","payment_terms","text","","","",""," working capital understanding"
+"","min_order_value","number","","","","","self-explanatory"
+"","negotiation_remarks","longtext","","","","","useful for context sharing"
+"Internal","created_at","datetime","","auto","","","self-explanatory"
+"","updated_at","datetime","","auto","","","self-explanatory"

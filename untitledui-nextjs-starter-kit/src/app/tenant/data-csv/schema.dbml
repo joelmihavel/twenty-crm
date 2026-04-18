@@ -1,0 +1,782 @@
+// ═══════════════════════════════════════════════════════════════
+// FLEMP — Full-Stack Rental Housing Operations Platform
+// Database Schema (DBML for dbdiagram.io)
+// ═══════════════════════════════════════════════════════════════
+//
+// DOMAIN MODEL:
+//   PID (Property) is the central anchor.
+//   RID (Room) is the unit of occupancy.
+//   Contracts are the source of truth for occupancy & financials.
+//   Transactions are always traceable to contract + property.
+//   Inventory items are traceable to lifecycle & location.
+//
+// RELATIONSHIP LEGEND:
+//   > = many-to-one (FK on this side)
+//   < = one-to-many
+//   Denormalized fields marked with [note: 'Denormalized']
+// ═══════════════════════════════════════════════════════════════
+
+
+// ─────────────────────────────────────────────
+// PEOPLE
+// ─────────────────────────────────────────────
+
+Table tenants {
+  // TENANT IDENTITY — permanent, never changes
+  record_id string [pk, note: 'Unique primary key']
+  firstname string [not null]
+  lastname string [not null]
+  email string [not null, note: 'Primary identifier and dedup key']
+  mobilephone string [note: '+91XXXXXXXXXX']
+  whatsapp_phone string
+  gender enum [note: 'Male / Female']
+  date_of_birth date
+  aadhar_number string [note: 'XXXX XXXX XXXX']
+  aadhar_front_side string [note: 'File URL']
+  aadhar_back_side string [note: 'File URL']
+  tenant_pan_card string [note: 'AAAPX1234A']
+  pan_card_link string [note: 'File URL']
+  linkedin string [note: 'URL']
+  twitter string [note: 'URL']
+  instagram string [note: 'URL']
+  occupation string
+  employer_name string
+
+  // TENANT ATTRIBUTION — captured at first touch, never overwritten
+  first_touch_date datetime [note: 'ISO 8601']
+  first_inquiry_channel enum [note: 'WhatsApp / Website / Instagram / Facebook / Direct Call / Walk-in / Platform / Referral / Offline Activation']
+  source_drilldown_1 enum [note: 'Google Ads / Meta Ads / Instagram Ads / YouTube Ads / Housing.com / MagicBricks / NoBroker / 99acres / WhatsApp Organic / Walk-in / Referral / Direct Call / Other']
+  source_drilldown_2 enum [note: 'Campaign name, referring partner, agent name, ad set, etc.']
+  wax_code string
+  google_click_id string
+  facebook_click_id string
+  utm_source string
+  utm_medium string
+  utm_campaign string
+  utm_content string
+  utm_term string
+
+  // TENANT REQUIREMENTS — lead-stage snapshot, static after qualification
+  budget_max number
+  preferred_micromarkets multi_enum [note: 'City-specific neighbourhoods']
+  preferred_occupancy_type enum [note: 'Full Home / Private Room']
+  preferred_furnished_type enum [note: 'Furnished / Semi-Furnished / Unfurnished']
+  preferred_move_in_timeline enum [note: 'Immediate / Within 2 weeks / Flexible']
+  gender_preferences enum [note: 'Male Only / Female Only / No Preference']
+  food_preferences enum [note: 'Vegetarian / Non-Vegetarian / Vegan / No Preference']
+  has_pet bool
+  smoking_preferences enum [note: 'Smoker / Non-Smoker / Occasional']
+  custom_preference text
+
+  // TENANT LIFECYCLE STATUS — system-written only, never manually edited
+  tenant_lifecycle enum [not null, note: 'New Inquiry / Visit Scheduled / Visit Done / Negotiation / Converted / Gestation / Moved In / Notice Period / Moved Out / Dead Lead']
+  current_pid string [ref: > pid.pid_no, note: 'Denormalized from active Contract']
+  current_rid string [ref: > rid.rid, note: 'Denormalized from active Contract']
+
+  // TENANT QUALIFICATION — set during lead-to-conversion funnel
+  qualification_status enum [note: 'Qualified / Not Qualified / Dead / Paused']
+  disqualification_reason enum [note: 'Budget / Location / Availability / No Response / Chose Competitor / Life Event / Other']
+  disqualification_detail string
+  bgv_status enum [note: 'Not Started / In Progress / Passed / Failed']
+  bgv_report string [note: 'File URL']
+  bgv_completed_date date
+
+  // TENANT VISIT SUMMARY — aggregates; source of truth is Meeting records
+  total_visits_count number
+  visits_cancelled number
+  visits_completed number
+  first_visit_date date
+  rids_visited string [note: 'Comma-separated RIDs']
+  feedback string
+
+  // TENANT SATISFACTION — person-level, aggregated across all tenures
+  onboarding_csat_score number [note: '1-5']
+  offboarding_csat_score number [note: '1-5']
+  last_nps_score number [note: '0-10']
+  last_nps_date date
+  nps_category enum [note: 'Promoter / Passive / Detractor']
+  last_nps_comment string
+
+  Note: 'Central CRM entity. Lifecycle: Inquiry → Visit → Negotiation → Conversion → Move-in → Stay → Move-out. A tenant can have multiple contracts over time. current_pid and current_rid are denormalized from the active contract for fast lookups.'
+}
+
+Table merchant {
+  // LEAD
+  merchant_id string [pk]
+  lead_source enum
+  prefix enum [note: 'Mr / Mrs / Ms / Dr']
+  first_name string [not null]
+  last_name string [not null]
+  email string
+  country_code enum [not null]
+  phone_no integer [not null]
+  unique_id string [note: 'source + drill downs']
+  disqualification_reason enum
+  lost_reason enum
+  // Psychographics
+  preferred_language enum
+  landlord_personality string
+  general_ll_comments string
+  potentially_multihome_ll bool
+  // Demographics
+  age_range enum [note: '18-30 / 31-40 / 40-55 / 55+']
+  current_city string
+  designation string
+  organization string
+  // Meta
+  landlord_linkedin string [note: 'URL']
+  first_added datetime [not null]
+  last_updated datetime [not null]
+
+  // LANDLORD — Identity & Banking
+  ll_prefix enum
+  ll_first_name string
+  ll_last_name string
+  ll_email string
+  ll_country_code enum
+  ll_phone_no integer
+  ll_current_city string
+  ll_unique_id string
+  ll_aadhar_front string [note: 'File Upload']
+  ll_aadhar_back string [note: 'File Upload']
+  ll_pan_card_number string [note: 'AAAAA9999A']
+  ll_pan_card string [note: 'File Upload']
+  ll_upi_id string
+  ll_bank_account_no integer
+  ll_beneficiary_name string
+  ll_ifsc_code string
+  ll_cancelled_cheque string [note: 'File Upload']
+  ll_current_residential string
+  ll_permanent_residential string
+  ll_communications bool
+  ll_rent bool
+  ll_signing_authority bool [not null]
+
+  // POC — Point of Contact
+  poc_prefix enum
+  poc_first_name string
+  poc_last_name string
+  poc_email string
+  poc_country_code enum
+  poc_phone_no integer
+  poc_current_city string
+  poc_aadhar_front string [note: 'File Upload']
+  poc_aadhar_back string [note: 'File Upload']
+  poc_pan_card_number string
+  poc_pan_card string [note: 'File Upload']
+  poc_upi_id string
+  poc_bank_account_no integer
+  poc_beneficiary_name string
+  poc_ifsc_code string
+  poc_cancelled_cheque string
+  poc_current_residential string
+  poc_permanent_residential string
+  poc_communications bool
+  poc_transactions bool
+  poc_signing_authority bool
+
+  // BROKER
+  broker_prefix enum
+  broker_first_name string
+  broker_last_name string
+  broker_email string
+  broker_country_code enum
+  broker_phone_no integer
+  broker_current_city string
+  broker_aadhar_front string [note: 'File Upload']
+  broker_aadhar_back string [note: 'File Upload']
+  broker_pan_card_number string
+  broker_pan_card string [note: 'File Upload']
+  broker_upi_id string
+  broker_bank_account_no integer
+  broker_beneficiary_name string
+  broker_ifsc_code string
+  broker_cancelled_cheque string
+  broker_gst_invoice string [note: 'PDF']
+  broker_current_residential string
+  broker_permanent_residential string
+
+  // MANAGEMENT — Society/Association
+  mgmt_association_name string
+  mgmt_email string
+  mgmt_phone integer
+  mgmt_manager_email string
+  mgmt_manager_phone integer
+  mgmt_beneficiary_name string
+  mgmt_payment_mode string
+  mgmt_account_number integer
+  mgmt_ifsc string
+  mgmt_communications bool
+  mgmt_transactions bool
+
+  Note: 'Supply-side entity. Represents landlord, broker, or property manager. One merchant can own/manage multiple properties (PID). Contains sub-entities: Landlord, POC, Broker, Management — each with identity, banking, and permissions.'
+}
+
+Table vendor {
+  // Identification
+  vendor_code text [pk, not null]
+  vendor_name text [not null]
+  vendor_type enum [not null, note: 'Manufacturer / Wholeseller / Distributor / Freelancer / Aggregate / Retailer / Landlord']
+
+  // Contact and Info
+  contact_name text [not null]
+  phone numeric [not null, unique]
+  alternate_phone numeric
+  email text [not null, unique]
+  city text [not null]
+  address text [not null]
+
+  // Billing
+  gst_number text [unique]
+  pan text [unique]
+  billing_name text
+  bank_name text
+  bank_account_number text [unique]
+  ifsc_code text
+  msme_vendor enum [note: 'Yes / No']
+  udyam_aadhar text
+
+  // Capability and Scope
+  specialization text [not null]
+  tat_in_days numeric [not null]
+  customization_capability enum [not null, note: 'Low / Medium / High']
+  standardisation_fit enum [not null, note: 'C1 / C2 / C3']
+
+  // Commercials
+  quality_tier enum [not null, note: 'T1 / T2 / T3']
+  payment_terms text
+  min_order_value number
+  negotiation_remarks text
+
+  // Internal
+  created_at datetime
+  updated_at datetime
+
+  Note: 'External service providers. Supplies FSINs (inventory items) and gets assigned to resolve tickets. Quality-tiered for budget alignment.'
+}
+
+
+// ─────────────────────────────────────────────
+// PROPERTY — Central Anchor
+// ─────────────────────────────────────────────
+
+Table pid {
+  // LEAD BLOCK — pre-acquisition pipeline
+  ppid_no string [note: 'Pre-PID lead number']
+  lead_date_added datetime [not null]
+  lead_no_of_units integer [not null, note: 'Min: 1']
+  lead_deal_type enum [not null, note: 'Residence Lead / Enterprise Lead']
+  lead_no_of_apartments integer
+  lead_property_type enum [not null]
+  lead_cluster enum [not null, note: 'HSR / KRM / IDR / MHD / BLD / MGR / HBL / WHF']
+  lead_deal_owner enum [not null]
+  lead_furnishing enum [note: 'Unfurnished / Semi-Furnished / Partially Furnished / Fully Furnished']
+  lead_expected_rent decimal [not null]
+  lead_google_map_location string [note: 'URL']
+  lead_deal_stage enum [not null, note: 'To be contacted (POC) / To be contacted / In touch / Landlord Interested / Qualified / Evaluation / Negotiations Started / Offer Extended / Under Contract / To nurture (Sales)']
+  lead_disqualification_reason enum
+  lead_lost_reason enum
+  lead_exploratory_visit integer
+  lead_potential_report string [note: 'PDF']
+
+  // ACTIVE BLOCK — Property Details
+  pid_no string [pk, not null]
+  merchant_id string [ref: > merchant.merchant_id, note: 'Landlord/merchant who owns this property']
+  house_no string
+  property_type enum [not null]
+  no_of_units integer [not null]
+  tier string
+  floor string
+  google_map_location string [not null, note: 'URL']
+  address string [not null]
+  building_society string [not null]
+  cluster enum [not null]
+  parking_type enum [note: 'Multi-select']
+  parking_number string
+  parking_spot string [note: 'File Upload Image']
+  power_backup enum
+  water_source enum [note: 'Multi-select']
+
+  // Residence Context
+  restrictions enum
+  usage_information text
+  other_notes text
+  furniture_movement enum
+
+  // Fixture Costs
+  final_approved_amt decimal
+  final_invoice string [note: 'File Upload PDF']
+  work_proof string [note: 'File Upload Image']
+  payment_collection enum [note: 'Upfront / Straight Deduction / EMI']
+  emi_period string [note: 'Integer + Decimal, conditional on EMI']
+  opex_collections decimal
+  emi_period_enum enum
+  initial_estimate integer
+  initial_estimate_file string [note: 'PDF']
+  property_health_score integer
+  before_documentation string [note: 'Link']
+  property_health_report string [note: 'PDF']
+  after_documentation string [note: 'Link']
+
+  // Inventory List
+  loose_furniture_list string
+  appliance_list string
+  fixture_list string
+  built_in_furniture string
+  other_belongings string
+  key_count string
+  documentation string [note: 'File Upload Image + Video']
+
+  // Building Context
+  prop_mgmt_app enum
+  utilities_app enum
+  rules_regulations text [note: 'Long text / PDF']
+  garbage_disposal string
+  timing_restrictions string
+  move_in_out_formalities text
+  move_out_fee numeric
+  move_in_fee numeric
+
+  // Intrinsic Qualities
+  furnishing_status enum
+
+  // Payment Deadlines
+  rent_deadline string [not null, note: 'Day of month']
+  maintenance_deadline string
+  overheads_deadline string
+
+  // PoC
+  deal_owner string [not null]
+  psm_owner string [not null]
+
+  // CHURNED BLOCK
+  deposit_refunded bool [note: 'Required on churn']
+  exit_cost_opx decimal
+  deposit_deductions decimal
+
+  Note: 'Central entity. A property contains multiple rooms (RID). Most operational, financial, and tenant relationships connect here. Owned/managed by a Merchant. Has lead-stage, active, and churned lifecycle blocks.'
+}
+
+Table rid {
+  // Room Identity
+  rid string [pk, note: 'Unique room identifier']
+  pid string [not null, ref: > pid.pid_no, note: 'Parent property — 1 property has N rooms']
+
+  // Room Specifications
+  attached_bathroom bool
+  balcony bool
+
+  // Furnishing & Inventory
+  bed_type enum [note: 'Single / Double / Queen / King']
+  ac_feasibility string
+  ac bool
+  ac_type enum [note: 'Split / Window / Portable / Not Possible']
+  study_table bool
+  annexure string [note: 'File Upload']
+  annexure_last_update_date date
+
+  // Commercials
+  base_rent decimal
+  maintenance_fee decimal
+
+  // Availability & Status
+  room_status enum [note: 'Available / Occupied / Under Maintenance / Blocked']
+  current_contract_id string [ref: > tenant_contracts.primary_key, note: 'Denormalized — active contract for this room']
+  current_tenant_name string [note: 'Denormalized from Contract for quick reference']
+  available_from date
+
+  Note: 'The actual rentable unit. Occupancy is defined by an active tenant_contract linking a tenant to this room. room_status and current_contract_id are denormalized for fast availability lookups.'
+}
+
+Table overheads {
+  overhead_id string [pk]
+  pid string [not null, ref: > pid.pid_no, note: 'Property this overhead belongs to']
+
+  // Common
+  object_type enum [note: 'Recurring / One-Time']
+  frequency enum [note: 'Monthly / Quarterly / Bi-Annually / Annually']
+  document string [note: 'File']
+  start_date date
+  end_date date
+  category_type enum [note: 'Maintenance / WiFi / DG / Water / Water Purifier / Gas / Electricity']
+
+  // MAINTENANCE
+  maint_amount decimal
+  maint_frequency enum [note: 'Monthly / Quarterly / Yearly']
+  maint_cutoff_date date
+  maint_cycle enum [note: 'Prepaid / Postpaid']
+  maint_payment_to_landlord bool
+  maint_collection_from_tenant bool
+
+  // WIFI
+  wifi_account_id numeric
+  wifi_service_provider enum [note: 'ACT / Airtel / Tata']
+  wifi_ssid string
+  wifi_password string
+  wifi_registered_number integer
+  wifi_ownership string
+  wifi_amount numeric
+  wifi_collection_from_tenant bool
+
+  // DG (GENERATOR)
+  dg_brand_product_details string
+  dg_capacity integer [note: 'kVA']
+  dg_maintenance_schedule enum
+  dg_fuel_tank_capacity numeric
+  dg_refill_unit_litres numeric
+  dg_amount bool
+  dg_collection_from_tenant bool
+
+  // WATER
+  water_provider string
+  water_account_number integer
+  water_password string
+  water_ownership enum
+  water_payments_dues decimal
+  water_payment_to_landlord bool
+  water_collection_from_tenant bool
+
+  // WATER PURIFIER
+  purifier_type string
+  purifier_serial_no string
+  purifier_subscription enum
+  purifier_ownership string
+  purifier_payment_to_landlord bool
+  purifier_collection_from_tenant bool
+
+  // GAS CONNECTION
+  gas_provider string
+  gas_connection_type string
+  gas_account_number integer
+  gas_password string
+  gas_ownership enum
+  gas_payment_to_landlord bool
+  gas_collection_from_tenant bool
+
+  // ELECTRICITY
+  elec_provider string
+  elec_connection_type string
+  elec_account_number integer
+  elec_password string
+  elec_ownership enum
+  elec_payment_to_landlord bool
+  elec_collection_from_tenant bool
+
+  Note: 'Recurring or one-time costs linked to a property. Costs split between tenant, landlord, and platform via boolean flags. 7 utility categories, each with provider-specific fields.'
+}
+
+
+// ─────────────────────────────────────────────
+// CONTRACTS — Source of Truth for Occupancy
+// ─────────────────────────────────────────────
+
+Table tenant_contracts {
+  // CONTRACT IDENTITY
+  primary_key string [pk, note: 'UUID']
+  party_name_tenant string [ref: > tenants.record_id, note: 'Tenant who signed this contract']
+  party_name_merchant string [ref: > merchant.merchant_id, note: 'Merchant/landlord on this contract']
+  contract_type enum [note: 'Authorisation / L&L / CS']
+
+  // CONTRACT SCOPE — which property and room this contract covers
+  pid string [ref: > pid.pid_no, note: 'Property this contract is for']
+  rid string [ref: > rid.rid, note: 'Room this contract assigns to the tenant']
+
+  // CONTRACT TERMS
+  lock_in_duration number [note: 'Months']
+  lock_in_end_date date [note: 'Computed: start + lock_in_duration']
+  contract_start_date date
+  contract_end_date date
+  preferred_move_out_date date
+
+  // TENANT LIFECYCLE STATUS (on this contract)
+  payment_lifecycle enum [note: 'Token Paid / FMR and Security Deposit Cleared / Payments Done']
+  agreement_lifecycle enum [note: 'L&L and C&S Released / L&L Signed / C&S Signed']
+
+  // COMMERCIALS
+  total_retail_rent number
+  monthly_license_fee number
+  maintenance_fee number
+  furnishing_fee number
+  convenience_fee number
+  gst number
+  discount_amount number
+  effective_retail_rent number [note: 'total_retail_rent - discount_amount']
+  security_deposit number
+  caution_deposit number
+  lock_in_fee number
+  exit_fee number
+  notice_period number
+
+  // DEDUCTIONS (on exit)
+  damages_deductions number
+  society_fees number
+  penalty number
+  total_deductions number [note: 'Derived: sum of all deductions']
+
+  // CONTRACT STATUS
+  fmr_status enum
+  deposit_paid_status enum
+  rent_payment_months string [note: 'Append each month: Jan-2026, Feb-2026']
+
+  Note: 'SOURCE OF TRUTH for occupancy. Defines Tenant ↔ Room relationship. A tenant can have multiple contracts over time (1:N). Every financial obligation traces back to a contract. pid + rid define where, party_name_tenant defines who, dates define when.'
+}
+
+Table merchant_contracts {
+  contract_id string [pk]
+  pid string [ref: > pid.pid_no, note: 'Property this contract governs']
+  merchant string [ref: > merchant.merchant_id, note: 'Landlord/merchant party']
+  security_deposit decimal
+  start_date date
+  end_date date
+  service_term string [note: 'Workflow-derived']
+  base_rent decimal
+  total_cogs decimal [note: 'Workflow / derived']
+  increment_pct decimal
+  increment_frequency string
+  contract_acquisition_cost decimal [note: 'Derived']
+  key_handover_date date
+  management_fee_per_month decimal
+  payment_cycle enum [note: 'Prepaid / Postpaid']
+  agreement_pdf string [note: 'File']
+  agreement_status enum [note: 'Negotiation / Triggered / Active']
+  ll_extra_clauses text
+  inventory_list text
+
+  Note: 'Platform ↔ Landlord agreement. Defines revenue model, payouts, and agreement terms for a specific property. One merchant can have contracts across multiple PIDs.'
+}
+
+
+// ─────────────────────────────────────────────
+// INVENTORY — Asset Lifecycle
+// ─────────────────────────────────────────────
+
+Table fsin {
+  // Identification
+  fsin_code text [pk, not null]
+  vendor_code text [not null, ref: > vendor.vendor_code, note: 'Vendor who supplies this SKU']
+  item_name text [not null]
+  category enum [not null]
+  uom enum [not null]
+  image string [not null, note: 'Image file']
+  reorder_point numeric
+  annual_depreciation numeric [not null]
+  perceived_value numeric
+
+  // Specification
+  dimensions numeric
+  material text
+  finish text
+  color text
+  style text
+  attribute text [note: 'Unique identifier for category, color, material']
+
+  // Others
+  specific_care enum [note: 'Handle with care / Clean regularly / Use regularly / Charge regularly']
+  packaging enum [not null, note: 'Flatpack / Assembled']
+  lego numeric [not null, note: 'Number of tags to print']
+
+  Note: 'SKU/category definition. FSIN = Flemp Standard Identification Number. Each FSIN has many physical Items (1:N). Vendor supplies the FSIN. Specs define moodboarding and design attributes.'
+}
+
+Table item {
+  // Identification
+  item_code text [pk, not null]
+  fsin_code text [not null, ref: > fsin.fsin_code, note: 'Which SKU this item is an instance of']
+  po_line_id uuid [not null, note: 'Links to Purchase Order']
+  created_at datetime [not null]
+  serial_no numeric [not null]
+  unit_price float [not null, note: 'Excluding GST, from PO']
+  gst_percent float [not null]
+
+  // State — lifecycle tracking
+  lock bool [note: 'True if picked for usage by PFS']
+  lock_by_pfs uuid [note: 'PFS that locked this item']
+  locked_at datetime
+  location text [note: 'Current location: PID124-LRD or warehouse_id-rack_id']
+  current_pid string [ref: > pid.pid_no, note: 'Property where item is currently deployed']
+  current_rid string [ref: > rid.rid, note: 'Room where item is currently placed']
+  state enum [not null, note: 'BUY / WIB (Warehouse In-Bound) / WOB (Warehouse Out-Bound) / PIB (Property In-Bound) / POB (Property Out-Bound) / WORK / DEAD']
+  state_time datetime
+  latest_snapshot_date datetime
+  snapshot string [note: 'Image — latest condition photo']
+
+  // PIB — Property In-Bound
+  utilised_at datetime [note: 'First true utilization timestamp — shelf life calc']
+
+  // ICQA — Quality Audit
+  qa_flag enum [note: 'Yes / No — found in warehouse health check']
+  last_qa_time datetime
+
+  // TXN — Purchase traceability
+  txn_no text [ref: > transactions.utn, note: 'Transaction for this purchase']
+  bill_document_id text [note: 'Document ID']
+
+  Note: 'Physical instance of an FSIN (SKU). Items move across states: BUY → WIB → WOB → PIB → POB → WORK → DEAD. Location tracks current property or warehouse position. Lock mechanism prevents double-picking during planning.'
+}
+
+
+// ─────────────────────────────────────────────
+// TICKETS — Operations
+// ─────────────────────────────────────────────
+
+Table tenant_tickets {
+  // TICKET IDENTITY
+  ticket_id number [pk]
+  pipeline enum [note: 'Tenant / Landlord']
+  create_date datetime
+  created_by string [ref: > tenants.record_id, note: 'Tenant who raised this ticket']
+  ticket_name string
+  ticket_description string
+  ticket_owner enum [note: 'Internal owner responsible for resolution']
+  conversation_id string
+  rid string [ref: > rid.rid, note: 'Room where the issue is']
+  pid string [ref: > pid.pid_no, note: 'Property — derived from RID for fast filtering']
+
+  // CATEGORISATION
+  ticket_category enum [note: 'Plumbing / Carpentry / Electrical / Utility / Inventory / Appliance / Agreement / Reimbursement / Other']
+  time_slot datetime [note: 'Preferred time slot for vendor visit']
+  ticket_status enum [note: 'New Request / Waiting on Customer / Waiting on Vendor / Waiting on Product / Blocked / Waiting on Landlord / Waiting for Payment / Ready for Closure / Closed']
+  waiting_time number [note: 'Calculated outside SLA hours']
+  category enum [note: 'Pre Move-In / Gestation / Active']
+  ticket_flag enum [note: 'Reasonable / Not Reasonable / Subjective']
+  flag_notes string
+  priority enum [note: 'Low / Medium / High / Urgent']
+
+  // EXECUTION
+  resolution_notes string
+  cost_paid_by_flent number
+  collected_from_tenant number
+  collected_from_merchant number
+  total_cost number [note: 'paid - collected']
+  transaction_id string [ref: > transactions.utn, note: 'Financial transaction for cost recovery']
+  assigned_vendor string [ref: > vendor.vendor_code, note: 'Vendor assigned to resolve']
+  vendor_group_chat_id string
+  related_tickets string [note: 'Array of linked ticket IDs']
+
+  // SLA & FEEDBACK
+  time_to_close_sla_hours number
+  time_to_first_rep_assignment number
+  time_to_first_response_sla_hours number
+  tenant_rating enum [note: '1 / 2 / 3 / 4 / 5']
+  csat_feedback string
+  csat_response number
+
+  Note: 'Tenant-raised operational tickets linked to a room. Vendors assigned for resolution. Cost tracked and attributed to tenant/merchant/platform. SLA metrics drive service quality reporting.'
+}
+
+Table vendor_tickets {
+  ticket_id integer [pk, not null, note: 'Auto-increment']
+  create_date datetime [not null]
+  created_by string [not null, note: 'PSM who raised it']
+  first_response_mins integer [note: 'SLA metric']
+  pid string [not null, ref: > pid.pid_no, note: 'Property this ticket is for']
+  ticket_description text [not null]
+  ticket_owner string [not null, note: 'PSM responsible for resolution']
+  ticket_category enum [not null]
+  priority enum [not null, note: 'Low / Medium / High / Critical']
+  ticket_status enum [not null, note: 'Open / In Progress / Resolved / Closed']
+  notes text [note: 'Append-only with timestamps']
+  cost_paid_by_flent string
+  recovered_from_tenant string
+  recovered_from_merchant string
+  time_to_close_hours integer [note: 'Auto-calculated on closure']
+
+  Note: 'Internal operational tickets raised by PSMs for property-level issues (landlord requirements, maintenance). Distinct from tenant_tickets which are customer-facing.'
+}
+
+
+// ─────────────────────────────────────────────
+// TRANSACTIONS — Financial Ledger
+// ─────────────────────────────────────────────
+
+Table transactions {
+  // TRANSACTION CORE
+  utn string [pk, note: 'TXN-YYYYMMDD-XXXXX — unique transaction number']
+  credit_debit enum [not null, note: 'Credit (money in) / Debit (money out) — from platform perspective']
+  transaction_date date [not null, note: 'Date money actually moved']
+  amount number [not null, note: 'Always positive (INR). Direction via credit_debit']
+  transaction_status enum [not null, note: 'Pending / Completed / Failed / Reversed / Disputed / Approved']
+
+  // TRANSACTION CLASSIFICATION
+  purpose_category_1 enum [note: 'OPEX / CAPEX / INTEREST / SALARY / REIMBURSEMENT / REVENUE / REFUNDS / COGS']
+  purpose_category_2 enum [note: 'DEPOSIT / TRANSPORT / FIXTURES / OFFICE / EMPLOYEE / CONSULTANT / CONTRACTOR / INVENTORY / TECH / MARKETING / FOOD AND BEVERAGES']
+  type_details enum [note: 'Standard / Advance / Reversal / Refund / Write-off / Depreciation / SDT / SDM / Adjustment']
+
+  // TRANSACTION PARTIES
+  from_party string [note: 'Payer name']
+  from_party_type enum [note: 'Tenant / Landlord / Vendor / Platform / Third Party / Government']
+  from_party_info string [note: 'GST, PAN, Address']
+  to_party string [note: 'Payee name']
+  to_party_type enum [note: 'Tenant / Landlord / Vendor / Platform / Third Party / Government']
+  to_party_info string [note: 'GST, PAN, Address']
+
+  // PAYMENT DETAILS
+  payment_channel enum [note: 'UPI / NEFT / RTGS / IMPS / Auto-debit (NACH) / Virtual Account / Payment Link / Cheque / Cash / Other']
+  payment_provider enum [note: 'Kotak / IDFC / Razorpayx / Volopay']
+  gateway_reference_id string [note: 'e.g. pay_xxxxxxxx — for gateway reconciliation']
+  settlement_reference_id string [note: 'UTR / Settlement batch ID — for bank reconciliation']
+
+  // TRANSACTION AUDIT
+  created_by string
+  created_date datetime [note: 'When record was created (may differ from transaction_date)']
+  authorised_by string [note: 'Dual-control: must differ from created_by']
+  authorised_date datetime
+  internal_comment string
+
+  // LINE ITEMS (may become separate table if 1:N)
+  line_item_date date
+  cost_revenue_center string [note: 'Property Onboarding / Tech / Payment Processing / Operations / Furniture']
+  line_item_description string
+  attachments string [note: 'File URL — invoices, receipts']
+
+  // TRANSACTION LINKS — referential integrity to core entities
+  contract_uid string [ref: > tenant_contracts.primary_key, note: 'Which contract this payment is for']
+  merchant_contract_id string [ref: > merchant_contracts.contract_id, note: 'Merchant contract for landlord payouts']
+  contact_id string [ref: > tenants.record_id, note: 'Tenant involved in this transaction']
+  merchant_id string [ref: > merchant.merchant_id, note: 'Merchant involved (payouts, deposits)']
+  vendor_code string [ref: > vendor.vendor_code, note: 'Vendor involved (vendor payments)']
+  pid string [ref: > pid.pid_no, note: 'Property this transaction relates to']
+  rid string [ref: > rid.rid, note: 'Room — most granular financial view']
+
+  Note: 'Every financial event is a ledger entry. Always traceable to a contract, tenant, and property. Dual-control audit (created_by != authorised_by). Used for rent, deposits, vendor payments, reimbursements, landlord payouts. Amount always positive — direction via credit_debit enum.'
+}
+
+
+// ═══════════════════════════════════════════════════════════════
+// RELATIONSHIP MAP
+// ═══════════════════════════════════════════════════════════════
+//
+// ┌─────────────┐     1:N      ┌─────────────┐
+// │  MERCHANT   │─────────────▶│     PID      │ (merchant owns properties)
+// └─────────────┘              └──────┬───────┘
+//       │                             │ 1:N
+//       │ 1:N                         ▼
+//       │                      ┌─────────────┐
+//       │                      │     RID      │ (property has rooms)
+//       │                      └──────┬───────┘
+//       │                             │
+//       ▼                             │
+// ┌──────────────────┐                │
+// │ MERCHANT_CONTRACT │◀──────────────┘ (contract for property)
+// └──────────────────┘                │
+//                                     │
+// ┌─────────────┐     1:N      ┌──────┴────────┐
+// │   TENANT    │─────────────▶│TENANT_CONTRACT │ (tenant signs contracts)
+// └──────┬──────┘              └───────┬────────┘
+//        │                             │
+//        │ 1:N                         │ links to
+//        ▼                             ▼
+// ┌──────────────┐              ┌─────────────┐
+// │TENANT_TICKET │─────────────▶│ TRANSACTION  │ (cost recovery)
+// └──────────────┘              └─────────────┘
+//                                     │
+// ┌─────────────┐                     │ links to
+// │   VENDOR    │◀────────────────────┘ (vendor payments)
+// └──────┬──────┘
+//        │ 1:N
+//        ▼
+// ┌─────────────┐     1:N      ┌─────────────┐
+// │    FSIN     │─────────────▶│    ITEM      │ (SKU has instances)
+// └─────────────┘              └─────────────┘
+//
+// ═══════════════════════════════════════════════════════════════

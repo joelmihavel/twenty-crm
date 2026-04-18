@@ -1,0 +1,32 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: twenty-server-pdb
+  namespace: twenty-prod
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app: twenty-server
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: twenty-worker-pdb
+  namespace: twenty-prod
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: twenty-worker
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: pgbouncer-pdb
+  namespace: twenty-prod
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: pgbouncer

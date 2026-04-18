@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-tls
+  namespace: twenty-prod
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: nginx-tls
+  template:
+    metadata:
+      labels:
+        app: nginx-tls
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:1.27-alpine
+          ports:
+            - containerPort: 443
+            - containerPort: 80
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi
+          volumeMounts:
+            - name: tls-cert
+              mountPath: /etc/nginx/ssl
+              readOnly: true
+            - name: nginx-config
+              mountPath: /etc/nginx/conf.d
+              readOnly: true
+      volumes:
+        - name: tls-cert
+          secret:
+            secretName: hawkeye-tls
+        - name: nginx-config
+          configMap:
+            name: nginx-tls-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: twenty-external
+  namespace: twenty-prod
+spec:
+  type: LoadBalancer
+  selector:
+    app: nginx-tls
+  ports:
+    - name: https
+      port: 443
+      targetPort: 443
+    - name: http
+      port: 80
+      targetPort: 80

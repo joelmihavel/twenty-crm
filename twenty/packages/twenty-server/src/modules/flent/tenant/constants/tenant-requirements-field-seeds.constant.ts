@@ -1,0 +1,120 @@
+import { FieldMetadataType } from 'twenty-shared/types';
+
+import { type FieldMetadataSeed } from 'src/engine/workspace-manager/dev-seeder/metadata/types/field-metadata-seed.type';
+
+export const TENANT_REQUIREMENTS_FIELD_SEEDS: FieldMetadataSeed[] = [
+  {
+    type: FieldMetadataType.MULTI_SELECT,
+    name: 'preferredMicromarkets',
+    label: 'Preferred Micromarkets',
+    description: 'Micromarket areas the tenant prefers',
+    icon: 'IconMapPin',
+    options: [
+      { label: 'HSR', value: 'HSR', position: 0, color: 'blue' },
+      { label: 'Koramangala', value: 'KORAMANGALA', position: 1, color: 'green' },
+      { label: 'Indiranagar', value: 'INDIRANAGAR', position: 2, color: 'purple' },
+      { label: 'Marathahalli', value: 'MARATHAHALLI', position: 3, color: 'orange' },
+      { label: 'Bellandur', value: 'BELLANDUR', position: 4, color: 'sky' },
+      { label: 'Mahadevapura', value: 'MAHADEVAPURA', position: 5, color: 'turquoise' },
+      { label: 'Whitefield', value: 'WHITEFIELD', position: 6, color: 'yellow' },
+      { label: 'Hebbal', value: 'HEBBAL', position: 7, color: 'red' },
+    ],
+  },
+  {
+    type: FieldMetadataType.SELECT,
+    name: 'preferredOccupancyType',
+    label: 'Preferred Occupancy Type',
+    description: 'Full home vs private room preference',
+    icon: 'IconHome',
+    options: [
+      { label: 'Full Home', value: 'FULL_HOME', position: 0, color: 'blue' },
+      { label: 'Private Room', value: 'PRIVATE_ROOM', position: 1, color: 'green' },
+    ],
+  },
+  {
+    type: FieldMetadataType.SELECT,
+    name: 'preferredFurnishedType',
+    label: 'Preferred Furnished Type',
+    description: 'Furnishing preference',
+    icon: 'IconArmchair',
+    options: [
+      { label: 'Furnished', value: 'FURNISHED', position: 0, color: 'green' },
+      { label: 'Semi-Furnished', value: 'SEMI_FURNISHED', position: 1, color: 'yellow' },
+      { label: 'Unfurnished', value: 'UNFURNISHED', position: 2, color: 'red' },
+    ],
+  },
+  {
+    type: FieldMetadataType.SELECT,
+    name: 'preferredMoveInTimeline',
+    label: 'Preferred Move-in Timeline',
+    description: 'When the tenant intends to move in',
+    icon: 'IconClock',
+    options: [
+      { label: 'Immediate', value: 'IMMEDIATE', position: 0, color: 'green' },
+      { label: 'Within 2 Weeks', value: 'WITHIN_2_WEEKS', position: 1, color: 'yellow' },
+      { label: 'Flexible', value: 'FLEXIBLE', position: 2, color: 'sky' },
+    ],
+  },
+  {
+    type: FieldMetadataType.SELECT,
+    name: 'genderPreferences',
+    label: 'Gender Preferences',
+    description: 'Preferred gender mix in shared housing',
+    icon: 'IconGenderBigender',
+    options: [
+      { label: 'Male Only', value: 'MALE_ONLY', position: 0, color: 'blue' },
+      { label: 'Female Only', value: 'FEMALE_ONLY', position: 1, color: 'pink' },
+      { label: 'No Preference', value: 'NO_PREFERENCE', position: 2, color: 'green' },
+    ],
+  },
+  {
+    type: FieldMetadataType.SELECT,
+    name: 'foodPreferences',
+    label: 'Food Preferences',
+    description: "Tenant's dietary preferences",
+    icon: 'IconSalad',
+    options: [
+      { label: 'Vegetarian', value: 'VEGETARIAN', position: 0, color: 'green' },
+      { label: 'Non-Vegetarian', value: 'NON_VEGETARIAN', position: 1, color: 'red' },
+      { label: 'Vegan', value: 'VEGAN', position: 2, color: 'turquoise' },
+      { label: 'No Preference', value: 'NO_PREFERENCE', position: 3, color: 'sky' },
+    ],
+  },
+  {
+    type: FieldMetadataType.BOOLEAN,
+    name: 'hasPet',
+    label: 'Has Pet',
+    description: 'Whether the tenant has a pet',
+    icon: 'IconPaw',
+    isNullable: true,
+    defaultValue: false,
+  },
+  {
+    type: FieldMetadataType.SELECT,
+    name: 'smokingPreferences',
+    label: 'Smoking Preferences',
+    description: "Tenant's smoking habits",
+    icon: 'IconSmoking',
+    options: [
+      { label: 'Smoker', value: 'SMOKER', position: 0, color: 'red' },
+      { label: 'Non-Smoker', value: 'NON_SMOKER', position: 1, color: 'green' },
+      { label: 'Occasional', value: 'OCCASIONAL', position: 2, color: 'yellow' },
+    ],
+  },
+  {
+    type: FieldMetadataType.RICH_TEXT,
+    name: 'customPreference',
+    label: 'Custom Preference',
+    description: 'Free-text custom preferences and notes',
+    icon: 'IconNote',
+    isNullable: true,
+  },
+  {
+    type: FieldMetadataType.CURRENCY,
+    name: 'budgetMax',
+    label: 'Budget Max',
+    description: "Tenant's maximum monthly budget",
+    icon: 'IconCurrencyRupee',
+    isNullable: true,
+  },
+];

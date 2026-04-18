@@ -1,0 +1,6 @@
+> npx esbuild packages/twenty-oxlint-rules/oxlint-plugin.ts --bundle --format=esm --platform=node --outfile=packages/twenty-oxlint-rules/dist/oxlint-plugin.mjs "--define:__filename='\"[plugin]\"'" "--define:__dirname='\"[plugin]\"'" "--banner:js=import { createRequire } from 'module'; const require = createRequire(import.meta.url);"
+
+
+  packages/twenty-oxlint-rules/dist/oxlint-plugin.mjs  244.5kb
+
+⚡ Done in 26ms

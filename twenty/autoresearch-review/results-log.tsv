@@ -1,0 +1,2 @@
+iteration	track	finding_type	severity	file	description	action	status
+0	BASELINE	metric	INFO	N/A	137 tests passing (61 mirror + 76 validator + 0 data-model), 42 potential issues	N/A	baseline

@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: redis-ca-cert
+  namespace: twenty-prod
+  labels:
+    app.kubernetes.io/part-of: twenty
+type: Opaque
+stringData:
+  redis-ca.pem: |
+    <REDIS_CA_CERT_FROM_gcloud_redis_instances_describe>

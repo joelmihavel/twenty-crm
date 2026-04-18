@@ -1,0 +1,95 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: twenty-server
+  namespace: twenty-prod
+  labels:
+    app: twenty-server
+    app.kubernetes.io/part-of: twenty
+  annotations:
+    kubernetes.io/ingress.class: "gce"
+    kubernetes.io/ingress.global-static-ip-name: "twenty-crm-ip"
+    networking.gke.io/managed-certificates: "twenty-crm-cert"
+    networking.gke.io/v1beta1.FrontendConfig: "twenty-frontend-config"
+spec:
+  defaultBackend:
+    service:
+      name: hawkeye
+      port:
+        number: 3001
+  rules:
+    - host: hawkeye.flent.in
+      http:
+        paths:
+          - path: /graphql
+            pathType: Prefix
+            backend:
+              service:
+                name: twenty-server
+                port:
+                  number: 3000
+          - path: /metadata
+            pathType: Prefix
+            backend:
+              service:
+                name: twenty-server
+                port:
+                  number: 3000
+          # Note: /api is NOT routed to twenty-server because Hawkeye uses
+          # /api/twenty and /api/twenty/metadata for its Next.js API proxy routes.
+          # Twenty's real API endpoints (/graphql, /metadata, /rest, /files) are
+          # routed separately below.
+          - path: /files
+            pathType: Prefix
+            backend:
+              service:
+                name: twenty-server
+                port:
+                  number: 3000
+          - path: /rest
+            pathType: Prefix
+            backend:
+              service:
+                name: twenty-server
+                port:
+                  number: 3000
+          - path: /crmops
+            pathType: Prefix
+            backend:
+              service:
+                name: twenty-server
+                port:
+                  number: 3000
+          - path: /healthz
+            pathType: Exact
+            backend:
+              service:
+                name: twenty-server
+                port:
+                  number: 3000
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: hawkeye
+                port:
+                  number: 3001
+---
+apiVersion: networking.gke.io/v1
+kind: ManagedCertificate
+metadata:
+  name: twenty-crm-cert
+  namespace: twenty-prod
+spec:
+  domains:
+    - hawkeye.flent.in
+---
+apiVersion: networking.gke.io/v1beta1
+kind: FrontendConfig
+metadata:
+  name: twenty-frontend-config
+  namespace: twenty-prod
+spec:
+  redirectToHttps:
+    enabled: true
+    responseCodeName: MOVED_PERMANENTLY_DEFAULT

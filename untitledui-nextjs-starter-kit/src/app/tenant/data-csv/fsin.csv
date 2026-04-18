@@ -1,0 +1,23 @@
+"Bundle","Field","Type","Options","Role","Input Method","NULL info","WHY?"
+"Identification","fsin_code","text","","primary key","","NOT NULL","unique identifier"
+"","vendor_code","text","","foreign key (Vendors)","","NOT NULL","relates to unique vendor name"
+"","item_name","text","","","","NOT NULL","item type and unique name"
+"","category","enum","","","","NOT NULL","used to differentiate between multiple category vendors"
+"","uom","enum","","","","NOT NULL","used to understand the type measurement system"
+"","image","image","","","","NOT NULL","for moodboarding, visual understanding"
+"","reorder_point","numeric","","","","","used to understand available inventory"
+"","annual_depreciation","numeric","","","","NOT NULL","to understand lifecycle of the items"
+"","perceived_value","numeric","","","","",""
+"Specification","dimensions","numeric","","","","","To measure volumne"
+"","material","text","","","","","storage, care, moodboarding, what works and doesn't work"
+"","finish","text","","","","","storage, care, moodboarding"
+"","color","text","","","","","moodboarding and design"
+"","style","text","","","","","moodboarding and design"
+"","attribute","text","","","","","unique identifier for category, color, material and more and easy for search"
+"Others","specific_care","enum","- Handle with care
+- Clean regularly
+- Use regularly
+- Charge regularly","","","","annexure and tkbm document"
+"","packaging","enum","- Flatpack
+- Assembled","","","NOT NULL","for storage at the warehouse "
+"","lego","numeric","","","","NOT NULL","for number of tags to print for each fsin"

@@ -2,6 +2,7 @@ import { useState, useCallback, type ReactNode } from 'react';
 import { type IconComponent } from 'twenty-ui/display';
 
 import { PageHeader } from '@/ui/layout/page/components/PageHeader';
+import { NavigationMenuItemStyleIcon } from '@/navigation-menu-item/display/components/NavigationMenuItemStyleIcon';
 
 import { type HawkeyeColumn, type FieldGroup } from '../types/entities';
 import { HawkeyeTable } from './HawkeyeTable';
@@ -12,7 +13,6 @@ import { styled } from '@linaria/react';
 import { themeCssVariables } from 'twenty-ui/theme-constants';
 
 
-// Wraps PageContainer to ensure it fills available height
 const StyledPageContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -21,7 +21,6 @@ const StyledPageContainer = styled.div`
   width: 100%;
 `;
 
-// Matches PageBody > StyledMainContainer exactly
 const StyledMainContainer = styled.div`
   background: ${themeCssVariables.background.noisy};
   box-sizing: border-box;
@@ -36,7 +35,6 @@ const StyledMainContainer = styled.div`
   width: 100%;
 `;
 
-// Matches PageBody > StyledLeftContainer — this is the scroll parent
 const StyledLeftContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -47,8 +45,6 @@ const StyledLeftContainer = styled.div`
   width: 100%;
 `;
 
-// Table panel — same visuals as PagePanel but sized to content so
-// the parent StyledLeftContainer handles vertical scroll
 const StyledTablePanel = styled.div`
   background: ${themeCssVariables.background.primary};
   border: 1px solid ${themeCssVariables.border.color.medium};
@@ -64,6 +60,7 @@ const StyledTablePanel = styled.div`
 type HawkeyeListPageProps<T> = {
   title: string;
   Icon: IconComponent;
+  iconColor?: string;
   columns: HawkeyeColumn<T>[];
   data: T[];
   idKey: keyof T & string;
@@ -77,15 +74,16 @@ type HawkeyeListPageProps<T> = {
   boardCardFields?: (record: T) => BoardCardField[];
   boardCardTags?: (record: T) => BoardCardTag[];
   renderRelations?: (record: T, onRecordClick: (basePath: string, recordId: string) => void) => ReactNode;
-  /** Summary charts shown above the board/table view */
   renderCharts?: () => ReactNode;
+  renderActions?: (record: T, onFieldChange: (key: string, value: unknown) => void) => ReactNode;
 };
 
 export const HawkeyeListPage = <T,>({
   title,
   Icon,
+  iconColor,
   columns,
-  data,
+  data: initialData,
   idKey,
   basePath,
   fieldGroups,
@@ -98,7 +96,9 @@ export const HawkeyeListPage = <T,>({
   boardCardTags,
   renderRelations,
   renderCharts,
+  renderActions,
 }: HawkeyeListPageProps<T>) => {
+  const [data, setData] = useState(initialData);
   const [selectedRecord, setSelectedRecord] = useState<T | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>('list');
 
@@ -118,9 +118,64 @@ export const HawkeyeListPage = <T,>({
     setSelectedRecord(null);
   }, []);
 
+  const handleFieldChange = useCallback(
+    (key: string, value: unknown) => {
+      setSelectedRecord((prev) => {
+        if (!prev) return prev;
+        const recordId = String((prev as Record<string, unknown>)[idKey]);
+        setData((prevData) =>
+          prevData.map((r) =>
+            String((r as Record<string, unknown>)[idKey]) === recordId
+              ? { ...r, [key]: value }
+              : r,
+          ) as T[],
+        );
+        return { ...prev, [key]: value } as T;
+      });
+    },
+    [idKey],
+  );
+
+  const handleCellChange = useCallback(
+    (recordId: string, key: string, value: unknown) => {
+      setData((prev) =>
+        prev.map((r) =>
+          String((r as Record<string, unknown>)[idKey]) === recordId
+            ? { ...r, [key]: value }
+            : r,
+        ) as T[],
+      );
+      // Keep sidebar in sync if the edited record is selected
+      setSelectedRecord((prev) => {
+        if (!prev) return prev;
+        if (String((prev as Record<string, unknown>)[idKey]) === recordId) {
+          return { ...prev, [key]: value } as T;
+        }
+        return prev;
+      });
+    },
+    [idKey],
+  );
+
+  const renderSidePanel = () => (
+    <HawkeyeSidePanel
+      record={selectedRecord}
+      title={selectedRecord ? titleFn(selectedRecord) : ''}
+      fieldGroups={fieldGroups}
+      onClose={handleClosePanel}
+      renderRelations={renderRelations}
+      basePath={basePath}
+      onFieldChange={handleFieldChange}
+      renderActions={renderActions ? (rec: T) => renderActions(rec, handleFieldChange) : undefined}
+    />
+  );
+
   return (
     <StyledPageContainer>
-      <PageHeader title={title} Icon={Icon}>
+      <PageHeader
+        title={title}
+        Icon={iconColor ? () => <NavigationMenuItemStyleIcon Icon={Icon} color={iconColor} /> : Icon}
+      >
         {boardColumns && (
           <ViewToggle mode={viewMode} onChange={setViewMode} />
         )}
@@ -143,32 +198,30 @@ export const HawkeyeListPage = <T,>({
                       ? String((selectedRecord as Record<string, unknown>)[idKey])
                       : null
                   }
+                  onCellChange={handleCellChange}
                 />
               </StyledTablePanel>
             </StyledLeftContainer>
-            <HawkeyeSidePanel
-              record={selectedRecord}
-              title={selectedRecord ? titleFn(selectedRecord) : ''}
-              fieldGroups={fieldGroups}
-              onClose={handleClosePanel}
-              renderRelations={renderRelations}
-              basePath={basePath}
-            />
+            {renderSidePanel()}
           </>
         ) : (
-          <StyledLeftContainer>
-            {renderCharts?.()}
-            <HawkeyeBoardView
-              data={data}
-              columns={boardColumns!}
-              statusKey={boardStatusKey!}
-              idKey={idKey}
-              basePath={basePath}
-              titleFn={titleFn}
-              cardFields={boardCardFields}
-              cardTags={boardCardTags}
-            />
-          </StyledLeftContainer>
+          <>
+            <StyledLeftContainer>
+              {renderCharts?.()}
+              <HawkeyeBoardView
+                data={data}
+                columns={boardColumns!}
+                statusKey={boardStatusKey!}
+                idKey={idKey}
+                basePath={basePath}
+                titleFn={titleFn}
+                cardFields={boardCardFields}
+                cardTags={boardCardTags}
+                onCardClick={handleRowClick}
+              />
+            </StyledLeftContainer>
+            {renderSidePanel()}
+          </>
         )}
       </StyledMainContainer>
     </StyledPageContainer>

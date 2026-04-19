@@ -161,6 +161,13 @@ const StyledTabContent = styled.div`
   overflow-y: auto;
 `;
 
+const StyledActionsBar = styled.div`
+  border-bottom: 1px solid ${themeCssVariables.border.color.light};
+  display: flex;
+  gap: ${themeCssVariables.spacing[2]};
+  padding: ${themeCssVariables.spacing[2]} ${themeCssVariables.spacing[3]};
+`;
+
 // ── Type helpers ──────────────────────────────────────────────────
 
 type SidePanelTab = 'home' | 'timeline';
@@ -193,6 +200,8 @@ type HawkeyeSidePanelProps<T> = {
   onClose: () => void;
   renderRelations?: (record: T, onRecordClick: (basePath: string, recordId: string) => void) => ReactNode;
   basePath?: string;
+  onFieldChange?: (key: string, value: unknown) => void;
+  renderActions?: (record: T) => ReactNode;
 };
 
 export const HawkeyeSidePanel = <T,>({
@@ -202,6 +211,8 @@ export const HawkeyeSidePanel = <T,>({
   onClose,
   renderRelations,
   basePath,
+  onFieldChange,
+  renderActions,
 }: HawkeyeSidePanelProps<T>) => {
   const { theme } = useContext(ThemeContext);
   const [activeTab, setActiveTab] = useState<SidePanelTab>('home');
@@ -301,6 +312,13 @@ export const HawkeyeSidePanel = <T,>({
             )}
           </StyledTabBar>
 
+          {/* Actions */}
+          {!isDrilledDown && renderActions && record && (
+            <StyledActionsBar>
+              {renderActions(record)}
+            </StyledActionsBar>
+          )}
+
           {/* Tab Content */}
           <StyledTabContent>
             {activeTab === 'home' && (
@@ -308,6 +326,7 @@ export const HawkeyeSidePanel = <T,>({
                 <HawkeyeDetailView
                   record={currentRecord}
                   fieldGroups={currentFieldGroups}
+                  onFieldChange={!isDrilledDown ? onFieldChange : undefined}
                 />
                 {/* Relations: always use registry when available for consistency */}
                 {(() => {

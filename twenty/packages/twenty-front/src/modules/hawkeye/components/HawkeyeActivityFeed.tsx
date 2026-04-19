@@ -1,8 +1,10 @@
-import { useState, useMemo, useContext } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { styled } from '@linaria/react';
-import { ThemeContext, themeCssVariables } from 'twenty-ui/theme-constants';
+import { themeCssVariables } from 'twenty-ui/theme-constants';
 import { Tag } from 'twenty-ui/components';
+import { MenuItem } from 'twenty-ui/navigation';
+import { Button } from 'twenty-ui/input';
 import {
   IconHistory,
   IconSwitchHorizontal,
@@ -105,6 +107,7 @@ const typeColors: Record<HistoryEntryType, 'green' | 'red' | 'orange' | 'blue' |
 // ── Styled ────────────────────────────────────────────────────────
 
 const StyledPage = styled.div`
+  background: ${themeCssVariables.background.primary};
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -123,70 +126,37 @@ const StyledContent = styled.div`
 const StyledFilterRow = styled.div`
   display: flex;
   flex-wrap: wrap;
-  gap: ${themeCssVariables.spacing[2]};
+  gap: ${themeCssVariables.spacing[1]};
   margin-bottom: ${themeCssVariables.spacing[4]};
 `;
 
 const StyledFilterChip = styled.button<{ isActive: boolean }>`
   background: ${({ isActive }) =>
-    isActive ? themeCssVariables.accent.primary : themeCssVariables.background.primary};
-  border: 1px solid ${({ isActive }) =>
-    isActive ? themeCssVariables.accent.primary : themeCssVariables.border.color.medium};
-  border-radius: ${themeCssVariables.border.radius.pill};
+    isActive ? themeCssVariables.background.tertiary : 'transparent'};
+  border: none;
+  border-radius: ${themeCssVariables.border.radius.sm};
   color: ${({ isActive }) =>
-    isActive ? themeCssVariables.background.primary : themeCssVariables.font.color.secondary};
+    isActive ? themeCssVariables.font.color.primary : themeCssVariables.font.color.tertiary};
   cursor: pointer;
-  font-size: ${themeCssVariables.font.size.xs};
+  font-size: ${themeCssVariables.font.size.sm};
   font-weight: ${themeCssVariables.font.weight.medium};
-  padding: ${themeCssVariables.spacing[1]} ${themeCssVariables.spacing[3]};
-  transition: all 0.1s ease;
+  padding: ${themeCssVariables.spacing[1]} ${themeCssVariables.spacing[2]};
+  transition: background-color 0.1s ease, color 0.1s ease;
 
   &:hover {
-    border-color: ${themeCssVariables.accent.primary};
+    background: ${themeCssVariables.background.transparent.light};
+    color: ${themeCssVariables.font.color.primary};
   }
 `;
 
 const StyledEntryList = styled.div`
+  border-top: 1px solid ${themeCssVariables.border.color.light};
   display: flex;
   flex-direction: column;
-`;
 
-const StyledEntry = styled(Link)`
-  border-bottom: 1px solid ${themeCssVariables.border.color.light};
-  color: inherit;
-  cursor: pointer;
-  display: flex;
-  gap: ${themeCssVariables.spacing[3]};
-  padding: ${themeCssVariables.spacing[3]} 0;
-  text-decoration: none;
-
-  &:hover {
-    background: ${themeCssVariables.background.transparent.light};
+  & > * {
+    border-bottom: 1px solid ${themeCssVariables.border.color.light};
   }
-`;
-
-const StyledIconWrapper = styled.div<{ color: string }>`
-  align-items: center;
-  background: ${({ color }) => color};
-  border-radius: ${themeCssVariables.border.radius.pill};
-  display: flex;
-  flex-shrink: 0;
-  height: 32px;
-  justify-content: center;
-  width: 32px;
-`;
-
-const StyledEntryInfo = styled.div`
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
-`;
-
-const StyledEntrySummary = styled.span`
-  color: ${themeCssVariables.font.color.primary};
-  font-size: ${themeCssVariables.font.size.sm};
 `;
 
 const StyledEntryMeta = styled.div`
@@ -197,35 +167,16 @@ const StyledEntryMeta = styled.div`
   gap: ${themeCssVariables.spacing[2]};
 `;
 
-const StyledEntryEntity = styled.span`
-  color: ${themeCssVariables.accent.primary};
-  font-weight: ${themeCssVariables.font.weight.medium};
-`;
-
-const StyledChangeValues = styled.div`
-  color: ${themeCssVariables.font.color.tertiary};
-  font-size: ${themeCssVariables.font.size.xs};
-`;
-
 const StyledCount = styled.div`
   color: ${themeCssVariables.font.color.tertiary};
   font-size: ${themeCssVariables.font.size.sm};
-  margin-bottom: ${themeCssVariables.spacing[3]};
+  margin-bottom: ${themeCssVariables.spacing[2]};
 `;
 
-const StyledShowMore = styled.button`
-  background: none;
-  border: 1px solid ${themeCssVariables.border.color.medium};
-  border-radius: ${themeCssVariables.border.radius.sm};
-  color: ${themeCssVariables.font.color.secondary};
-  cursor: pointer;
-  font-size: ${themeCssVariables.font.size.sm};
+const StyledShowMoreWrapper = styled.div`
+  display: flex;
+  justify-content: center;
   margin-top: ${themeCssVariables.spacing[4]};
-  padding: ${themeCssVariables.spacing[2]} ${themeCssVariables.spacing[4]};
-
-  &:hover {
-    background: ${themeCssVariables.background.transparent.light};
-  }
 `;
 
 // ── Component ─────────────────────────────────────────────────────
@@ -249,7 +200,7 @@ const TYPE_LABELS: Record<string, string> = {
 const allEntries = aggregateHistory();
 
 export const HawkeyeActivityFeed = () => {
-  const { theme } = useContext(ThemeContext);
+  const navigate = useNavigate();
   const [typeFilter, setTypeFilter] = useState('All');
   const [visibleCount, setVisibleCount] = useState(30);
 
@@ -285,40 +236,29 @@ export const HawkeyeActivityFeed = () => {
           {filtered.slice(0, visibleCount).map((entry) => {
             const EntryIcon = typeIcons[entry.type];
             return (
-              <StyledEntry
+              <MenuItem
                 key={entry.id}
-                to={entry.entityPath}
-              >
-                <StyledIconWrapper color={themeCssVariables.background.tertiary}>
-                  <EntryIcon size={theme.icon.size.sm} />
-                </StyledIconWrapper>
-                <StyledEntryInfo>
-                  <StyledEntrySummary>{entry.summary}</StyledEntrySummary>
-                  <StyledEntryMeta>
-                    <StyledEntryEntity>{entry.entityType}: {entry.entityLabel}</StyledEntryEntity>
-                    <span>·</span>
-                    <span>{entry.actor}</span>
-                    <span>·</span>
-                    <span>{timeAgo(entry.timestamp)}</span>
-                    <Tag color={typeColors[entry.type]} text={entry.type.replace('_', ' ')} />
-                  </StyledEntryMeta>
-                  {entry.previousValue && entry.newValue && (
-                    <StyledChangeValues>
-                      {entry.previousValue} → {entry.newValue}
-                    </StyledChangeValues>
-                  )}
-                </StyledEntryInfo>
-              </StyledEntry>
+                LeftIcon={EntryIcon}
+                text={entry.summary}
+                contextualText={timeAgo(entry.timestamp)}
+                onClick={() => navigate(entry.entityPath)}
+                RightComponent={
+                  <Tag color={typeColors[entry.type]} text={entry.type.replace('_', ' ')} />
+                }
+              />
             );
           })}
         </StyledEntryList>
 
         {visibleCount < filtered.length && (
-          <StyledShowMore
-            onClick={() => setVisibleCount((prev) => prev + 30)}
-          >
-            Show more ({filtered.length - visibleCount} remaining)
-          </StyledShowMore>
+          <StyledShowMoreWrapper>
+            <Button
+              title={`Show more (${filtered.length - visibleCount} remaining)`}
+              variant="secondary"
+              size="small"
+              onClick={() => setVisibleCount((prev) => prev + 30)}
+            />
+          </StyledShowMoreWrapper>
         )}
       </StyledContent>
     </StyledPage>

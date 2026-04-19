@@ -1,5 +1,4 @@
 import { type ReactNode, useState, useCallback } from 'react';
-import { Link } from 'react-router-dom';
 import { styled } from '@linaria/react';
 import { themeCssVariables } from 'twenty-ui/theme-constants';
 import { Tag } from 'twenty-ui/components';
@@ -66,7 +65,7 @@ const StyledColumnCards = styled.div`
   padding: ${themeCssVariables.spacing[2]};
 `;
 
-const StyledCard = styled(Link)`
+const StyledCard = styled.div`
   background: ${themeCssVariables.background.primary};
   border: 1px solid ${themeCssVariables.border.color.light};
   border-radius: ${themeCssVariables.border.radius.sm};
@@ -141,6 +140,7 @@ type HawkeyeBoardViewProps<T> = {
   cardTags?: (record: T) => BoardCardTag[];
   renderCardExtra?: (record: T) => ReactNode;
   onStatusChange?: (recordId: string, newStatus: string) => void;
+  onCardClick?: (record: T) => void;
 };
 
 export const HawkeyeBoardView = <T,>({
@@ -154,6 +154,7 @@ export const HawkeyeBoardView = <T,>({
   cardTags,
   renderCardExtra,
   onStatusChange,
+  onCardClick,
 }: HawkeyeBoardViewProps<T>) => {
   const [localData, setLocalData] = useState(data);
 
@@ -212,10 +213,9 @@ export const HawkeyeBoardView = <T,>({
                               ref={dragProvided.innerRef}
                               {...dragProvided.draggableProps}
                               {...dragProvided.dragHandleProps}
-                              to={`${basePath}/${encodeURIComponent(String(record[idKey]))}`}
-                              onClick={(e) => {
-                                if (snapshot.isDragging) {
-                                  e.preventDefault();
+                              onClick={() => {
+                                if (!snapshot.isDragging) {
+                                  onCardClick?.(record);
                                 }
                               }}
                               style={{

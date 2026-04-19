@@ -190,7 +190,7 @@ type HawkeyeRecordPageProps<T> = {
 };
 
 export const HawkeyeRecordPage = <T,>({
-  data,
+  data: initialData,
   idKey,
   titleFn,
   fieldGroups,
@@ -204,10 +204,21 @@ export const HawkeyeRecordPage = <T,>({
   const navigate = useNavigate();
   const params = useParams<{ id: string }>();
   const [activeTab, setActiveTab] = useState<RecordTab>('home');
+  const [data, setData] = useState(initialData);
 
   const record = data.find(
     (r) => String(r[idKey]) === decodeURIComponent(params.id ?? ''),
   );
+
+  const handleFieldChange = (key: string, value: unknown) => {
+    setData((prev) =>
+      prev.map((r) =>
+        String(r[idKey]) === decodeURIComponent(params.id ?? '')
+          ? { ...r, [key]: value }
+          : r,
+      ) as T[],
+    );
+  };
 
   if (!record) {
     return <Navigate to={basePath} replace />;
@@ -222,7 +233,7 @@ export const HawkeyeRecordPage = <T,>({
     return (
       <StyledPageContainer>
         <PageHeader
-          hasClosePageButton
+          hasBackButton
           onClosePage={() => navigate(-1)}
           title={title}
         />
@@ -283,6 +294,7 @@ export const HawkeyeRecordPage = <T,>({
                     <HawkeyeDetailView
                       record={record}
                       fieldGroups={fieldGroups}
+                      onFieldChange={handleFieldChange}
                     >
                       {renderRelations?.(record)}
                     </HawkeyeDetailView>
@@ -315,6 +327,7 @@ export const HawkeyeRecordPage = <T,>({
             <HawkeyeDetailView
               record={record}
               fieldGroups={fieldGroups}
+              onFieldChange={handleFieldChange}
             >
               {renderExtra?.(record)}
             </HawkeyeDetailView>

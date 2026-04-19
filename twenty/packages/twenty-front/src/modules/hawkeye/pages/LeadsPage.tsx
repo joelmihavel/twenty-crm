@@ -4,6 +4,7 @@ import { themeCssVariables } from 'twenty-ui/theme-constants';
 import { IconUser, IconBuildingSkyscraper, IconUserPlus } from 'twenty-ui/display';
 
 import { PageHeader } from '@/ui/layout/page/components/PageHeader';
+import { NavigationMenuItemStyleIcon } from '@/navigation-menu-item/display/components/NavigationMenuItemStyleIcon';
 import { PagePanel } from '@/ui/layout/page/components/PagePanel';
 
 import { HawkeyeTable } from '@/hawkeye/components/HawkeyeTable';
@@ -202,7 +203,7 @@ export const LeadsPage = () => {
 
   return (
     <StyledPageContainer>
-      <PageHeader title="Leads" Icon={IconUserPlus}>
+      <PageHeader title="Leads" Icon={() => <NavigationMenuItemStyleIcon Icon={IconUserPlus} color="blue" />}>
         <StyledHeaderControls>
           <StyledTabBar>
             <StyledTabButton

@@ -20,65 +20,70 @@ const getTabStyles = ({ isFocusVisible, isSelected, isHovered }: AriaTabRenderPr
     "button-brand": cx(
         "outline-focus-ring *:data-icon:text-fg-quaternary",
         isFocusVisible && "outline-2 -outline-offset-2",
-        (isSelected || isHovered) && "bg-brand-primary_alt text-brand-secondary *:data-icon:text-fg-brand-secondary_hover",
+        isHovered && !isSelected && "bg-secondary text-secondary *:data-icon:text-fg-secondary_hover",
+        isSelected && "bg-secondary text-primary *:data-icon:text-fg-secondary_hover",
     ),
     "button-gray": cx(
         "outline-focus-ring *:data-icon:text-fg-quaternary",
-        isHovered && "bg-primary_hover text-secondary *:data-icon:text-fg-secondary_hover",
+        isHovered && !isSelected && "bg-primary_hover text-secondary *:data-icon:text-fg-secondary_hover",
         isFocusVisible && "outline-2 -outline-offset-2",
-        isSelected && "bg-primary_hover text-secondary *:data-icon:text-fg-secondary_hover",
+        isSelected && "bg-primary_hover text-primary *:data-icon:text-fg-secondary_hover",
     ),
     "button-border": cx(
         "outline-focus-ring *:data-icon:text-fg-quaternary",
         isFocusVisible && "outline-2 -outline-offset-2",
-        (isSelected || isHovered) && "bg-primary_alt text-secondary shadow-sm *:data-icon:text-fg-secondary_hover",
+        isHovered && !isSelected && "bg-primary_hover text-secondary *:data-icon:text-fg-secondary_hover",
+        isSelected && "bg-primary_alt text-primary shadow-xs *:data-icon:text-fg-secondary_hover",
     ),
     "button-minimal": cx(
-        "rounded-lg outline-focus-ring *:data-icon:text-fg-quaternary",
+        "rounded-sm outline-focus-ring *:data-icon:text-fg-quaternary",
         isFocusVisible && "outline-2 -outline-offset-2",
-        (isSelected || isHovered) && "bg-primary_alt text-secondary shadow-xs ring-1 ring-primary ring-inset *:data-icon:text-fg-secondary_hover",
+        isHovered && !isSelected && "bg-primary_hover text-secondary *:data-icon:text-fg-secondary_hover",
+        isSelected && "bg-primary_alt text-primary ring-1 ring-primary ring-inset *:data-icon:text-fg-secondary_hover",
     ),
     underline: cx(
-        "rounded-none border-b-2 border-transparent outline-focus-ring *:data-icon:text-fg-quaternary",
+        "rounded-none border-b border-transparent outline-focus-ring *:data-icon:text-fg-quaternary",
         isFocusVisible && "outline-2 -outline-offset-2",
-        (isSelected || isHovered) && "border-fg-brand-primary_alt text-brand-secondary *:data-icon:text-fg-brand-secondary_hover",
+        isHovered && !isSelected && "border-border-tertiary text-secondary *:data-icon:text-fg-secondary_hover",
+        isSelected && "border-fg-primary text-primary *:data-icon:text-fg-secondary_hover",
     ),
     line: cx(
-        "rounded-none border-l-2 border-transparent outline-focus-ring *:data-icon:text-fg-quaternary",
+        "rounded-none border-l border-transparent outline-focus-ring *:data-icon:text-fg-quaternary",
         isFocusVisible && "outline-2 -outline-offset-2",
-        (isSelected || isHovered) && "border-fg-brand-primary_alt text-brand-secondary *:data-icon:text-fg-brand-secondary_hover",
+        isHovered && !isSelected && "border-border-tertiary text-secondary *:data-icon:text-fg-secondary_hover",
+        isSelected && "border-fg-primary text-primary *:data-icon:text-fg-secondary_hover",
     ),
 });
 
 const sizes = {
     sm: {
-        base: "text-sm font-semibold gap-1 *:data-icon:size-4",
+        base: "text-sm font-medium gap-1 *:data-icon:size-4",
+        "button-brand": "py-1.5 px-2",
+        "button-gray": "py-1.5 px-2",
+        "button-border": "py-1.5 px-2",
+        "button-minimal": "py-1.5 px-2",
+        underline: "px-0.5 pb-2 pt-0",
+        line: "pl-2 pr-2.5 py-0.5",
+    },
+    md: {
+        base: "text-sm font-medium gap-1 *:data-icon:size-4",
         "button-brand": "py-2 px-2.5",
         "button-gray": "py-2 px-2.5",
         "button-border": "py-2 px-2.5",
         "button-minimal": "py-2 px-2.5",
-        underline: "px-0.5 pb-2.5 pt-0",
-        line: "pl-2.5 pr-3 py-0.5",
-    },
-    md: {
-        base: "text-md font-semibold gap-1.5 *:data-icon:size-5",
-        "button-brand": "py-2.5 px-2.5",
-        "button-gray": "py-2.5 px-2.5",
-        "button-border": "py-2.5 px-2.5",
-        "button-minimal": "py-2.5 px-2.5",
-        underline: "px-0.5 pb-2.5 pt-0",
-        line: "pr-3.5 pl-3 py-1",
+        underline: "px-0.5 pb-2 pt-0",
+        line: "pr-3 pl-2.5 py-0.5",
     },
 };
 
 // Styles for different types of horizontal tabs
 const getHorizontalStyles = ({ size, fullWidth }: { size?: "sm" | "md"; fullWidth?: boolean }) => ({
-    "button-brand": "gap-1",
-    "button-gray": "gap-1",
-    "button-border": cx("gap-1 rounded-[10px] bg-secondary_alt p-1 ring-1 ring-secondary ring-inset", size === "md" && "rounded-xl p-1.5"),
-    "button-minimal": "gap-0.5 rounded-lg bg-secondary_alt ring-1 ring-inset ring-secondary",
-    underline: cx("gap-3", fullWidth && "w-full gap-4"),
-    line: "gap-2",
+    "button-brand": "gap-0.5",
+    "button-gray": "gap-0.5",
+    "button-border": cx("gap-0.5 rounded-md bg-secondary_alt p-0.5 ring-1 ring-secondary ring-inset", size === "md" && "rounded-lg p-1"),
+    "button-minimal": "gap-0.5 rounded-md bg-secondary_alt ring-1 ring-inset ring-secondary",
+    underline: cx("gap-2", fullWidth && "w-full gap-3"),
+    line: "gap-1",
 });
 
 interface TabListComponentProps<T extends object, K extends Orientation> extends Omit<AriaTabListProps<T>, "items"> {
@@ -177,7 +182,7 @@ export const Tab = ({ label, children, badge, icon: Icon, className, ...otherPro
             {...otherProps}
             className={(prop) =>
                 cx(
-                    "z-10 flex h-max cursor-pointer items-center justify-center gap-2 rounded-md whitespace-nowrap text-quaternary transition duration-100 ease-linear",
+                    "z-10 flex h-max cursor-pointer items-center justify-center gap-1.5 rounded-sm whitespace-nowrap text-tertiary transition duration-100 ease-linear",
                     "group-orientation-vertical:justify-start",
                     fullWidth && "w-full flex-1",
                     sizes[size].base,

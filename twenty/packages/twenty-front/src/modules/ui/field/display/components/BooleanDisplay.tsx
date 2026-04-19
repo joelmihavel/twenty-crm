@@ -1,6 +1,8 @@
 import { styled } from '@linaria/react';
 import { t } from '@lingui/core/macro';
-import { IconCheck, IconX } from 'twenty-ui/display';
+import { IconSquareCheck, IconSquare } from 'twenty-ui/display';
+import { themeCssVariables } from 'twenty-ui/theme-constants';
+
 const iconSizeSm = 14;
 
 const StyledBooleanFieldValue = styled.div`
@@ -17,6 +19,18 @@ const StyledContainer = styled.div`
   height: 20px;
 `;
 
+const StyledTrueIcon = styled.div`
+  align-items: center;
+  color: ${themeCssVariables.color.green};
+  display: flex;
+`;
+
+const StyledFalseIcon = styled.div`
+  align-items: center;
+  color: ${themeCssVariables.font.color.light};
+  display: flex;
+`;
+
 export const BooleanDisplay = ({ value }: BooleanDisplayProps) => {
   if (value === null || value === undefined) {
     return <StyledContainer />;
@@ -26,7 +40,15 @@ export const BooleanDisplay = ({ value }: BooleanDisplayProps) => {
 
   return (
     <StyledContainer>
-      {isTrue ? <IconCheck size={iconSizeSm} /> : <IconX size={iconSizeSm} />}
+      {isTrue ? (
+        <StyledTrueIcon>
+          <IconSquareCheck size={iconSizeSm} />
+        </StyledTrueIcon>
+      ) : (
+        <StyledFalseIcon>
+          <IconSquare size={iconSizeSm} />
+        </StyledFalseIcon>
+      )}
       <StyledBooleanFieldValue>
         {isTrue ? t`True` : t`False`}
       </StyledBooleanFieldValue>

@@ -12,6 +12,7 @@ import { AnimatePresence } from 'framer-motion';
 import { isDefined } from 'twenty-shared/utils';
 import {
   type IconComponent,
+  IconArrowLeft,
   IconX,
   OverflowingTextWithTooltip,
 } from 'twenty-ui/display';
@@ -90,6 +91,7 @@ const StyledIconContainer = styled.div`
 type PageHeaderProps = {
   title?: ReactNode;
   hasClosePageButton?: boolean;
+  hasBackButton?: boolean;
   onClosePage?: () => void;
   Icon?: IconComponent;
   children?: ReactNode;
@@ -99,6 +101,7 @@ type PageHeaderProps = {
 export const PageHeader = ({
   title,
   hasClosePageButton,
+  hasBackButton,
   onClosePage,
   Icon,
   children,
@@ -117,9 +120,17 @@ export const PageHeader = ({
           {!isMobile && !isNavigationDrawerExpanded && (
             <NavigationDrawerCollapseButton direction="right" />
           )}
-          {hasClosePageButton && (
+          {hasClosePageButton && !hasBackButton && (
             <LightIconButton
               Icon={IconX}
+              size="small"
+              accent="tertiary"
+              onClick={() => onClosePage?.()}
+            />
+          )}
+          {hasBackButton && (
+            <LightIconButton
+              Icon={IconArrowLeft}
               size="small"
               accent="tertiary"
               onClick={() => onClosePage?.()}

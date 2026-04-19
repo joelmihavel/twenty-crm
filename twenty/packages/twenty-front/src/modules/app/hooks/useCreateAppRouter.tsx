@@ -50,6 +50,14 @@ import { LeadsPage } from '@/hawkeye/pages/LeadsPage';
 import { MoveOutOrchestratorPage } from '@/hawkeye/pages/MoveOutOrchestratorPage';
 import { SdSettlementPage } from '@/hawkeye/pages/SdSettlementPage';
 import { PoApprovalQueuePage } from '@/hawkeye/pages/PoApprovalQueuePage';
+import { RentRollPage } from '@/hawkeye/pages/RentRollPage';
+import { DepositTrackerPage } from '@/hawkeye/pages/DepositTrackerPage';
+import { RentCollectionPage } from '@/hawkeye/pages/RentCollectionPage';
+import { PropertyPnlPage } from '@/hawkeye/pages/PropertyPnlPage';
+import { PaymentDeadlinesPage } from '@/hawkeye/pages/PaymentDeadlinesPage';
+import { ContractApprovalPage } from '@/hawkeye/pages/ContractApprovalPage';
+import { DiscountApprovalPage } from '@/hawkeye/pages/DiscountApprovalPage';
+import { MoveInApprovalPage } from '@/hawkeye/pages/MoveInApprovalPage';
 
 const RecordIndexPage = lazy(() =>
   import('~/pages/object-record/RecordIndexPage').then((module) => ({
@@ -172,9 +180,17 @@ export const useCreateAppRouter = (
           <Route path="items/:id" element={<ItemDetailPage />} />
           <Route path="overheads" element={<OverheadsListPage />} />
           <Route path="overheads/:id" element={<OverheadDetailPage />} />
+          <Route path="rent-roll" element={<RentRollPage />} />
+          <Route path="deposit-tracker" element={<DepositTrackerPage />} />
+          <Route path="rent-collection" element={<RentCollectionPage />} />
+          <Route path="property-pnl" element={<PropertyPnlPage />} />
+          <Route path="payment-deadlines" element={<PaymentDeadlinesPage />} />
           <Route path="move-out" element={<MoveOutOrchestratorPage />} />
           <Route path="sd-settlements" element={<SdSettlementPage />} />
           <Route path="po-approvals" element={<PoApprovalQueuePage />} />
+          <Route path="contract-approvals" element={<ContractApprovalPage />} />
+          <Route path="discount-approvals" element={<DiscountApprovalPage />} />
+          <Route path="move-in-approvals" element={<MoveInApprovalPage />} />
         </Route>
       </Route>
       <Route

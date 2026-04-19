@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState } from 'react';
 import {
   IconArchive,
   IconBuildingSkyscraper,
@@ -47,8 +47,6 @@ import {
 } from '../components/HawkeyeBoardView';
 import { RelatedRecords } from '../components/RelatedRecords';
 import { HawkeyeSummaryCard } from '../components/HawkeyeSummaryCard';
-import { TransactionDrawer } from '../components/TransactionDrawer';
-import { ItemDrawer } from '../components/ItemDrawer';
 import { TenantForm } from '../components/forms/TenantForm';
 import { TicketForm } from '../components/forms/TicketForm';
 import { ContractForm } from '../components/forms/ContractForm';
@@ -58,6 +56,11 @@ import { LandlordOnboardingForm } from '../components/forms/LandlordOnboardingFo
 import { MoveOutNoticeForm } from '../components/forms/MoveOutNoticeForm';
 import { CsatNpsSurveyForm } from '../components/forms/CsatNpsSurveyForm';
 import { RenewalDecisionForm } from '../components/forms/RenewalDecisionForm';
+import { CatalogForm } from '../components/forms/CatalogForm';
+import { ItemForm } from '../components/forms/ItemForm';
+import { VendorForm } from '../components/forms/VendorForm';
+import { PropertyForm } from '../components/forms/PropertyForm';
+import { OverheadForm } from '../components/forms/OverheadForm';
 
 import { mockTenants } from '../data/mock-tenants';
 import { mockMerchants } from '../data/mock-merchants';
@@ -149,6 +152,7 @@ export const TenantsListPage = () => {
       <HawkeyeListPage
         title="Tenants"
         Icon={IconUser}
+        iconColor="blue"
         columns={tenantColumns}
         data={mockTenants.filter((t) => !['New Inquiry', 'Visit Scheduled', 'Visit Done', 'Negotiation', 'Converted', 'Dead Lead'].includes(t.tenant_lifecycle))}
         idKey="id"
@@ -331,6 +335,7 @@ export const MerchantsListPage = () => {
       <HawkeyeListPage
         title="Merchants"
         Icon={IconBuildingSkyscraper}
+        iconColor="purple"
         columns={merchantColumns}
         data={mockMerchants.filter((m) => ['Under Contract', 'Churned'].includes(m.deal_stage))}
         idKey="id"
@@ -444,49 +449,66 @@ export const MerchantDetailPage = () => (
 
 // ── Vendors ────────────────────────────────────────────────────────
 
-export const VendorsListPage = () => (
-  <HawkeyeListPage
-    title="Vendors"
-    Icon={IconTool}
-    columns={vendorColumns}
-    data={mockVendors}
-    idKey="id"
-    basePath={`${HAWKEYE}/vendors`}
-    fieldGroups={vendorFieldGroups}
-    titleFn={(v) => v.vendor_name}
-    boardColumns={[
-      { key: 'Premium', label: 'Premium', tagColor: 'green' },
-      { key: 'Standard', label: 'Standard', tagColor: 'blue' },
-      { key: 'Budget', label: 'Budget', tagColor: 'gray' },
-    ]}
-    boardStatusKey="quality_tier"
-    boardCardFields={(v) => [
-      { label: 'Specialization', value: v.specialization },
-      { label: 'TAT', value: `${v.tat_in_days}d` },
-    ]}
-    renderCharts={() => (
-      <StyledChartsGrid>
-        <VendorTicketVolumeChart vendorId={mockVendors[0]?.id ?? ''} />
-        <ResolutionTimeChart vendorId={mockVendors[0]?.id ?? ''} />
-        <CategoryBreakdownChart vendorId={mockVendors[0]?.id ?? ''} />
-      </StyledChartsGrid>
-    )}
-    renderRelations={(vendor, onRecordClick) => {
-      const tickets = mockTickets.filter((t) => t.assigned_vendor_id === vendor.id);
-      return tickets.length > 0 ? (
-        <RelatedRecords
-          title="Tickets"
-          records={tickets}
-          idKey="id"
-          basePath={`${HAWKEYE}/tickets`}
-          columns={[{ key: 'id', label: 'ID' }]}
-          titleFn={(t) => `#${t.id} — ${t.ticket_name}`}
-          onRecordClick={onRecordClick}
-        />
-      ) : null;
-    }}
-  />
-);
+export const VendorsListPage = () => {
+  const [formOpen, setFormOpen] = useState(false);
+  return (
+    <>
+      <HawkeyeListPage
+        title="Vendors"
+        Icon={IconTool}
+        iconColor="orange"
+        columns={vendorColumns}
+        data={mockVendors}
+        idKey="id"
+        basePath={`${HAWKEYE}/vendors`}
+        fieldGroups={vendorFieldGroups}
+        titleFn={(v) => v.vendor_name}
+        headerExtra={
+          <StyledAddButton onClick={() => setFormOpen(true)}>
+            <IconPlus size={14} />
+            Add Vendor
+          </StyledAddButton>
+        }
+        boardColumns={[
+          { key: 'Premium', label: 'Premium', tagColor: 'green' },
+          { key: 'Standard', label: 'Standard', tagColor: 'blue' },
+          { key: 'Budget', label: 'Budget', tagColor: 'gray' },
+        ]}
+        boardStatusKey="quality_tier"
+        boardCardFields={(v) => [
+          { label: 'Specialization', value: v.specialization },
+          { label: 'TAT', value: `${v.tat_in_days}d` },
+        ]}
+        renderCharts={() => (
+          <StyledChartsGrid>
+            <VendorTicketVolumeChart vendorId={mockVendors[0]?.id ?? ''} />
+            <ResolutionTimeChart vendorId={mockVendors[0]?.id ?? ''} />
+            <CategoryBreakdownChart vendorId={mockVendors[0]?.id ?? ''} />
+          </StyledChartsGrid>
+        )}
+        renderRelations={(vendor, onRecordClick) => {
+          const tickets = mockTickets.filter((t) => t.assigned_vendor_id === vendor.id);
+          return tickets.length > 0 ? (
+            <RelatedRecords
+              title="Tickets"
+              records={tickets}
+              idKey="id"
+              basePath={`${HAWKEYE}/tickets`}
+              columns={[{ key: 'id', label: 'ID' }]}
+              titleFn={(t) => `#${t.id} — ${t.ticket_name}`}
+              onRecordClick={onRecordClick}
+            />
+          ) : null;
+        }}
+      />
+      <VendorForm
+        isOpen={formOpen}
+        onClose={() => setFormOpen(false)}
+        onSave={() => {}}
+      />
+    </>
+  );
+};
 
 export const VendorDetailPage = () => (
   <HawkeyeRecordPage
@@ -552,49 +574,66 @@ export const VendorDetailPage = () => (
 
 // ── Properties (PID) ───────────────────────────────────────────────
 
-export const PropertiesListPage = () => (
-  <HawkeyeListPage
-    title="Properties (PID)"
-    Icon={IconHome}
-    columns={propertyColumns}
-    data={mockProperties}
-    idKey="id"
-    basePath={`${HAWKEYE}/properties`}
-    fieldGroups={propertyFieldGroups}
-    titleFn={(p) => `${p.id} — ${p.building_society}`}
-    boardColumns={[
-      { key: 'lead', label: 'Lead', tagColor: 'blue' },
-      { key: 'active', label: 'Active', tagColor: 'green' },
-      { key: 'churned', label: 'Churned', tagColor: 'red' },
-    ]}
-    boardStatusKey="type"
-    boardCardFields={(p) => [
-      { label: 'Building', value: p.building_society },
-      { label: 'Units', value: p.active_units_count },
-      { label: 'Tier', value: p.tier },
-    ]}
-    renderCharts={() => (
-      <StyledChartsGrid>
-        <RevenueCOGSChart pidId={mockProperties[0]?.id ?? ''} />
-        <TicketCategoryChart pidId={mockProperties[0]?.id ?? ''} />
-      </StyledChartsGrid>
-    )}
-    renderRelations={(property, onRecordClick) => {
-      const rooms = mockRooms.filter((r) => r.pid === property.id);
-      return rooms.length > 0 ? (
-        <RelatedRecords
-          title="Rooms"
-          records={rooms}
-          idKey="id"
-          basePath={`${HAWKEYE}/rooms`}
-          columns={[{ key: 'id', label: 'RID' }]}
-          titleFn={(r) => `${r.id} — ${r.bed_type}`}
-          onRecordClick={onRecordClick}
-        />
-      ) : null;
-    }}
-  />
-);
+export const PropertiesListPage = () => {
+  const [formOpen, setFormOpen] = useState(false);
+  return (
+    <>
+      <HawkeyeListPage
+        title="Properties (PID)"
+        Icon={IconHome}
+        iconColor="green"
+        columns={propertyColumns}
+        data={mockProperties}
+        idKey="id"
+        basePath={`${HAWKEYE}/properties`}
+        fieldGroups={propertyFieldGroups}
+        titleFn={(p) => `${p.id} — ${p.building_society}`}
+        headerExtra={
+          <StyledAddButton onClick={() => setFormOpen(true)}>
+            <IconPlus size={14} />
+            Add Property
+          </StyledAddButton>
+        }
+        boardColumns={[
+          { key: 'lead', label: 'Lead', tagColor: 'blue' },
+          { key: 'active', label: 'Active', tagColor: 'green' },
+          { key: 'churned', label: 'Churned', tagColor: 'red' },
+        ]}
+        boardStatusKey="type"
+        boardCardFields={(p) => [
+          { label: 'Building', value: p.building_society },
+          { label: 'Units', value: p.active_units_count },
+          { label: 'Tier', value: p.tier },
+        ]}
+        renderCharts={() => (
+          <StyledChartsGrid>
+            <RevenueCOGSChart pidId={mockProperties[0]?.id ?? ''} />
+            <TicketCategoryChart pidId={mockProperties[0]?.id ?? ''} />
+          </StyledChartsGrid>
+        )}
+        renderRelations={(property, onRecordClick) => {
+          const rooms = mockRooms.filter((r) => r.pid === property.id);
+          return rooms.length > 0 ? (
+            <RelatedRecords
+              title="Rooms"
+              records={rooms}
+              idKey="id"
+              basePath={`${HAWKEYE}/rooms`}
+              columns={[{ key: 'id', label: 'RID' }]}
+              titleFn={(r) => `${r.id} — ${r.bed_type}`}
+              onRecordClick={onRecordClick}
+            />
+          ) : null;
+        }}
+      />
+      <PropertyForm
+        isOpen={formOpen}
+        onClose={() => setFormOpen(false)}
+        onSave={() => {}}
+      />
+    </>
+  );
+};
 
 export const PropertyDetailPage = () => (
   <HawkeyeRecordPage
@@ -704,6 +743,7 @@ export const RoomsListPage = () => {
       <HawkeyeListPage
         title="Rooms (RID)"
         Icon={IconDoorEnter}
+        iconColor="turquoise"
         columns={roomColumns}
         data={mockRooms}
         idKey="id"
@@ -818,6 +858,7 @@ export const ContractsListPage = () => {
       <HawkeyeListPage
         title="Contracts"
         Icon={IconFileText}
+        iconColor="sky"
         columns={contractColumns}
         data={mockContracts}
         idKey="id"
@@ -956,25 +997,20 @@ export const ContractDetailPage = () => (
 // ── Transactions ───────────────────────────────────────────────────
 
 export const TransactionsListPage = () => {
-  const [drawerId, setDrawerId] = useState<string | null>(null);
   const [formOpen, setFormOpen] = useState(false);
-
-  const handleRowClick = useCallback((record: Transaction) => {
-    setDrawerId(record.id);
-  }, []);
 
   return (
     <>
       <HawkeyeListPage
         title="Transactions"
         Icon={IconCreditCard}
+        iconColor="red"
         columns={transactionColumns}
         data={mockTransactions}
         idKey="id"
         basePath={`${HAWKEYE}/transactions`}
         fieldGroups={transactionFieldGroups}
         titleFn={(t) => `${t.id} — ${t.credit_debit}`}
-        onRowClick={handleRowClick}
         headerExtra={
           <StyledAddButton onClick={() => setFormOpen(true)}>
             <IconPlus size={14} />
@@ -996,10 +1032,6 @@ export const TransactionsListPage = () => {
             <OverdueAgingChart />
           </StyledChartsGrid>
         )}
-      />
-      <TransactionDrawer
-        transactionId={drawerId}
-        onClose={() => setDrawerId(null)}
       />
       <TransactionForm
         isOpen={formOpen}
@@ -1049,6 +1081,7 @@ export const TicketsListPage = () => {
       <HawkeyeListPage
         title="Tickets"
         Icon={IconTag}
+        iconColor="pink"
         columns={ticketColumns}
         data={mockTickets}
         idKey="id"
@@ -1290,24 +1323,41 @@ export const TicketDetailPage = () => (
 
 // ── Catalogs (FSIN) ────────────────────────────────────────────────
 
-export const CatalogsListPage = () => (
-  <HawkeyeListPage
-    title="Catalogs (FSN)"
-    Icon={IconLayoutGrid}
-    columns={catalogColumns}
-    data={mockCatalogs}
-    idKey="id"
-    basePath={`${HAWKEYE}/catalogs`}
-    fieldGroups={catalogFieldGroups}
-    titleFn={(c) => `${c.fsin_code} — ${c.item_name}`}
-    renderCharts={() => (
-      <StyledChartsGrid>
-        <UnitStateChart fsinId={mockCatalogs[0]?.id ?? ''} />
-        <ProcurementHistoryChart fsinId={mockCatalogs[0]?.id ?? ''} />
-      </StyledChartsGrid>
-    )}
-  />
-);
+export const CatalogsListPage = () => {
+  const [formOpen, setFormOpen] = useState(false);
+  return (
+    <>
+      <HawkeyeListPage
+        title="Catalogs (FSN)"
+        Icon={IconLayoutGrid}
+        iconColor="violet"
+        columns={catalogColumns}
+        data={mockCatalogs}
+        idKey="id"
+        basePath={`${HAWKEYE}/catalogs`}
+        fieldGroups={catalogFieldGroups}
+        titleFn={(c) => `${c.fsin_code} — ${c.item_name}`}
+        headerExtra={
+          <StyledAddButton onClick={() => setFormOpen(true)}>
+            <IconPlus size={14} />
+            Add Catalog
+          </StyledAddButton>
+        }
+        renderCharts={() => (
+          <StyledChartsGrid>
+            <UnitStateChart fsinId={mockCatalogs[0]?.id ?? ''} />
+            <ProcurementHistoryChart fsinId={mockCatalogs[0]?.id ?? ''} />
+          </StyledChartsGrid>
+        )}
+      />
+      <CatalogForm
+        isOpen={formOpen}
+        onClose={() => setFormOpen(false)}
+        onSave={() => {}}
+      />
+    </>
+  );
+};
 
 export const CatalogDetailPage = () => (
   <HawkeyeRecordPage
@@ -1351,31 +1401,37 @@ export const CatalogDetailPage = () => (
 // ── Items ──────────────────────────────────────────────────────────
 
 export const ItemsListPage = () => {
-  const [drawerId, setDrawerId] = useState<string | null>(null);
-
-  const handleRowClick = useCallback((record: Item) => {
-    setDrawerId(record.id);
-  }, []);
+  const [formOpen, setFormOpen] = useState(false);
 
   return (
     <>
       <HawkeyeListPage
         title="Items"
         Icon={IconArchive}
+        iconColor="iris"
         columns={itemColumns}
         data={mockItems}
         idKey="id"
         basePath={`${HAWKEYE}/items`}
         fieldGroups={itemFieldGroups}
         titleFn={(i) => `${i.item_code} (${i.fsin_code})`}
-        onRowClick={handleRowClick}
+        headerExtra={
+          <StyledAddButton onClick={() => setFormOpen(true)}>
+            <IconPlus size={14} />
+            Add Item
+          </StyledAddButton>
+        }
         renderCharts={() => (
           <StyledChartsGrid>
             <RepairCostChart itemId={mockItems[0]?.id ?? ''} />
           </StyledChartsGrid>
         )}
       />
-      <ItemDrawer itemId={drawerId} onClose={() => setDrawerId(null)} />
+      <ItemForm
+        isOpen={formOpen}
+        onClose={() => setFormOpen(false)}
+        onSave={() => {}}
+      />
     </>
   );
 };
@@ -1417,34 +1473,51 @@ export const ItemDetailPage = () => (
 
 // ── Overheads ──────────────────────────────────────────────────────
 
-export const OverheadsListPage = () => (
-  <HawkeyeListPage
-    title="Overheads"
-    Icon={IconCoins}
-    columns={overheadColumns}
-    data={mockOverheads}
-    idKey="id"
-    basePath={`${HAWKEYE}/overheads`}
-    fieldGroups={overheadFieldGroups}
-    titleFn={(o) => `${o.pid} — ${o.category_type}`}
-    boardColumns={[
-      { key: 'Maintenance', label: 'Maintenance', tagColor: 'orange' },
-      { key: 'WiFi', label: 'WiFi', tagColor: 'blue' },
-      { key: 'DG (Generator)', label: 'DG (Generator)', tagColor: 'gray' },
-      { key: 'Water', label: 'Water', tagColor: 'blue' },
-      { key: 'Water Purifier', label: 'Water Purifier', tagColor: 'blue' },
-      { key: 'Gas Connection', label: 'Gas Connection', tagColor: 'gray' },
-      { key: 'Electricity', label: 'Electricity', tagColor: 'orange' },
-      { key: 'Helper', label: 'Helper', tagColor: 'blue' },
-    ]}
-    boardStatusKey="category_type"
-    boardCardFields={(o) => [
-      { label: 'PID', value: o.pid },
-      { label: 'Type', value: o.object_type },
-      { label: 'Frequency', value: o.frequency },
-    ]}
-  />
-);
+export const OverheadsListPage = () => {
+  const [formOpen, setFormOpen] = useState(false);
+  return (
+    <>
+      <HawkeyeListPage
+        title="Overheads"
+        Icon={IconCoins}
+        iconColor="amber"
+        columns={overheadColumns}
+        data={mockOverheads}
+        idKey="id"
+        basePath={`${HAWKEYE}/overheads`}
+        fieldGroups={overheadFieldGroups}
+        titleFn={(o) => `${o.pid} — ${o.category_type}`}
+        headerExtra={
+          <StyledAddButton onClick={() => setFormOpen(true)}>
+            <IconPlus size={14} />
+            Add Overhead
+          </StyledAddButton>
+        }
+        boardColumns={[
+          { key: 'Maintenance', label: 'Maintenance', tagColor: 'orange' },
+          { key: 'WiFi', label: 'WiFi', tagColor: 'blue' },
+          { key: 'DG (Generator)', label: 'DG (Generator)', tagColor: 'gray' },
+          { key: 'Water', label: 'Water', tagColor: 'blue' },
+          { key: 'Water Purifier', label: 'Water Purifier', tagColor: 'blue' },
+          { key: 'Gas Connection', label: 'Gas Connection', tagColor: 'gray' },
+          { key: 'Electricity', label: 'Electricity', tagColor: 'orange' },
+          { key: 'Helper', label: 'Helper', tagColor: 'blue' },
+        ]}
+        boardStatusKey="category_type"
+        boardCardFields={(o) => [
+          { label: 'PID', value: o.pid },
+          { label: 'Type', value: o.object_type },
+          { label: 'Frequency', value: o.frequency },
+        ]}
+      />
+      <OverheadForm
+        isOpen={formOpen}
+        onClose={() => setFormOpen(false)}
+        onSave={() => {}}
+      />
+    </>
+  );
+};
 
 export const OverheadDetailPage = () => (
   <HawkeyeRecordPage

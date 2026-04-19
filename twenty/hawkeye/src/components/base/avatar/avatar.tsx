@@ -69,12 +69,12 @@ export interface AvatarProps {
 }
 
 const styles = {
-    xs: { root: "size-6", rootWithBorder: "p-px", initials: "text-xs font-semibold", icon: "size-4" },
-    sm: { root: "size-8", rootWithBorder: "p-px", initials: "text-sm font-semibold", icon: "size-5" },
-    md: { root: "size-10", rootWithBorder: "p-px", initials: "text-md font-semibold", icon: "size-6" },
-    lg: { root: "size-12", rootWithBorder: "p-[1.5px]", initials: "text-lg font-semibold", icon: "size-7" },
-    xl: { root: "size-14", rootWithBorder: "p-0.5", initials: "text-xl font-semibold", icon: "size-8" },
-    "2xl": { root: "size-16", rootWithBorder: "p-0.5", initials: "text-display-xs font-semibold", icon: "size-8" },
+    xs: { root: "size-3", rootWithBorder: "p-px", initials: "text-[8px] font-medium leading-none", icon: "size-2" },
+    sm: { root: "size-3.5", rootWithBorder: "p-px", initials: "text-[9px] font-medium leading-none", icon: "size-2.5" },
+    md: { root: "size-4", rootWithBorder: "p-px", initials: "text-[10px] font-medium leading-none", icon: "size-3" },
+    lg: { root: "size-6", rootWithBorder: "p-px", initials: "text-xs font-medium", icon: "size-4" },
+    xl: { root: "size-10", rootWithBorder: "p-px", initials: "text-sm font-medium", icon: "size-5" },
+    "2xl": { root: "size-12", rootWithBorder: "p-px", initials: "text-md font-medium", icon: "size-6" },
 };
 
 export const Avatar = ({
@@ -134,7 +134,7 @@ export const Avatar = ({
         <div
             data-avatar
             className={cx(
-                "relative inline-flex shrink-0 rounded-[7px]",
+                "relative inline-flex shrink-0 rounded-xs",
                 rounded && "rounded-full",
                 // Focus styles
                 focusable && "outline-transparent group-focus-visible:outline-2 group-focus-visible:outline-offset-2 group-focus-visible:outline-focus-ring",
@@ -146,11 +146,8 @@ export const Avatar = ({
         >
             <div
                 className={cx(
-                    "relative inline-flex size-full shrink-0 items-center justify-center overflow-hidden rounded-md bg-tertiary outline-[0.5px] -outline-offset-[0.5px] outline-black/16 before:inset-[0.5px]",
+                    "relative inline-flex size-full shrink-0 items-center justify-center overflow-hidden rounded-xs bg-tertiary",
                     rounded && "rounded-full",
-                    canShowImage &&
-                        size !== "xs" &&
-                        "before:absolute before:inset-0 before:rounded-[inherit] before:border before:border-white/32 before:mask-[linear-gradient(to_bottom,black_0%,transparent_25%,transparent_75%,black_100%)]",
                     contentClassName,
                 )}
             >

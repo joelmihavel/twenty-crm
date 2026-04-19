@@ -11,11 +11,15 @@ import {
   IconArrowRight,
   IconArrowUp,
   IconCurrencyRupee,
+  IconDownload,
   IconEyeOff,
   IconFilter,
+  IconPhoto,
   IconSortAscending,
   IconSortDescending,
+  IconUpload,
   IconX,
+  IconPencil,
 } from 'twenty-ui/display';
 
 import { TableRow } from '@/ui/layout/table/components/TableRow';
@@ -47,6 +51,7 @@ const StyledTableContainer = styled.div`
 
 // ── Sticky header row ────────────────────────────────────────────
 const StyledHeaderRow = styled.div`
+  border-bottom: 1px solid ${themeCssVariables.border.color.light};
   display: flex;
   flex-direction: row;
   position: sticky;
@@ -248,6 +253,51 @@ const StyledFooterValue = styled.span`
   margin-left: ${themeCssVariables.spacing[1]};
 `;
 
+// ── Data row with bottom border ──────────────────────────────────
+const StyledDataRow = styled(TableRow)`
+  border-bottom: 1px solid ${themeCssVariables.border.color.light};
+
+  &:hover {
+    background-color: ${themeCssVariables.background.transparent.light};
+    cursor: pointer;
+  }
+`;
+
+// ── Hover edit icon overlay ──────────────────────────────────────
+const StyledCellContentWrapper = styled.div`
+  align-items: center;
+  display: flex;
+  overflow: hidden;
+  position: relative;
+  width: 100%;
+`;
+
+const StyledHoverEditButton = styled.button`
+  align-items: center;
+  background: ${themeCssVariables.background.primary};
+  border: 1px solid ${themeCssVariables.border.color.medium};
+  border-radius: ${themeCssVariables.border.radius.sm};
+  box-shadow: ${themeCssVariables.boxShadow.light};
+  color: ${themeCssVariables.font.color.tertiary};
+  cursor: pointer;
+  display: none;
+  height: 20px;
+  justify-content: center;
+  padding: 0;
+  position: absolute;
+  right: 0;
+  width: 20px;
+  z-index: 1;
+
+  ${StyledCellContentWrapper}:hover & {
+    display: flex;
+  }
+
+  &:hover {
+    color: ${themeCssVariables.font.color.primary};
+  }
+`;
+
 // ── Empty state ──────────────────────────────────────────────────
 const StyledEmptyState = styled.div`
   align-items: center;
@@ -304,7 +354,79 @@ type HawkeyeTableProps<T> = {
   basePath: string;
   onRowClick?: (record: T) => void;
   selectedId?: string | null;
+  onCellChange?: (recordId: string, key: string, value: unknown) => void;
 };
+
+type EditingCell = {
+  rowId: string;
+  colKey: string;
+} | null;
+
+const StyledInlineCellContainer = styled.div`
+  align-items: center;
+  background: ${themeCssVariables.background.primary};
+  border: 1px solid ${themeCssVariables.border.color.medium};
+  border-radius: ${themeCssVariables.border.radius.sm};
+  box-shadow: ${themeCssVariables.boxShadow.light};
+  display: flex;
+  gap: 0;
+  height: 28px;
+  width: 100%;
+`;
+
+const StyledInlineCellInput = styled.input`
+  background: transparent;
+  border: none;
+  color: ${themeCssVariables.font.color.primary};
+  flex: 1;
+  font-family: ${themeCssVariables.font.family};
+  font-size: ${themeCssVariables.font.size.sm};
+  min-width: 0;
+  outline: none;
+  padding: 0 ${themeCssVariables.spacing[2]};
+`;
+
+const StyledInlineCellSelect = styled.select`
+  appearance: none;
+  background: transparent;
+  border: none;
+  color: ${themeCssVariables.font.color.primary};
+  cursor: pointer;
+  flex: 1;
+  font-family: ${themeCssVariables.font.family};
+  font-size: ${themeCssVariables.font.size.sm};
+  min-width: 0;
+  outline: none;
+  padding: 0 ${themeCssVariables.spacing[2]};
+`;
+
+const StyledCellActions = styled.div`
+  align-items: center;
+  border-left: 1px solid ${themeCssVariables.border.color.light};
+  display: flex;
+  flex-shrink: 0;
+  gap: 0;
+  height: 100%;
+`;
+
+const StyledCellActionButton = styled.button`
+  align-items: center;
+  background: none;
+  border: none;
+  border-radius: 0;
+  color: ${themeCssVariables.font.color.tertiary};
+  cursor: pointer;
+  display: flex;
+  height: 100%;
+  justify-content: center;
+  padding: 0;
+  width: 28px;
+
+  &:hover {
+    background: ${themeCssVariables.background.transparent.light};
+    color: ${themeCssVariables.font.color.primary};
+  }
+`;
 
 // ── Formatters ───────────────────────────────────────────────────
 
@@ -466,6 +588,74 @@ const StyledDateCell = styled.div`
   white-space: nowrap;
 `;
 
+// ── File/image cell ─────────────────────────────────────────────
+
+const StyledFileCell = styled.div`
+  align-items: center;
+  display: flex;
+  gap: ${themeCssVariables.spacing[2]};
+  height: 28px;
+  position: relative;
+`;
+
+const StyledFileThumbnail = styled.div`
+  align-items: center;
+  background: ${themeCssVariables.background.tertiary};
+  border: 1px solid ${themeCssVariables.border.color.light};
+  border-radius: ${themeCssVariables.border.radius.xs};
+  color: ${themeCssVariables.font.color.light};
+  display: flex;
+  flex-shrink: 0;
+  height: 28px;
+  justify-content: center;
+  position: relative;
+  width: 28px;
+`;
+
+const StyledFileName = styled.span`
+  color: ${themeCssVariables.font.color.secondary};
+  font-size: ${themeCssVariables.font.size.sm};
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+`;
+
+const StyledFileOverlay = styled.div`
+  align-items: center;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: ${themeCssVariables.border.radius.xs};
+  bottom: 0;
+  display: none;
+  gap: 2px;
+  justify-content: center;
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+
+  ${StyledFileCell}:hover & {
+    display: flex;
+  }
+`;
+
+const StyledFileActionButton = styled.button`
+  align-items: center;
+  background: rgba(255, 255, 255, 0.15);
+  border: none;
+  border-radius: 2px;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  height: 18px;
+  justify-content: center;
+  padding: 0;
+  width: 18px;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.3);
+  }
+`;
+
 // ── Cell renderers ───────────────────────────────────────────────
 
 const getInitials = (text: string) => {
@@ -499,9 +689,6 @@ const renderCell = <T,>(row: T, col: HawkeyeColumn<T>, isFirstColumn: boolean) =
     case 'currency':
       return (
         <StyledCurrencyCell>
-          <StyledCurrencyIcon>
-            <IconCurrencyRupee size={14} />
-          </StyledCurrencyIcon>
           {formatCurrency(value as number)}
         </StyledCurrencyCell>
       );
@@ -517,6 +704,31 @@ const renderCell = <T,>(row: T, col: HawkeyeColumn<T>, isFirstColumn: boolean) =
       );
     case 'boolean':
       return <BooleanDisplay value={value as boolean} />;
+    case 'file': {
+      const fileName = String(value).split('/').pop() ?? String(value);
+      return (
+        <StyledFileCell>
+          <StyledFileThumbnail>
+            <IconPhoto size={16} />
+            <StyledFileOverlay>
+              <StyledFileActionButton
+                title="Download"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <IconDownload size={10} />
+              </StyledFileActionButton>
+              <StyledFileActionButton
+                title="Replace"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <IconUpload size={10} />
+              </StyledFileActionButton>
+            </StyledFileOverlay>
+          </StyledFileThumbnail>
+          <StyledFileName>{fileName}</StyledFileName>
+        </StyledFileCell>
+      );
+    }
     case 'number':
       return (
         <EllipsisDisplay>
@@ -649,12 +861,74 @@ export const HawkeyeTable = <T,>({
   basePath,
   onRowClick,
   selectedId,
+  onCellChange,
 }: HawkeyeTableProps<T>) => {
   const navigate = useNavigate();
   const { theme } = useContext(ThemeContext);
 
   // Mutable column order + visibility
   const [columns, setColumns] = useState(initialColumns);
+
+  const [editingCell, setEditingCell] = useState<EditingCell>(null);
+  const [editDraft, setEditDraft] = useState('');
+  const editInputRef = useRef<HTMLInputElement | HTMLSelectElement>(null);
+
+  useEffect(() => {
+    if (editingCell && editInputRef.current) {
+      editInputRef.current.focus();
+      if ('select' in editInputRef.current && editInputRef.current instanceof HTMLInputElement) {
+        editInputRef.current.select();
+      }
+    }
+  }, [editingCell]);
+
+  const handleCellDoubleClick = useCallback(
+    (rowId: string, col: HawkeyeColumn<T>, row: T) => {
+      if (!onCellChange) return;
+      if (col.type === 'file') return;
+      if (col.type === 'boolean') {
+        onCellChange(rowId, col.key, !(row[col.key] as boolean));
+        return;
+      }
+      const value = row[col.key];
+      setEditDraft(value === null || value === undefined ? '' : String(value));
+      setEditingCell({ rowId, colKey: col.key });
+    },
+    [onCellChange],
+  );
+
+  const handleCellEditSave = useCallback(() => {
+    if (!editingCell || !onCellChange) {
+      setEditingCell(null);
+      return;
+    }
+    const col = columns.find((c) => c.key === editingCell.colKey);
+    let parsed: unknown = editDraft;
+    if (col?.type === 'number' || col?.type === 'currency') {
+      const num = Number(editDraft);
+      if (!isNaN(num)) parsed = num;
+    }
+    onCellChange(editingCell.rowId, editingCell.colKey, parsed);
+    setEditingCell(null);
+  }, [editingCell, editDraft, onCellChange, columns]);
+
+  const handleCellEditKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        handleCellEditSave();
+      }
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        setEditingCell(null);
+      }
+      if (e.key === 'Tab') {
+        e.preventDefault();
+        handleCellEditSave();
+      }
+    },
+    [handleCellEditSave],
+  );
 
   // Track column widths for resizing
   const [columnWidths, setColumnWidths] = useState<Record<string, number>>(() => {
@@ -976,7 +1250,7 @@ export const HawkeyeTable = <T,>({
           processedData.map((row) => {
             const rowId = String(row[idKey]);
             return (
-              <TableRow
+              <StyledDataRow
                 key={rowId}
                 isSelected={
                   selectedRows.has(rowId) || selectedId === rowId
@@ -994,26 +1268,105 @@ export const HawkeyeTable = <T,>({
                     hoverable
                   />
                 </StyledCheckboxCell>
-                {columns.map((col, idx) => (
-                  <TableCell
-                    key={col.key}
-                    color={themeCssVariables.font.color.primary}
-                    overflow="hidden"
-                    textOverflow="ellipsis"
-                    whiteSpace="nowrap"
-                    clickable
-                    onClick={() =>
-                      onRowClick
-                        ? onRowClick(row)
-                        : navigate(
-                            `${basePath}/${encodeURIComponent(rowId)}`,
-                          )
-                    }
-                  >
-                    {renderCell(row, col, idx === 0)}
-                  </TableCell>
-                ))}
-              </TableRow>
+                {columns.map((col, idx) => {
+                  const isFirstCol = idx === 0;
+                  const isEditingThis =
+                    editingCell?.rowId === rowId &&
+                    editingCell?.colKey === col.key;
+
+                  const isEditable =
+                    !isFirstCol &&
+                    onCellChange &&
+                    col.type !== 'file';
+
+                  return (
+                    <TableCell
+                      key={col.key}
+                      color={themeCssVariables.font.color.primary}
+                      overflow="hidden"
+                      textOverflow="ellipsis"
+                      whiteSpace="nowrap"
+                      clickable
+                      onClick={() => {
+                        if (isEditingThis) return;
+                        onRowClick
+                          ? onRowClick(row)
+                          : navigate(
+                              `${basePath}/${encodeURIComponent(rowId)}`,
+                            );
+                      }}
+                    >
+                      {isEditingThis ? (
+                        <StyledInlineCellContainer
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          {col.type === 'enum' && col.options && col.options.length > 0 ? (
+                            <StyledInlineCellSelect
+                              ref={editInputRef as unknown as React.RefObject<HTMLSelectElement>}
+                              value={editDraft}
+                              onChange={(e) => {
+                                setEditDraft(e.target.value);
+                                if (onCellChange) {
+                                  onCellChange(editingCell!.rowId, editingCell!.colKey, e.target.value);
+                                }
+                                setEditingCell(null);
+                              }}
+                              onBlur={() => setEditingCell(null)}
+                              onKeyDown={handleCellEditKeyDown}
+                            >
+                              <option value="">— Select —</option>
+                              {col.options.map((opt) => (
+                                <option key={opt} value={opt}>{opt}</option>
+                              ))}
+                            </StyledInlineCellSelect>
+                          ) : (
+                            <StyledInlineCellInput
+                              ref={editInputRef as unknown as React.RefObject<HTMLInputElement>}
+                              type={
+                                col.type === 'number' || col.type === 'currency'
+                                  ? 'number'
+                                  : col.type === 'date'
+                                    ? 'date'
+                                    : 'text'
+                              }
+                              value={editDraft}
+                              onChange={(e) => setEditDraft(e.target.value)}
+                              onBlur={handleCellEditSave}
+                              onKeyDown={handleCellEditKeyDown}
+                            />
+                          )}
+                          <StyledCellActions>
+                            <StyledCellActionButton
+                              title="Edit"
+                              onMouseDown={(e) => {
+                                e.preventDefault();
+                                editInputRef.current?.focus();
+                              }}
+                            >
+                              <IconPencil size={14} />
+                            </StyledCellActionButton>
+                          </StyledCellActions>
+                        </StyledInlineCellContainer>
+                      ) : isEditable ? (
+                        <StyledCellContentWrapper>
+                          {renderCell(row, col, isFirstCol)}
+                          <StyledHoverEditButton
+                            title="Edit"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleCellDoubleClick(rowId, col, row);
+                            }}
+                          >
+                            <IconPencil size={12} />
+                          </StyledHoverEditButton>
+                        </StyledCellContentWrapper>
+                      ) : (
+                        renderCell(row, col, isFirstCol)
+                      )}
+                    </TableCell>
+                  );
+                })}
+              </StyledDataRow>
             );
           })
         )}

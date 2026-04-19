@@ -1,12 +1,11 @@
-import { useState, useMemo, useContext } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { styled } from '@linaria/react';
-import { ThemeContext, themeCssVariables } from 'twenty-ui/theme-constants';
+import { themeCssVariables } from 'twenty-ui/theme-constants';
 import { Tag } from 'twenty-ui/components';
 import { SearchInput } from 'twenty-ui/input';
 import { MenuItem } from 'twenty-ui/navigation';
 import {
-  IconSearch,
   IconUser,
   IconBuildingSkyscraper,
   IconTool,
@@ -18,10 +17,11 @@ import {
   IconLayoutGrid,
   IconArchive,
   IconCoins,
+  IconPresentation,
+  IconSettings,
+  IconHistory,
   type IconComponent,
 } from 'twenty-ui/display';
-
-import { PageHeader } from '@/ui/layout/page/components/PageHeader';
 
 import { mockTenants } from '../data/mock-tenants';
 import { mockMerchants } from '../data/mock-merchants';
@@ -37,8 +37,6 @@ import { mockOverheads } from '../data/mock-overheads';
 
 const HAWKEYE = '/hawkeye';
 
-// ── Search index ─────────────────────────────────────────────────
-
 type SearchResult = {
   id: string;
   entity: string;
@@ -50,16 +48,23 @@ type SearchResult = {
   tagText: string;
 };
 
+const NAV_RESULTS: SearchResult[] = [
+  { id: 'nav-dashboard', entity: 'Page', Icon: IconPresentation, title: 'Dashboard', subtitle: 'Go to dashboard', path: `${HAWKEYE}/dashboard`, tagColor: 'gray', tagText: 'Page' },
+  { id: 'nav-search', entity: 'Page', Icon: IconTag, title: 'Search', subtitle: 'Go to search page', path: `${HAWKEYE}/search`, tagColor: 'gray', tagText: 'Page' },
+  { id: 'nav-activity', entity: 'Page', Icon: IconHistory, title: 'Activity Feed', subtitle: 'Go to activity feed', path: `${HAWKEYE}/activity`, tagColor: 'gray', tagText: 'Page' },
+  { id: 'nav-settings', entity: 'Page', Icon: IconSettings, title: 'Settings', subtitle: 'Go to settings', path: `${HAWKEYE}/settings`, tagColor: 'gray', tagText: 'Page' },
+];
+
 const buildIndex = (): SearchResult[] => {
-  const results: SearchResult[] = [];
+  const results: SearchResult[] = [...NAV_RESULTS];
 
   for (const t of mockTenants) {
     results.push({
-      id: t.id,
+      id: `tenant-${t.id}`,
       entity: 'Tenant',
       Icon: IconUser,
       title: `${t.first_name} ${t.last_name}`,
-      subtitle: `${t.email} · ${t.mobile_phone}`,
+      subtitle: t.email || t.mobile_phone,
       path: `${HAWKEYE}/tenants/${t.id}`,
       tagColor: t.tenant_lifecycle === 'Moved In' ? 'green' : t.tenant_lifecycle === 'Dead Lead' ? 'red' : 'blue',
       tagText: t.tenant_lifecycle,
@@ -68,7 +73,7 @@ const buildIndex = (): SearchResult[] => {
 
   for (const m of mockMerchants) {
     results.push({
-      id: m.id,
+      id: `merchant-${m.id}`,
       entity: 'Merchant',
       Icon: IconBuildingSkyscraper,
       title: `${m.prefix} ${m.first_name} ${m.last_name}`,
@@ -81,7 +86,7 @@ const buildIndex = (): SearchResult[] => {
 
   for (const v of mockVendors) {
     results.push({
-      id: v.id,
+      id: `vendor-${v.id}`,
       entity: 'Vendor',
       Icon: IconTool,
       title: v.vendor_name,
@@ -94,7 +99,7 @@ const buildIndex = (): SearchResult[] => {
 
   for (const p of mockProperties) {
     results.push({
-      id: p.id,
+      id: `property-${p.id}`,
       entity: 'Property',
       Icon: IconHome,
       title: `${p.id} — ${p.building_society}`,
@@ -107,7 +112,7 @@ const buildIndex = (): SearchResult[] => {
 
   for (const r of mockRooms) {
     results.push({
-      id: r.id,
+      id: `room-${r.id}`,
       entity: 'Room',
       Icon: IconDoorEnter,
       title: `${r.id} (${r.pid})`,
@@ -120,7 +125,7 @@ const buildIndex = (): SearchResult[] => {
 
   for (const c of mockContracts) {
     results.push({
-      id: c.id,
+      id: `contract-${c.id}`,
       entity: 'Contract',
       Icon: IconFileText,
       title: `${c.party_name} — ${c.contract_type}`,
@@ -133,7 +138,7 @@ const buildIndex = (): SearchResult[] => {
 
   for (const t of mockTransactions) {
     results.push({
-      id: t.id,
+      id: `txn-${t.id}`,
       entity: 'Transaction',
       Icon: IconCreditCard,
       title: `${t.id} — ₹${t.amount.toLocaleString('en-IN')}`,
@@ -146,7 +151,7 @@ const buildIndex = (): SearchResult[] => {
 
   for (const t of mockTickets) {
     results.push({
-      id: t.id,
+      id: `ticket-${t.id}`,
       entity: 'Ticket',
       Icon: IconTag,
       title: `#${t.id} — ${t.ticket_name}`,
@@ -159,7 +164,7 @@ const buildIndex = (): SearchResult[] => {
 
   for (const c of mockCatalogs) {
     results.push({
-      id: c.id,
+      id: `catalog-${c.id}`,
       entity: 'Catalog',
       Icon: IconLayoutGrid,
       title: `${c.fsin_code} — ${c.item_name}`,
@@ -172,7 +177,7 @@ const buildIndex = (): SearchResult[] => {
 
   for (const i of mockItems) {
     results.push({
-      id: i.id,
+      id: `item-${i.id}`,
       entity: 'Item',
       Icon: IconArchive,
       title: `${i.item_code} — ${i.product_name}`,
@@ -185,7 +190,7 @@ const buildIndex = (): SearchResult[] => {
 
   for (const o of mockOverheads) {
     results.push({
-      id: o.id,
+      id: `overhead-${o.id}`,
       entity: 'Overhead',
       Icon: IconCoins,
       title: `${o.pid} — ${o.category_type}`,
@@ -199,158 +204,204 @@ const buildIndex = (): SearchResult[] => {
   return results;
 };
 
+const searchIndex = buildIndex();
+
 // ── Styled ────────────────────────────────────────────────────────
 
-const StyledPage = styled.div`
-  background: ${themeCssVariables.background.primary};
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  overflow: hidden;
+const StyledOverlay = styled.div<{ isOpen: boolean }>`
+  background: ${themeCssVariables.background.transparent.medium};
+  display: ${({ isOpen }) => (isOpen ? 'flex' : 'none')};
+  align-items: flex-start;
+  inset: 0;
+  justify-content: center;
+  padding-top: 15vh;
+  position: fixed;
+  z-index: 100;
 `;
 
-const StyledContent = styled.div`
+const StyledPalette = styled.div`
+  background: ${themeCssVariables.background.primary};
+  border: 1px solid ${themeCssVariables.border.color.medium};
+  border-radius: ${themeCssVariables.border.radius.md};
+  box-shadow: ${themeCssVariables.boxShadow.strong};
   display: flex;
-  flex: 1;
   flex-direction: column;
-  min-height: 0;
-  overflow-y: auto;
-  padding: ${themeCssVariables.spacing[4]} ${themeCssVariables.spacing[6]};
+  max-height: 480px;
+  overflow: hidden;
+  width: 560px;
 `;
 
 const StyledSearchWrapper = styled.div`
-  margin-bottom: ${themeCssVariables.spacing[4]};
+  border-bottom: 1px solid ${themeCssVariables.border.color.light};
+  padding: ${themeCssVariables.spacing[3]};
 `;
 
-const StyledFilterRow = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: ${themeCssVariables.spacing[1]};
-  margin-bottom: ${themeCssVariables.spacing[4]};
-`;
-
-const StyledFilterChip = styled.button<{ isActive: boolean }>`
-  background: ${({ isActive }) =>
-    isActive ? themeCssVariables.background.tertiary : 'transparent'};
-  border: none;
-  border-radius: ${themeCssVariables.border.radius.sm};
-  color: ${({ isActive }) =>
-    isActive ? themeCssVariables.font.color.primary : themeCssVariables.font.color.tertiary};
-  cursor: pointer;
-  font-size: ${themeCssVariables.font.size.sm};
-  font-weight: ${themeCssVariables.font.weight.medium};
-  padding: ${themeCssVariables.spacing[1]} ${themeCssVariables.spacing[2]};
-  transition: background-color 0.1s ease, color 0.1s ease;
-
-  &:hover {
-    background: ${themeCssVariables.background.transparent.light};
-    color: ${themeCssVariables.font.color.primary};
-  }
-`;
-
-const StyledResultCount = styled.div`
-  color: ${themeCssVariables.font.color.tertiary};
-  font-size: ${themeCssVariables.font.size.sm};
-  margin-bottom: ${themeCssVariables.spacing[2]};
-`;
-
-const StyledResultList = styled.div`
-  border-top: 1px solid ${themeCssVariables.border.color.light};
-  display: flex;
-  flex-direction: column;
-
-  & > * {
-    border-bottom: 1px solid ${themeCssVariables.border.color.light};
-  }
+const StyledResultsContainer = styled.div`
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: ${themeCssVariables.spacing[1]} 0;
 `;
 
 const StyledEmptyState = styled.div`
   color: ${themeCssVariables.font.color.light};
   font-size: ${themeCssVariables.font.size.sm};
-  padding: ${themeCssVariables.spacing[8]} 0;
+  padding: ${themeCssVariables.spacing[6]} 0;
   text-align: center;
+`;
+
+const StyledFooter = styled.div`
+  align-items: center;
+  border-top: 1px solid ${themeCssVariables.border.color.light};
+  color: ${themeCssVariables.font.color.light};
+  display: flex;
+  font-size: ${themeCssVariables.font.size.xs};
+  gap: ${themeCssVariables.spacing[3]};
+  justify-content: flex-end;
+  padding: ${themeCssVariables.spacing[2]} ${themeCssVariables.spacing[3]};
+`;
+
+const StyledHint = styled.span`
+  align-items: center;
+  display: flex;
+  gap: ${themeCssVariables.spacing[1]};
+`;
+
+const StyledKbd = styled.kbd`
+  background: ${themeCssVariables.background.transparent.medium};
+  border: 1px solid ${themeCssVariables.border.color.medium};
+  border-radius: 3px;
+  font-family: inherit;
+  font-size: 10px;
+  line-height: 1;
+  padding: 2px 4px;
 `;
 
 // ── Component ─────────────────────────────────────────────────────
 
-const ENTITY_TYPES = [
-  'All', 'Tenant', 'Merchant', 'Vendor', 'Property', 'Room',
-  'Contract', 'Transaction', 'Ticket', 'Catalog', 'Item', 'Overhead',
-];
+type HawkeyeCommandPaletteProps = {
+  isOpen: boolean;
+  onClose: () => void;
+};
 
-const searchIndex = buildIndex();
-
-export const HawkeyeGlobalSearch = () => {
-  const [query, setQuery] = useState('');
-  const [entityFilter, setEntityFilter] = useState('All');
+export const HawkeyeCommandPalette = ({
+  isOpen,
+  onClose,
+}: HawkeyeCommandPaletteProps) => {
   const navigate = useNavigate();
+  const [query, setQuery] = useState('');
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const resultsRef = useRef<HTMLDivElement>(null);
 
   const results = useMemo(() => {
     const q = query.toLowerCase().trim();
-    return searchIndex.filter((r) => {
-      if (entityFilter !== 'All' && r.entity !== entityFilter) return false;
-      if (!q) return true;
-      return (
-        r.title.toLowerCase().includes(q) ||
-        r.subtitle.toLowerCase().includes(q) ||
-        r.id.toLowerCase().includes(q) ||
-        r.tagText.toLowerCase().includes(q)
-      );
-    });
-  }, [query, entityFilter]);
+    if (!q) return NAV_RESULTS;
+    return searchIndex
+      .filter(
+        (r) =>
+          r.title.toLowerCase().includes(q) ||
+          r.subtitle.toLowerCase().includes(q) ||
+          r.entity.toLowerCase().includes(q) ||
+          r.tagText.toLowerCase().includes(q),
+      )
+      .slice(0, 30);
+  }, [query]);
+
+  useEffect(() => {
+    setSelectedIndex(0);
+  }, [query]);
+
+  useEffect(() => {
+    if (!isOpen) {
+      setQuery('');
+      setSelectedIndex(0);
+    }
+  }, [isOpen]);
+
+  const handleSelect = useCallback(
+    (path: string) => {
+      navigate(path);
+      onClose();
+    },
+    [navigate, onClose],
+  );
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      switch (event.key) {
+        case 'Escape':
+          event.preventDefault();
+          onClose();
+          break;
+        case 'ArrowDown':
+          event.preventDefault();
+          setSelectedIndex((prev) => Math.min(prev + 1, results.length - 1));
+          break;
+        case 'ArrowUp':
+          event.preventDefault();
+          setSelectedIndex((prev) => Math.max(prev - 1, 0));
+          break;
+        case 'Enter':
+          event.preventDefault();
+          if (results[selectedIndex]) {
+            handleSelect(results[selectedIndex].path);
+          }
+          break;
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, results, selectedIndex, handleSelect, onClose]);
+
+  if (!isOpen) return null;
 
   return (
-    <StyledPage>
-      <PageHeader title="Search" Icon={IconSearch} />
-      <StyledContent>
+    <StyledOverlay isOpen={isOpen} onClick={onClose}>
+      <StyledPalette onClick={(e) => e.stopPropagation()}>
         <StyledSearchWrapper>
           <SearchInput
             value={query}
             onChange={setQuery}
-            placeholder="Search across all entities..."
+            placeholder="Search entities, pages, records..."
             autoFocus
           />
         </StyledSearchWrapper>
 
-        <StyledFilterRow>
-          {ENTITY_TYPES.map((type) => (
-            <StyledFilterChip
-              key={type}
-              isActive={entityFilter === type}
-              onClick={() => setEntityFilter(type)}
-            >
-              {type}
-            </StyledFilterChip>
-          ))}
-        </StyledFilterRow>
-
-        <StyledResultCount>
-          {results.length} result{results.length !== 1 ? 's' : ''}
-          {query && ` for "${query}"`}
-          {entityFilter !== 'All' && ` in ${entityFilter}s`}
-        </StyledResultCount>
-
-        {results.length === 0 ? (
-          <StyledEmptyState>
-            {query ? 'No results found. Try a different search term.' : 'Start typing to search...'}
-          </StyledEmptyState>
-        ) : (
-          <StyledResultList>
-            {results.slice(0, 50).map((result) => (
+        <StyledResultsContainer ref={resultsRef}>
+          {results.length === 0 ? (
+            <StyledEmptyState>No results found</StyledEmptyState>
+          ) : (
+            results.map((result, index) => (
               <MenuItem
-                key={`${result.entity}-${result.id}`}
+                key={result.id}
                 LeftIcon={result.Icon}
                 text={result.title}
                 contextualText={result.entity}
-                onClick={() => navigate(result.path)}
+                onClick={() => handleSelect(result.path)}
+                focused={index === selectedIndex}
                 RightComponent={
                   <Tag color={result.tagColor} text={result.tagText} />
                 }
               />
-            ))}
-          </StyledResultList>
-        )}
-      </StyledContent>
-    </StyledPage>
+            ))
+          )}
+        </StyledResultsContainer>
+
+        <StyledFooter>
+          <StyledHint>
+            <StyledKbd>↑↓</StyledKbd> navigate
+          </StyledHint>
+          <StyledHint>
+            <StyledKbd>↵</StyledKbd> select
+          </StyledHint>
+          <StyledHint>
+            <StyledKbd>esc</StyledKbd> close
+          </StyledHint>
+        </StyledFooter>
+      </StyledPalette>
+    </StyledOverlay>
   );
 };

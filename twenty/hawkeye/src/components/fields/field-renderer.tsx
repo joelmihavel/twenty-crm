@@ -1,13 +1,13 @@
 "use client";
 
 import type { FieldMetadata, CurrencyValue, FullNameValue, EmailsValue, PhonesValue, LinksValue } from "@/lib/twenty/types";
-import { Badge, BadgeWithDot } from "@/components/base/badges/badges";
+import { Badge } from "@/components/base/badges/badges";
 import { Avatar } from "@/components/base/avatar/avatar";
 import { AvatarLabelGroup } from "@/components/base/avatar/avatar-label-group";
 import { Tooltip, TooltipTrigger } from "@/components/base/tooltip/tooltip";
 import { RatingStars } from "@/components/foundations/rating-stars";
 import { mapOptionColor } from "@/lib/twenty/color-utils";
-import { Mail01, Phone } from "@untitledui/icons";
+import { Check, Mail01, Phone, X } from "@untitledui/icons";
 
 interface FieldRendererProps {
   field: FieldMetadata;
@@ -102,10 +102,10 @@ export function FieldRenderer({ field, value }: FieldRendererProps) {
       return <span className="tabular-nums">{Number(value).toLocaleString("en-IN")}</span>;
 
     case "BOOLEAN":
-      return (
-        <BadgeWithDot size="sm" color={value ? "success" : "gray"} type="pill-color">
-          {value ? "Yes" : "No"}
-        </BadgeWithDot>
+      return value ? (
+        <Check className="size-4 text-fg-secondary" />
+      ) : (
+        <X className="size-4 text-fg-quaternary" />
       );
 
     case "DATE":
@@ -130,8 +130,6 @@ export function FieldRenderer({ field, value }: FieldRendererProps) {
       const amount = cv.amountMicros / 1_000_000;
       const currencyCode = cv.currencyCode || "INR";
       const formatted = new Intl.NumberFormat("en-IN", {
-        style: "currency",
-        currency: currencyCode,
         minimumFractionDigits: 0,
         maximumFractionDigits: 2,
       }).format(amount);

@@ -1,6 +1,7 @@
 import { IconLogout } from 'twenty-ui/display';
 
 import { HawkeyeListPage } from '../components/HawkeyeListPage';
+import { ApprovalActions } from '../components/ApprovalActions';
 import { ItemInspectionList } from '../components/ItemInspectionList';
 import { type HawkeyeColumn, type FieldGroup } from '../types/entities';
 import { mockItems } from '../data/mock-items';
@@ -47,7 +48,7 @@ const columns: HawkeyeColumn<MoveOutRecord>[] = [
   { key: 'rid', label: 'RID', width: 100 },
   { key: 'notice_date', label: 'Notice Date', type: 'date', width: 120 },
   { key: 'expected_move_out_date', label: 'Move-out Date', type: 'date', width: 120 },
-  { key: 'status', label: 'Status', type: 'enum', width: 160 },
+  { key: 'status', label: 'Status', type: 'enum', width: 160, options: ['Notice Received', 'Inspection Scheduled', 'Inspection Done', 'Settlement Pending', 'Completed'] },
   { key: 'assigned_to', label: 'Assigned To', width: 140 },
 ];
 
@@ -61,7 +62,7 @@ const fieldGroups: FieldGroup<MoveOutRecord>[] = [
       { key: 'rid', label: 'Room ID' },
       { key: 'notice_date', label: 'Notice Date', type: 'date' },
       { key: 'expected_move_out_date', label: 'Expected Move-out Date', type: 'date' },
-      { key: 'status', label: 'Status', type: 'enum' },
+      { key: 'status', label: 'Status', type: 'enum', options: ['Notice Received', 'Inspection Scheduled', 'Inspection Done', 'Settlement Pending', 'Completed'] },
       { key: 'assigned_to', label: 'Assigned To' },
     ],
   },
@@ -105,6 +106,20 @@ export const MoveOutOrchestratorPage = () => (
       { label: 'Move-out', value: r.expected_move_out_date },
       { label: 'Assigned', value: r.assigned_to },
     ]}
+    renderActions={(record, onFieldChange) => (
+      <ApprovalActions
+        status={record.status}
+        approvableStatuses={['Notice Received', 'Inspection Scheduled', 'Inspection Done', 'Settlement Pending']}
+        approvedStatus="Completed"
+        rejectedStatus=""
+        onApprove={() => {
+          onFieldChange('status', 'Completed');
+        }}
+        onReject={() => {
+          onFieldChange('status', 'Notice Received');
+        }}
+      />
+    )}
     renderRelations={(record) => {
       const items = getItemsForRoom(record.pid, record.rid);
       return (

@@ -30,6 +30,11 @@ import {
   type ProcurementData,
   type BoardStatusData,
   type SlaBreachData,
+  type RentRollEntry,
+  type DepositEntry,
+  type RentCollectionEntry,
+  type PropertyPnlEntry,
+  type PaymentDeadlineEntry,
 } from '../types/analytics.types';
 
 const delay = (ms = 120) => new Promise((r) => setTimeout(r, ms));
@@ -331,4 +336,70 @@ export async function getBoardTicketStatus(): Promise<BoardStatusData[]> {
 export async function getBoardSlaBreachRate(): Promise<SlaBreachData> {
   await delay();
   return { rate: 23, breached: 3, total: 13 };
+}
+
+// ── Finance Views ────────────────────────────────────────────────
+
+// MOCK — replace with: fetch(`${BASE_URL}/analytics/rent-roll`)
+export async function getRentRoll(): Promise<RentRollEntry[]> {
+  await delay();
+  return [
+    { pid: 'PID1', rid: '09BR1', tenantName: 'Rahul Nene', tenantId: 'TNT-001', monthlyLicenseFee: 15000, maintenanceFee: 2000, furnishingFee: 5000, convenienceFee: 500, gst: 2700, totalRent: 25200, contractEnd: '2025-11-30', status: 'Active' },
+    { pid: 'PID2', rid: '09BR5', tenantName: 'Abhinav Garg', tenantId: 'TNT-002', monthlyLicenseFee: 20000, maintenanceFee: 3000, furnishingFee: 4000, convenienceFee: 500, gst: 3300, totalRent: 30800, contractEnd: '2025-10-31', status: 'Active' },
+    { pid: 'PID1', rid: '09BR2', tenantName: 'Priya Mehta', tenantId: 'TNT-003', monthlyLicenseFee: 14000, maintenanceFee: 2000, furnishingFee: 3500, convenienceFee: 500, gst: 2400, totalRent: 22400, contractEnd: '2025-06-15', status: 'Expiring' },
+    { pid: 'PID3', rid: '18BR1', tenantName: 'Suresh Kumar', tenantId: 'TNT-004', monthlyLicenseFee: 18000, maintenanceFee: 2500, furnishingFee: 4500, convenienceFee: 500, gst: 3060, totalRent: 28560, contractEnd: '2025-09-30', status: 'Active' },
+    { pid: 'PID2', rid: '09BR6', tenantName: 'Anita Reddy', tenantId: 'TNT-005', monthlyLicenseFee: 22000, maintenanceFee: 3000, furnishingFee: 5000, convenienceFee: 500, gst: 3660, totalRent: 34160, contractEnd: '2025-04-30', status: 'Expired' },
+    { pid: 'PID1', rid: '09BR3', tenantName: 'Vikram Singh', tenantId: 'TNT-006', monthlyLicenseFee: 16000, maintenanceFee: 2000, furnishingFee: 4000, convenienceFee: 500, gst: 2700, totalRent: 25200, contractEnd: '2026-01-31', status: 'Active' },
+  ];
+}
+
+// MOCK — replace with: fetch(`${BASE_URL}/analytics/deposit-tracker`)
+export async function getDepositTracker(): Promise<DepositEntry[]> {
+  await delay();
+  return [
+    { contractId: 'CNT-T-2025-001', tenantName: 'Rahul Nene', tenantId: 'TNT-001', pid: 'PID1', rid: '09BR1', securityDeposit: 30000, cautionDeposit: 30000, totalDeposit: 60000, depositStatus: 'Paid', fmrStatus: 'Paid', contractEnd: '2025-11-30' },
+    { contractId: 'CNT-T-2025-002', tenantName: 'Abhinav Garg', tenantId: 'TNT-002', pid: 'PID2', rid: '09BR5', securityDeposit: 40000, cautionDeposit: 40000, totalDeposit: 80000, depositStatus: 'Paid', fmrStatus: 'Paid', contractEnd: '2025-10-31' },
+    { contractId: 'CNT-T-2025-003', tenantName: 'Priya Mehta', tenantId: 'TNT-003', pid: 'PID1', rid: '09BR2', securityDeposit: 28000, cautionDeposit: 28000, totalDeposit: 56000, depositStatus: 'Partial', fmrStatus: 'Paid', contractEnd: '2025-06-15' },
+    { contractId: 'CNT-T-2025-004', tenantName: 'Suresh Kumar', tenantId: 'TNT-004', pid: 'PID3', rid: '18BR1', securityDeposit: 36000, cautionDeposit: 36000, totalDeposit: 72000, depositStatus: 'Paid', fmrStatus: 'Paid', contractEnd: '2025-09-30' },
+    { contractId: 'CNT-T-2025-005', tenantName: 'Anita Reddy', tenantId: 'TNT-005', pid: 'PID2', rid: '09BR6', securityDeposit: 44000, cautionDeposit: 44000, totalDeposit: 88000, depositStatus: 'Refund Due', fmrStatus: 'Paid', contractEnd: '2025-04-30' },
+    { contractId: 'CNT-T-2025-006', tenantName: 'Vikram Singh', tenantId: 'TNT-006', pid: 'PID1', rid: '09BR3', securityDeposit: 32000, cautionDeposit: 0, totalDeposit: 32000, depositStatus: 'Pending', fmrStatus: 'Pending', contractEnd: '2026-01-31' },
+  ];
+}
+
+// MOCK — replace with: fetch(`${BASE_URL}/analytics/rent-collection`)
+export async function getRentCollection(): Promise<RentCollectionEntry[]> {
+  await delay();
+  return [
+    { tenantName: 'Rahul Nene', tenantId: 'TNT-001', pid: 'PID1', rid: '09BR1', expectedRent: 25200, collectedAmount: 25200, outstanding: 0, dueDate: '2025-04-05', status: 'Paid' },
+    { tenantName: 'Abhinav Garg', tenantId: 'TNT-002', pid: 'PID2', rid: '09BR5', expectedRent: 30800, collectedAmount: 30800, outstanding: 0, dueDate: '2025-04-05', status: 'Paid' },
+    { tenantName: 'Priya Mehta', tenantId: 'TNT-003', pid: 'PID1', rid: '09BR2', expectedRent: 22400, collectedAmount: 14000, outstanding: 8400, dueDate: '2025-04-05', status: 'Partial' },
+    { tenantName: 'Suresh Kumar', tenantId: 'TNT-004', pid: 'PID3', rid: '18BR1', expectedRent: 28560, collectedAmount: 0, outstanding: 28560, dueDate: '2025-04-05', status: 'Overdue' },
+    { tenantName: 'Vikram Singh', tenantId: 'TNT-006', pid: 'PID1', rid: '09BR3', expectedRent: 25200, collectedAmount: 0, outstanding: 25200, dueDate: '2025-04-20', status: 'Upcoming' },
+    { tenantName: 'Deepa Nair', tenantId: 'TNT-007', pid: 'PID3', rid: '18BR2', expectedRent: 19800, collectedAmount: 19800, outstanding: 0, dueDate: '2025-04-05', status: 'Paid' },
+  ];
+}
+
+// MOCK — replace with: fetch(`${BASE_URL}/analytics/property-pnl`)
+export async function getPropertyPnl(): Promise<PropertyPnlEntry[]> {
+  await delay();
+  return [
+    { pid: 'PID1', address: '301, Sobha Dream Acres, HSR Layout', cluster: 'HSR', tenantRevenue: 72800, merchantRent: 45000, overheadsCost: 5500, netMargin: 22300, marginPercent: 30.6, occupancy: '3/4' },
+    { pid: 'PID2', address: '502, Prestige Lakeside Habitat, Bellandur', cluster: 'BLD', tenantRevenue: 64960, merchantRent: 38000, overheadsCost: 6200, netMargin: 20760, marginPercent: 31.9, occupancy: '2/3' },
+    { pid: 'PID3', address: '204, Brigade Gateway, Rajajinagar', cluster: 'MGR', tenantRevenue: 48360, merchantRent: 32000, overheadsCost: 4800, netMargin: 11560, marginPercent: 23.9, occupancy: '2/2' },
+  ];
+}
+
+// MOCK — replace with: fetch(`${BASE_URL}/analytics/payment-deadlines`)
+export async function getPaymentDeadlines(): Promise<PaymentDeadlineEntry[]> {
+  await delay();
+  return [
+    { entityType: 'Tenant Rent', entityId: 'TNT-004', entityName: 'Suresh Kumar', pid: 'PID3', amount: 28560, dueDate: '2025-04-05', dayOfMonth: '5th', status: 'Overdue' },
+    { entityType: 'Merchant Rent', entityId: 'PID1', entityName: 'Sobha Dream Acres', pid: 'PID1', amount: 45000, dueDate: '2025-04-10', dayOfMonth: '10th', status: 'Upcoming' },
+    { entityType: 'Overhead', entityId: 'OH-001', entityName: 'Maintenance — PID1', pid: 'PID1', amount: 2000, dueDate: '2025-04-03', dayOfMonth: '3rd', status: 'Due Today' },
+    { entityType: 'Tenant Rent', entityId: 'TNT-006', entityName: 'Vikram Singh', pid: 'PID1', amount: 25200, dueDate: '2025-04-20', dayOfMonth: '20th', status: 'Upcoming' },
+    { entityType: 'Merchant Rent', entityId: 'PID2', entityName: 'Prestige Lakeside', pid: 'PID2', amount: 38000, dueDate: '2025-04-15', dayOfMonth: '15th', status: 'Upcoming' },
+    { entityType: 'Overhead', entityId: 'OH-003', entityName: 'Electricity — PID2', pid: 'PID2', amount: 3200, dueDate: '2025-04-01', dayOfMonth: '1st', status: 'Overdue' },
+    { entityType: 'Tenant Rent', entityId: 'TNT-003', entityName: 'Priya Mehta', pid: 'PID1', amount: 8400, dueDate: '2025-04-05', dayOfMonth: '5th', status: 'Overdue' },
+    { entityType: 'Merchant Rent', entityId: 'PID3', entityName: 'Brigade Gateway', pid: 'PID3', amount: 32000, dueDate: '2025-04-25', dayOfMonth: '25th', status: 'Upcoming' },
+  ];
 }

@@ -76,9 +76,9 @@ export const NavAccountMenu = ({
         <AriaDialog
             {...dialogProps}
             ref={dialogRef}
-            className={cx("w-66 rounded-xl bg-secondary_alt shadow-lg ring ring-secondary_alt outline-hidden", className)}
+            className={cx("w-66 rounded-sm bg-secondary_alt shadow-sm ring ring-secondary_alt outline-hidden", className)}
         >
-            <div className="rounded-xl bg-primary ring-1 ring-secondary">
+            <div className="rounded-sm bg-primary ring-1 ring-secondary">
                 <div className="flex flex-col gap-0.5 py-1.5">
                     <NavAccountCardMenuItem label="View profile" icon={User01} shortcut="⌘K->P" />
                     <NavAccountCardMenuItem label="Account settings" icon={Settings01} shortcut="⌘S" />
@@ -92,7 +92,7 @@ export const NavAccountMenu = ({
                             <button
                                 key={account.id}
                                 className={cx(
-                                    "relative w-full cursor-pointer rounded-md px-2 py-1.5 text-left outline-focus-ring transition duration-100 ease-linear hover:bg-primary_hover focus:z-10 focus-visible:outline-2 focus-visible:outline-offset-2",
+                                    "relative w-full cursor-pointer rounded-sm px-2 py-1.5 text-left outline-focus-ring transition duration-100 ease-linear hover:bg-primary_hover focus:z-10 focus-visible:outline-2 focus-visible:outline-offset-2",
                                     account.id === selectedAccountId && "bg-primary_hover",
                                 )}
                             >
@@ -131,7 +131,7 @@ const NavAccountCardMenuItem = ({
         <button {...buttonProps} className={cx("group/item w-full cursor-pointer px-1.5 focus:outline-hidden", buttonProps.className)}>
             <div
                 className={cx(
-                    "flex w-full items-center justify-between gap-3 rounded-md p-2 group-hover/item:bg-primary_hover",
+                    "flex w-full items-center justify-between gap-3 rounded-sm p-2 group-hover/item:bg-primary_hover",
                     // Focus styles.
                     "outline-focus-ring group-focus-visible/item:outline-2 group-focus-visible/item:outline-offset-2",
                 )}
@@ -180,7 +180,7 @@ export const NavAccountCard = ({
     }
 
     return (
-        <div ref={triggerRef} className="relative flex items-center gap-3 rounded-xl p-3 ring-1 ring-secondary ring-inset">
+        <div ref={triggerRef} className="relative flex items-center gap-3 rounded-sm p-3 ring-1 ring-secondary ring-inset">
             <AvatarLabelGroup
                 size="md"
                 src={selectedAccount.avatar}
@@ -191,7 +191,7 @@ export const NavAccountCard = ({
             />
 
             <AriaDialogTrigger>
-                <AriaButton className="absolute top-2 right-2 flex cursor-pointer items-center justify-center rounded-md p-1.5 text-fg-quaternary outline-focus-ring transition duration-100 ease-linear hover:bg-primary_hover hover:text-fg-quaternary_hover focus-visible:outline-2 focus-visible:outline-offset-2 pressed:bg-primary_hover pressed:text-fg-quaternary_hover">
+                <AriaButton className="absolute top-2 right-2 flex cursor-pointer items-center justify-center rounded-sm p-1.5 text-fg-quaternary outline-focus-ring transition duration-100 ease-linear hover:bg-primary_hover hover:text-fg-quaternary_hover focus-visible:outline-2 focus-visible:outline-offset-2 pressed:bg-primary_hover pressed:text-fg-quaternary_hover">
                     <ChevronSelectorVertical className="size-4 shrink-0 stroke-[2.25px]" />
                 </AriaButton>
                 <AriaPopover

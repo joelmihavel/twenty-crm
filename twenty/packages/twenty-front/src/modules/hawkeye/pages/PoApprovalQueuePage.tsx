@@ -1,6 +1,12 @@
-import { IconFileText } from 'twenty-ui/display';
+import { useState } from 'react';
+
+import { styled } from '@linaria/react';
+import { IconFileText, IconPlus } from 'twenty-ui/display';
+import { themeCssVariables } from 'twenty-ui/theme-constants';
 
 import { HawkeyeListPage } from '../components/HawkeyeListPage';
+import { ApprovalActions } from '../components/ApprovalActions';
+import { PoApprovalForm } from '../components/forms/PoApprovalForm';
 import { type HawkeyeColumn, type FieldGroup } from '../types/entities';
 
 // ── Types ─────────────────────────────────────────────────────────
@@ -40,14 +46,14 @@ const mockApprovals: PoApproval[] = [
 // ── Column & Field Definitions ───────────────────────────────────
 
 const columns: HawkeyeColumn<PoApproval>[] = [
-  { key: 'type', label: 'Type', type: 'enum', width: 140 },
+  { key: 'type', label: 'Type', type: 'enum', width: 140, options: ['Purchase Order', 'Payment Request', 'Vendor Invoice'] },
   { key: 'title', label: 'Title', width: 240 },
   { key: 'amount', label: 'Amount', type: 'currency', width: 130 },
   { key: 'requester', label: 'Requester', width: 130 },
   { key: 'vendor_name', label: 'Vendor', width: 160 },
   { key: 'pid', label: 'PID', width: 90 },
-  { key: 'status', label: 'Status', type: 'enum', width: 110 },
-  { key: 'urgency', label: 'Urgency', type: 'enum', width: 100 },
+  { key: 'status', label: 'Status', type: 'enum', width: 110, options: ['Pending', 'Approved', 'Rejected', 'On Hold'] },
+  { key: 'urgency', label: 'Urgency', type: 'enum', width: 100, options: ['Low', 'Medium', 'High', 'Critical'] },
   { key: 'requested_date', label: 'Date', type: 'date', width: 120 },
 ];
 
@@ -56,7 +62,7 @@ const fieldGroups: FieldGroup<PoApproval>[] = [
     label: 'Request Details',
     fields: [
       { key: 'id', label: 'ID' },
-      { key: 'type', label: 'Type', type: 'enum' },
+      { key: 'type', label: 'Type', type: 'enum', options: ['Purchase Order', 'Payment Request', 'Vendor Invoice'] },
       { key: 'title', label: 'Title' },
       { key: 'requester', label: 'Requester' },
       { key: 'requested_date', label: 'Requested Date', type: 'date' },
@@ -73,41 +79,93 @@ const fieldGroups: FieldGroup<PoApproval>[] = [
     label: 'Financials & Status',
     fields: [
       { key: 'amount', label: 'Amount', type: 'currency' },
-      { key: 'status', label: 'Status', type: 'enum' },
-      { key: 'urgency', label: 'Urgency', type: 'enum' },
+      { key: 'status', label: 'Status', type: 'enum', options: ['Pending', 'Approved', 'Rejected', 'On Hold'] },
+      { key: 'urgency', label: 'Urgency', type: 'enum', options: ['Low', 'Medium', 'High', 'Critical'] },
     ],
   },
 ];
 
+// ── Styled ───────────────────────────────────────────────────────
+
+const StyledAddButton = styled.button`
+  align-items: center;
+  background: none;
+  border: 1px solid ${themeCssVariables.border.color.medium};
+  border-radius: ${themeCssVariables.border.radius.sm};
+  color: ${themeCssVariables.font.color.secondary};
+  cursor: pointer;
+  display: flex;
+  font-size: ${themeCssVariables.font.size.sm};
+  gap: ${themeCssVariables.spacing[1]};
+  padding: ${themeCssVariables.spacing[1]} ${themeCssVariables.spacing[2]};
+  white-space: nowrap;
+  &:hover {
+    background: ${themeCssVariables.background.transparent.light};
+    color: ${themeCssVariables.font.color.primary};
+  }
+`;
+
 // ── Component ─────────────────────────────────────────────────────
 
-export const PoApprovalQueuePage = () => (
-  <HawkeyeListPage
-    title="PO Approval Queue"
-    Icon={IconFileText}
-    columns={columns}
-    data={mockApprovals}
-    idKey="id"
-    basePath="/hawkeye/po-approvals"
-    fieldGroups={fieldGroups}
-    titleFn={(r) => `${r.id} — ${r.title}`}
-    boardColumns={[
-      { key: 'Pending', label: 'Pending', tagColor: 'orange' },
-      { key: 'Approved', label: 'Approved', tagColor: 'green' },
-      { key: 'Rejected', label: 'Rejected', tagColor: 'red' },
-      { key: 'On Hold', label: 'On Hold', tagColor: 'gray' },
-    ]}
-    boardStatusKey="status"
-    boardCardFields={(r) => [
-      { label: 'Amount', value: String(r.amount) },
-      { label: 'Vendor', value: r.vendor_name },
-      { label: 'Urgency', value: r.urgency },
-    ]}
-    boardCardTags={(r) => [
-      {
-        text: r.urgency,
-        color: r.urgency === 'Critical' || r.urgency === 'High' ? 'red' : r.urgency === 'Medium' ? 'orange' : 'gray',
-      },
-    ]}
-  />
-);
+export const PoApprovalQueuePage = () => {
+  const [formOpen, setFormOpen] = useState(false);
+
+  return (
+    <>
+      <HawkeyeListPage
+        title="PO Approval Queue"
+        Icon={IconFileText}
+        iconColor="sky"
+        columns={columns}
+        data={mockApprovals}
+        idKey="id"
+        basePath="/hawkeye/po-approvals"
+        fieldGroups={fieldGroups}
+        titleFn={(r) => `${r.id} — ${r.title}`}
+        headerExtra={
+          <StyledAddButton onClick={() => setFormOpen(true)}>
+            <IconPlus size={14} />
+            Add Request
+          </StyledAddButton>
+        }
+        boardColumns={[
+          { key: 'Pending', label: 'Pending', tagColor: 'orange' },
+          { key: 'Approved', label: 'Approved', tagColor: 'green' },
+          { key: 'Rejected', label: 'Rejected', tagColor: 'red' },
+          { key: 'On Hold', label: 'On Hold', tagColor: 'gray' },
+        ]}
+        boardStatusKey="status"
+        boardCardFields={(r) => [
+          { label: 'Amount', value: String(r.amount) },
+          { label: 'Vendor', value: r.vendor_name },
+          { label: 'Urgency', value: r.urgency },
+        ]}
+        boardCardTags={(r) => [
+          {
+            text: r.urgency,
+            color: r.urgency === 'Critical' || r.urgency === 'High' ? 'red' : r.urgency === 'Medium' ? 'orange' : 'gray',
+          },
+        ]}
+        renderActions={(record, onFieldChange) => (
+          <ApprovalActions
+            status={record.status}
+            approvableStatuses={['Pending', 'On Hold']}
+            approvedStatus="Approved"
+            rejectedStatus="Rejected"
+            onApprove={() => {
+              onFieldChange('status', 'Approved');
+            }}
+            onReject={() => {
+              onFieldChange('status', 'Rejected');
+            }}
+          />
+        )}
+      />
+      <PoApprovalForm
+        isOpen={formOpen}
+        onClose={() => setFormOpen(false)}
+        onSave={() => {}}
+      />
+    </>
+  );
+};

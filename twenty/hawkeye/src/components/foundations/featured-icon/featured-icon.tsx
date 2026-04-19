@@ -12,7 +12,7 @@ const iconsSizes = {
 
 const styles = sortCx({
     light: {
-        base: "rounded-full",
+        base: "rounded-sm",
         sizes: {
             sm: "size-8",
             md: "size-10",
@@ -20,16 +20,16 @@ const styles = sortCx({
             xl: "size-14",
         },
         colors: {
-            brand: "bg-brand-secondary text-featured-icon-light-fg-brand",
-            gray: "bg-tertiary text-featured-icon-light-fg-gray",
-            error: "bg-error-secondary text-featured-icon-light-fg-error",
-            warning: "bg-warning-secondary text-featured-icon-light-fg-warning",
-            success: "bg-success-secondary text-featured-icon-light-fg-success",
+            brand: "bg-brand-secondary/60 text-featured-icon-light-fg-brand",
+            gray: "bg-tertiary/60 text-featured-icon-light-fg-gray",
+            error: "bg-error-secondary/60 text-featured-icon-light-fg-error",
+            warning: "bg-warning-secondary/60 text-featured-icon-light-fg-warning",
+            success: "bg-success-secondary/60 text-featured-icon-light-fg-success",
         },
     },
 
     gradient: {
-        base: "rounded-full text-fg-white before:absolute before:inset-0 before:size-full before:rounded-full before:border before:mask-b-from-0% after:absolute after:block after:rounded-full",
+        base: "rounded-sm text-fg-white before:absolute before:inset-0 before:size-full before:rounded-sm before:border before:mask-b-from-0% after:absolute after:block after:rounded-sm",
         sizes: {
             sm: "size-8 after:size-6 *:data-icon:size-4",
             md: "size-10 after:size-7 *:data-icon:size-4",
@@ -37,21 +37,21 @@ const styles = sortCx({
             xl: "size-14 after:size-10 *:data-icon:size-5",
         },
         colors: {
-            brand: "before:border-utility-brand-200 before:bg-utility-brand-50 after:bg-brand-solid",
-            gray: "before:border-utility-neutral-200 before:bg-utility-neutral-50 after:bg-secondary-solid",
-            error: "before:border-utility-red-200 before:bg-utility-red-50 after:bg-error-solid",
-            warning: "before:border-utility-yellow-200 before:bg-utility-yellow-50 after:bg-warning-solid",
-            success: "before:border-utility-green-200 before:bg-utility-green-50 after:bg-success-solid",
+            brand: "before:border-utility-brand-200/60 before:bg-utility-brand-50/60 after:bg-brand-solid",
+            gray: "before:border-utility-neutral-200/60 before:bg-utility-neutral-50/60 after:bg-secondary-solid",
+            error: "before:border-utility-red-200/60 before:bg-utility-red-50/60 after:bg-error-solid",
+            warning: "before:border-utility-yellow-200/60 before:bg-utility-yellow-50/60 after:bg-warning-solid",
+            success: "before:border-utility-green-200/60 before:bg-utility-green-50/60 after:bg-success-solid",
         },
     },
 
     dark: {
-        base: "text-fg-white shadow-xs-skeuomorphic before:absolute before:inset-px before:border before:border-white/12 before:mask-b-from-0%",
+        base: "text-fg-white before:absolute before:inset-px before:border before:border-white/12 before:mask-b-from-0%",
         sizes: {
-            sm: "size-8 rounded-md before:rounded-[5px]",
-            md: "size-10 rounded-lg before:rounded-[7px]",
-            lg: "size-12 rounded-[10px] before:rounded-[9px]",
-            xl: "size-14 rounded-xl before:rounded-[11px]",
+            sm: "size-8 rounded-sm before:rounded-[3px]",
+            md: "size-10 rounded-sm before:rounded-[3px]",
+            lg: "size-12 rounded-sm before:rounded-[3px]",
+            xl: "size-14 rounded-sm before:rounded-[3px]",
         },
         colors: {
             brand: "bg-brand-solid before:border-utility-brand-200/12",
@@ -63,12 +63,12 @@ const styles = sortCx({
     },
 
     modern: {
-        base: "bg-primary shadow-xs-skeuomorphic ring-1 ring-primary ring-inset",
+        base: "bg-primary ring-1 ring-primary ring-inset",
         sizes: {
-            sm: "size-8 rounded-md",
-            md: "size-10 rounded-lg",
-            lg: "size-12 rounded-[10px]",
-            xl: "size-14 rounded-xl",
+            sm: "size-8 rounded-sm",
+            md: "size-10 rounded-sm",
+            lg: "size-12 rounded-sm",
+            xl: "size-14 rounded-sm",
         },
         colors: {
             brand: "text-fg-brand-primary",
@@ -79,16 +79,12 @@ const styles = sortCx({
         },
     },
     "modern-neue": {
-        base: [
-            "bg-primary_alt ring-1 ring-inset before:absolute before:inset-1",
-            // Shadow
-            "before:shadow-[0px_1px_2px_0px_rgba(0,0,0,0.1),0px_3px_3px_0px_rgba(0,0,0,0.09),1px_8px_5px_0px_rgba(0,0,0,0.05),2px_21px_6px_0px_rgba(0,0,0,0),0px_0px_0px_1px_rgba(0,0,0,0.08),1px_13px_5px_0px_rgba(0,0,0,0.01),0px_-2px_2px_0px_rgba(0,0,0,0.13)_inset] before:ring-1 before:ring-secondary_alt",
-        ].join(" "),
+        base: "bg-primary_alt ring-1 ring-inset before:absolute before:inset-1 before:shadow-sm before:ring-1 before:ring-secondary_alt",
         sizes: {
-            sm: "size-8 rounded-[8px] before:rounded-[4px]",
-            md: "size-10 rounded-[10px] before:rounded-[6px]",
-            lg: "size-12 rounded-[12px] before:rounded-[8px]",
-            xl: "size-14 rounded-[14px] before:rounded-[10px]",
+            sm: "size-8 rounded-sm before:rounded-[2px]",
+            md: "size-10 rounded-sm before:rounded-[2px]",
+            lg: "size-12 rounded-sm before:rounded-[2px]",
+            xl: "size-14 rounded-sm before:rounded-[2px]",
         },
         colors: {
             brand: "",
@@ -100,7 +96,7 @@ const styles = sortCx({
     },
 
     outline: {
-        base: "before:absolute before:rounded-full before:border-2 after:absolute after:rounded-full after:border-2",
+        base: "before:absolute before:rounded-sm before:border-2 after:absolute after:rounded-sm after:border-2",
         sizes: {
             sm: "size-4 before:size-6 after:size-8.5",
             md: "size-5 before:size-7 after:size-9.5",

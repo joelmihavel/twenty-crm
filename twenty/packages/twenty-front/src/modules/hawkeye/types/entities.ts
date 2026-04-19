@@ -5,7 +5,8 @@ export type HawkeyeColumn<T> = {
   key: keyof T & string;
   label: string;
   width?: number;
-  type?: 'text' | 'email' | 'phone' | 'date' | 'currency' | 'enum' | 'boolean' | 'number' | 'url';
+  type?: 'text' | 'email' | 'phone' | 'date' | 'currency' | 'enum' | 'boolean' | 'number' | 'url' | 'file';
+  options?: string[];
   Icon?: IconComponent;
 };
 
@@ -16,6 +17,7 @@ export type FieldGroup<T> = {
     key: keyof T & string;
     label: string;
     type?: 'text' | 'email' | 'phone' | 'date' | 'currency' | 'enum' | 'boolean' | 'number' | 'url' | 'file' | 'longtext';
+    options?: string[];
   }>;
 };
 

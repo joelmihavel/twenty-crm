@@ -22,8 +22,8 @@ const PaginationItem = ({ value, rounded, isCurrent }: { value: number; rounded?
             isCurrent={isCurrent}
             className={({ isSelected }) =>
                 cx(
-                    "flex size-9 cursor-pointer items-center justify-center p-3 text-sm font-medium text-quaternary outline-focus-ring transition duration-100 ease-linear hover:bg-primary_hover hover:text-secondary focus-visible:z-10 focus-visible:bg-primary_hover focus-visible:outline-2 focus-visible:outline-offset-2",
-                    rounded ? "rounded-full" : "rounded-lg",
+                    "flex size-8 cursor-pointer items-center justify-center p-2 text-sm font-medium text-quaternary outline-focus-ring transition duration-100 ease-linear hover:bg-primary_hover hover:text-secondary focus-visible:z-10 focus-visible:bg-primary_hover focus-visible:outline-2 focus-visible:outline-offset-2",
+                    rounded ? "rounded-full" : "rounded-sm",
                     isSelected && "bg-primary_hover text-secondary",
                 )
             }
@@ -102,7 +102,7 @@ export const PaginationPageDefault = ({ rounded, page = 1, total = 10, className
                                 page.type === "page" ? (
                                     <PaginationItem key={index} rounded={rounded} {...page} />
                                 ) : (
-                                    <Pagination.Ellipsis key={index} className="flex size-9 shrink-0 items-center justify-center text-tertiary">
+                                    <Pagination.Ellipsis key={index} className="flex size-8 shrink-0 items-center justify-center text-tertiary">
                                         &#8230;
                                     </Pagination.Ellipsis>
                                 ),
@@ -158,7 +158,7 @@ export const PaginationPageMinimalCenter = ({ rounded, page = 1, total = 10, cla
                                 page.type === "page" ? (
                                     <PaginationItem key={index} rounded={rounded} {...page} />
                                 ) : (
-                                    <Pagination.Ellipsis key={index} className="flex size-9 shrink-0 items-center justify-center text-tertiary">
+                                    <Pagination.Ellipsis key={index} className="flex size-8 shrink-0 items-center justify-center text-tertiary">
                                         &#8230;
                                     </Pagination.Ellipsis>
                                 ),
@@ -209,7 +209,7 @@ export const PaginationCardDefault = ({ rounded, page = 1, total = 10, ...props 
                                 page.type === "page" ? (
                                     <PaginationItem key={index} rounded={rounded} {...page} />
                                 ) : (
-                                    <Pagination.Ellipsis key={index} className="flex size-9 shrink-0 items-center justify-center text-tertiary">
+                                    <Pagination.Ellipsis key={index} className="flex size-8 shrink-0 items-center justify-center text-tertiary">
                                         &#8230;
                                     </Pagination.Ellipsis>
                                 ),
@@ -338,13 +338,13 @@ export const PaginationButtonGroup = ({ align = "left", page = 1, total = 10, ..
                             {pages.map((page, index) =>
                                 page.type === "page" ? (
                                     <Pagination.Item key={index} {...page} asChild>
-                                        <ButtonGroupItem isSelected={page.isCurrent} className="size-9 items-center justify-center">
+                                        <ButtonGroupItem isSelected={page.isCurrent} className="size-8 items-center justify-center">
                                             {page.value}
                                         </ButtonGroupItem>
                                     </Pagination.Item>
                                 ) : (
                                     <Pagination.Ellipsis key={index}>
-                                        <ButtonGroupItem className="pointer-events-none size-9 items-center justify-center rounded-none!">
+                                        <ButtonGroupItem className="pointer-events-none size-8 items-center justify-center rounded-none!">
                                             &#8230;
                                         </ButtonGroupItem>
                                     </Pagination.Ellipsis>
@@ -449,7 +449,7 @@ export const PaginationCardAdvanced = ({
                                         page.type === "page" ? (
                                             <PaginationItem key={index} {...page} />
                                         ) : (
-                                            <Pagination.Ellipsis key={index} className="flex size-9 shrink-0 items-center justify-center text-tertiary">
+                                            <Pagination.Ellipsis key={index} className="flex size-8 shrink-0 items-center justify-center text-tertiary">
                                                 &#8230;
                                             </Pagination.Ellipsis>
                                         ),
